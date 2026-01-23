@@ -55,6 +55,7 @@
       "every30min": "30分ごと",
       "every1hour": "1時間ごと",
       "minutes": "分",
+      "refreshIntervalLimited": "クォータリセット時の起動が有効になっているため、リフレッシュ間隔の最小値は2分です。",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "crontab 式を入力してください",
       "taskSaved": "タスク「{{name}}」を保存しました",
       "featureOff": "ウェイクアップをオフにしました",
-      "featureOn": "ウェイクアップをオンにしました"
+      "featureOn": "ウェイクアップをオンにしました",
+      "refreshIntervalAdjusted": "クォータリフレッシュ間隔が調整されました：{{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "無効",
+      "minutes": "分"
     },
     "triggerSource": {
       "scheduled": "定時",

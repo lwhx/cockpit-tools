@@ -55,6 +55,7 @@
       "every30min": "Toutes les 30 minutes",
       "every1hour": "Toutes les heures",
       "minutes": "min",
+      "refreshIntervalLimited": "Le réveil lors de la réinitialisation du quota est activé, l'intervalle d'actualisation est donc de 2 minutes minimum.",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Veuillez saisir une expression crontab",
       "taskSaved": "Tâche « {{name}} » enregistrée",
       "featureOff": "Réveil désactivé",
-      "featureOn": "Réveil activé"
+      "featureOn": "Réveil activé",
+      "refreshIntervalAdjusted": "Intervalle d'actualisation ajusté : {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Désactivé",
+      "minutes": "minutes"
     },
     "triggerSource": {
       "scheduled": "Planifié",

@@ -55,6 +55,7 @@
       "every30min": "每 30 分鐘",
       "every1hour": "每 1 小時",
       "minutes": "分",
+      "refreshIntervalLimited": "配額重置喚醒已啟用，刷新間隔最小值為 2 分鐘",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "請輸入 crontab 表達式",
       "taskSaved": "任務「{{name}}」已儲存",
       "featureOff": "喚醒功能已關閉",
-      "featureOn": "喚醒功能已開啟"
+      "featureOn": "喚醒功能已開啟",
+      "refreshIntervalAdjusted": "配額刷新間隔已調整：{{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "停用",
+      "minutes": "分鐘"
     },
     "triggerSource": {
       "scheduled": "定時",

@@ -55,6 +55,7 @@
       "every30min": "30 dakikada bir",
       "every1hour": "Her saat",
       "minutes": "dk",
+      "refreshIntervalLimited": "Kota sıfırlama uyandırma özelliği etkin olduğundan, minimum yenileme aralığı 2 dakikadır.",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Lütfen bir crontab ifadesi girin",
       "taskSaved": "Görev \"{{name}}\" kaydedildi",
       "featureOff": "Uyandırma devre dışı bırakıldı",
-      "featureOn": "Uyandırma etkinleştirildi"
+      "featureOn": "Uyandırma etkinleştirildi",
+      "refreshIntervalAdjusted": "Yenileme aralığı ayarlandı: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Devre Dışı",
+      "minutes": "dakika"
     },
     "triggerSource": {
       "scheduled": "Planlı",

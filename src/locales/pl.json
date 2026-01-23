@@ -55,6 +55,7 @@
       "every30min": "Co 30 minut",
       "every1hour": "Co godzinę",
       "minutes": "min",
+      "refreshIntervalLimited": "Budzenie przy resetowaniu limitu jest włączone, dlatego minimalny interwał odświeżania wynosi 2 minuty.",
       "storageTitle": "Katalogi i pamięć",
       "dataDir": "Katalog danych",
       "dataDirDesc": "Lokalizacja przechowywania kont i plików konfiguracji.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Wpisz wyrażenie crontab",
       "taskSaved": "Zadanie \"{{name}}\" zapisane",
       "featureOff": "Wybudzanie wyłączone",
-      "featureOn": "Wybudzanie włączone"
+      "featureOn": "Wybudzanie włączone",
+      "refreshIntervalAdjusted": "Interwał odświeżania dostosowany: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Wyłączone",
+      "minutes": "minut"
     },
     "triggerSource": {
       "scheduled": "Harmonogram",

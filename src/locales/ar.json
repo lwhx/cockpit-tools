@@ -55,6 +55,7 @@
       "every30min": "كل 30 دقيقة",
       "every1hour": "كل ساعة واحدة",
       "minutes": "دقيقة",
+      "refreshIntervalLimited": "ميزة الاستيقاظ عند إعادة تعيين الحصة مفعلة، لذا فإن الحد الأدنى لفاصل التحديث هو دقيقتان.",
       "storageTitle": "المجلدات والتخزين",
       "dataDir": "مجلد البيانات",
       "dataDirDesc": "موقع تخزين الحسابات وملفات التكوين.",
@@ -398,7 +399,12 @@
       "crontabRequired": "يرجى إدخال تعبير crontab",
       "taskSaved": "تم حفظ المهمة \"{{name}}\"",
       "featureOff": "تم تعطيل الاستيقاظ",
-      "featureOn": "تم تفعيل الاستيقاظ"
+      "featureOn": "تم تفعيل الاستيقاظ",
+      "refreshIntervalAdjusted": "تم تعديل فاصل تحديث الحصة: {{old}} ← {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "معطل",
+      "minutes": "دقيقة"
     },
     "triggerSource": {
       "scheduled": "مجدول",

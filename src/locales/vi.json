@@ -55,6 +55,7 @@
       "every30min": "Mỗi 30 phút",
       "every1hour": "Mỗi 1 giờ",
       "minutes": "phút",
+      "refreshIntervalLimited": "Chức năng đánh thức khi đặt lại hạn mức đang được bật, vì vậy khoảng thời gian làm mới tối thiểu là 2 phút.",
       "storageTitle": "Thư mục & Lưu trữ",
       "dataDir": "Thư mục dữ liệu",
       "dataDirDesc": "Vị trí lưu trữ tài khoản và cấu hình.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Vui lòng nhập biểu thức crontab",
       "taskSaved": "Nhiệm vụ \"{{name}}\" đã được lưu",
       "featureOff": "Đã tắt đánh thức",
-      "featureOn": "Đã bật đánh thức"
+      "featureOn": "Đã bật đánh thức",
+      "refreshIntervalAdjusted": "Khoảng thời gian làm mới đã được điều chỉnh: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Đã vô hiệu hóa",
+      "minutes": "phút"
     },
     "triggerSource": {
       "scheduled": "Lịch trình",

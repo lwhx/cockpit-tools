@@ -55,6 +55,7 @@
       "every30min": "Каждые 30 минут",
       "every1hour": "Каждый час",
       "minutes": "мин",
+      "refreshIntervalLimited": "Пробуждение при сбросе квоты включено, поэтому минимальный интервал обновления составляет 2 минуты.",
       "storageTitle": "Каталоги и хранилище",
       "dataDir": "Каталог данных",
       "dataDirDesc": "Место хранения аккаунтов и конфигурационных файлов.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Введите выражение crontab",
       "taskSaved": "Задача \"{{name}}\" сохранена",
       "featureOff": "Пробуждение выключено",
-      "featureOn": "Пробуждение включено"
+      "featureOn": "Пробуждение включено",
+      "refreshIntervalAdjusted": "Интервал обновления скорректирован: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Отключено",
+      "minutes": "минут"
     },
     "triggerSource": {
       "scheduled": "По расписанию",

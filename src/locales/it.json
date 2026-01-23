@@ -55,6 +55,7 @@
       "every30min": "Ogni 30 minuti",
       "every1hour": "Ogni ora",
       "minutes": "min",
+      "refreshIntervalLimited": "Il risveglio al ripristino della quota è abilitato, quindi l'intervallo minimo di aggiornamento è di 2 minuti.",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Inserisci un'espressione crontab",
       "taskSaved": "Attività \"{{name}}\" salvata",
       "featureOff": "Risveglio disabilitato",
-      "featureOn": "Risveglio abilitato"
+      "featureOn": "Risveglio abilitato",
+      "refreshIntervalAdjusted": "Intervallo di aggiornamento regolato: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Disabilitato",
+      "minutes": "minuti"
     },
     "triggerSource": {
       "scheduled": "Programmato",

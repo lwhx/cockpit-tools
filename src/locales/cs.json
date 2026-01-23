@@ -55,6 +55,7 @@
       "every30min": "Každých 30 minut",
       "every1hour": "Každou hodinu",
       "minutes": "min",
+      "refreshIntervalLimited": "Probuzení při resetu kvóty je povoleno, proto je minimální interval obnovení 2 minuty.",
       "storageTitle": "Adresáře a úložiště",
       "dataDir": "Datový adresář",
       "dataDirDesc": "Umístění pro uložení účtů a konfiguračních souborů.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Zadejte crontab výraz",
       "taskSaved": "Úloha \"{{name}}\" uložena",
       "featureOff": "Probuzení vypnuto",
-      "featureOn": "Probuzení zapnuto"
+      "featureOn": "Probuzení zapnuto",
+      "refreshIntervalAdjusted": "Interval obnovení byl upraven: {{old}} ← {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Zakázáno",
+      "minutes": "minut"
     },
     "triggerSource": {
       "scheduled": "Plánováno",

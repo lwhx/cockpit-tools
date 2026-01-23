@@ -74,6 +74,9 @@ export function SettingsPage() {
     download_url: string;
   } | null>(null);
   
+  // 检测配额重置任务状态
+  const [hasActiveResetTasks, setHasActiveResetTasks] = useState(false);
+  
   // 加载配置
   useEffect(() => {
     loadGeneralConfig();
@@ -142,6 +145,60 @@ export function SettingsPage() {
     window.addEventListener('general-language-updated', handleLanguageUpdated);
     return () => {
       window.removeEventListener('general-language-updated', handleLanguageUpdated);
+    };
+  }, []);
+  
+  // 检测配额重置任务状态
+  useEffect(() => {
+    const checkResetTasks = () => {
+      try {
+        // 检查唤醒总开关
+        const wakeupEnabledRaw = localStorage.getItem('agtools.wakeup.enabled');
+        const wakeupEnabled = wakeupEnabledRaw === 'true';
+        
+        // 如果总开关关闭，不需要限制
+        if (!wakeupEnabled) {
+          setHasActiveResetTasks(false);
+          return;
+        }
+        
+        // 检查是否有启用的配额重置任务
+        const tasksJson = localStorage.getItem('agtools.wakeup.tasks');
+        if (!tasksJson) {
+          setHasActiveResetTasks(false);
+          return;
+        }
+        
+        const tasks = JSON.parse(tasksJson);
+        const hasReset = Array.isArray(tasks) && tasks.some(
+          (task: any) => task.enabled && task.schedule?.wakeOnReset
+        );
+        setHasActiveResetTasks(hasReset);
+      } catch (error) {
+        console.error('检测配额重置任务失败:', error);
+        setHasActiveResetTasks(false);
+      }
+    };
+    
+    // 初始检测
+    checkResetTasks();
+    
+    // 监听存储变化
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'agtools.wakeup.tasks' || e.key === 'agtools.wakeup.enabled') {
+        checkResetTasks();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // 监听自定义事件（同一窗口内的任务变更）
+    const handleTasksUpdated = () => checkResetTasks();
+    window.addEventListener('wakeup-tasks-updated', handleTasksUpdated);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('wakeup-tasks-updated', handleTasksUpdated);
     };
   }, []);
   
@@ -334,12 +391,12 @@ export function SettingsPage() {
                         }
                       }}
                     >
-                      <option value="-1">{t('settings.general.autoRefreshDisabled')}</option>
+                      <option value="-1" disabled={hasActiveResetTasks}>{t('settings.general.autoRefreshDisabled')}</option>
                       <option value="2">2 {t('settings.general.minutes')}</option>
-                      <option value="5">5 {t('settings.general.minutes')}</option>
-                      <option value="10">10 {t('settings.general.minutes')}</option>
-                      <option value="15">15 {t('settings.general.minutes')}</option>
-                      <option value="custom">{t('settings.general.autoRefreshCustom')}</option>
+                      <option value="5" disabled={hasActiveResetTasks}>5 {t('settings.general.minutes')}</option>
+                      <option value="10" disabled={hasActiveResetTasks}>10 {t('settings.general.minutes')}</option>
+                      <option value="15" disabled={hasActiveResetTasks}>15 {t('settings.general.minutes')}</option>
+                      <option value="custom" disabled={hasActiveResetTasks}>{t('settings.general.autoRefreshCustom')}</option>
                     </select>
                     
                     {!['-1', '2', '5', '10', '15'].includes(autoRefresh) && (
@@ -358,6 +415,24 @@ export function SettingsPage() {
                       </div>
                     )}
                   </div>
+                  
+                  {hasActiveResetTasks && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '8px',
+                      padding: '12px',
+                      marginTop: '8px',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      color: 'var(--accent)',
+                      lineHeight: '1.5'
+                    }}>
+                      <AlertCircle size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+                      <span>{t('settings.general.refreshIntervalLimited')}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

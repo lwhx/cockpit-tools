@@ -16,6 +16,33 @@ export function useAutoRefresh() {
     try {
       const config = await invoke<GeneralConfig>('get_general_config');
       
+      // 检测配额重置任务状态及唤醒总开关
+      const wakeupEnabled = localStorage.getItem('agtools.wakeup.enabled') === 'true';
+      if (wakeupEnabled) {
+        const tasksJson = localStorage.getItem('agtools.wakeup.tasks');
+        if (tasksJson) {
+          try {
+            const tasks = JSON.parse(tasksJson);
+            const hasActiveResetTask = Array.isArray(tasks) && tasks.some(
+              (t: any) => t.enabled && t.schedule?.wakeOnReset
+            );
+            
+            // 如果有活跃的重置任务，且刷新间隔为禁用(-1)或大于2分钟，则强制修正为2分钟
+            if (hasActiveResetTask && (config.auto_refresh_minutes === -1 || config.auto_refresh_minutes > 2)) {
+              console.log(`[AutoRefresh] 检测到活跃的配额重置任务，自动修正刷新间隔: ${config.auto_refresh_minutes} -> 2`);
+              await invoke('save_general_config', {
+                language: config.language,
+                theme: config.theme,
+                autoRefreshMinutes: 2
+              });
+              config.auto_refresh_minutes = 2;
+            }
+          } catch (e) {
+            console.error('[AutoRefresh] 解析任务列表失败:', e);
+          }
+        }
+      }
+      
       // 清除旧的定时器
       if (intervalRef.current) {
         window.clearInterval(intervalRef.current);

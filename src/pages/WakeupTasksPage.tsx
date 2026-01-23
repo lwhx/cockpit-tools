@@ -15,6 +15,7 @@ const RESET_STATE_KEY = 'agtools.wakeup.reset_state';
 const HISTORY_STORAGE_KEY = 'agtools.wakeup.history';
 const MAX_HISTORY_ITEMS = 10;
 const RESET_TRIGGER_COOLDOWN_MS = 10 * 60 * 1000;
+const RESET_SAFETY_MARGIN_MS = 2 * 60 * 1000;  // 2分钟安全边际，确保服务端已完成重置
 
 const BASE_TIME_OPTIONS = [
   '06:00',
@@ -160,9 +161,16 @@ interface WakeupTask {
   schedule: ScheduleConfig;
 }
 
+/**
+ * 配额重置状态跟踪
+ * 用于防止重复触发和确保服务端完成重置
+ */
 interface ResetState {
+  /** 记录每个模型上次触发时对应的 resetAt，用于时间安全边际计算 */
   lastResetTriggerTimestamps: Record<string, string>;
+  /** 记录每个模型上次触发时间（用于冷却检测） */
   lastResetTriggerAt: Record<string, number>;
+  /** 记录每个模型的剩余配额百分比（用于状态跟踪） */
   lastResetRemaining: Record<string, number>;
 }
 
@@ -588,37 +596,36 @@ const shouldTriggerOnReset = (
   resetAt: string,
   remainingPercent: number
 ) => {
-  const lastRemaining = state.lastResetRemaining[modelKey];
+  // 条件 1：满额检测
   const isFull = remainingPercent >= 100;
-
   if (!isFull) {
     state.lastResetRemaining[modelKey] = remainingPercent;
     return false;
   }
 
+  const now = Date.now();
   const lastTriggeredResetAt = state.lastResetTriggerTimestamps[modelKey];
-  const lastTriggerAt = state.lastResetTriggerAt[modelKey];
-  if (lastTriggerAt && Date.now() - lastTriggerAt < RESET_TRIGGER_COOLDOWN_MS) {
-    state.lastResetRemaining[modelKey] = remainingPercent;
-    return false;
-  }
 
-  if (lastRemaining === undefined) {
-    if (resetAt === lastTriggeredResetAt) {
+  // 条件 2：时间边际检测
+  // 只有当上次记录的 resetAt 时间点 + 安全边际已过去，才认为是新周期
+  // 这可以防止 resetAt 滑动时的误触发，以及确保服务端已完成重置
+  if (lastTriggeredResetAt) {
+    const lastResetTime = new Date(lastTriggeredResetAt).getTime();
+    const safeTime = lastResetTime + RESET_SAFETY_MARGIN_MS;
+    if (now < safeTime) {
       state.lastResetRemaining[modelKey] = remainingPercent;
       return false;
     }
-    state.lastResetRemaining[modelKey] = remainingPercent;
-    return true;
   }
 
-  const wasBelowLimit = lastRemaining < 100;
-  const isRisingEdge = wasBelowLimit && isFull;
-  if (!isRisingEdge) {
+  // 条件 3：冷却检测（10分钟）
+  const lastTriggerAt = state.lastResetTriggerAt[modelKey];
+  if (lastTriggerAt !== undefined && now - lastTriggerAt < RESET_TRIGGER_COOLDOWN_MS) {
     state.lastResetRemaining[modelKey] = remainingPercent;
     return false;
   }
 
+  // 条件 4：resetAt 变化检测
   if (resetAt === lastTriggeredResetAt) {
     state.lastResetRemaining[modelKey] = remainingPercent;
     return false;
@@ -736,6 +743,8 @@ export function WakeupTasksPage({ onNavigate }: WakeupPageProps) {
 
   useEffect(() => {
     localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
+    // 触发事件通知设置页面
+    window.dispatchEvent(new Event('wakeup-tasks-updated'));
   }, [tasks]);
 
   useEffect(() => {
@@ -1418,7 +1427,43 @@ export function WakeupTasksPage({ onNavigate }: WakeupPageProps) {
     return 0;
   };
 
-  const handleSaveTask = () => {
+  /**
+   * 确保配额刷新间隔满足最小要求
+   * 用于配额重置模式，确保数据足够实时
+   */
+  const ensureMinRefreshInterval = async (minMinutes: number) => {
+    try {
+      const config = await invoke<any>('get_general_config');
+      
+      // 如果刷新间隔大于最小值（或禁用），自动调整
+      if (config.auto_refresh_minutes < 0 || config.auto_refresh_minutes > minMinutes) {
+        const oldValue = config.auto_refresh_minutes;
+        
+        // 更新配置
+        await invoke('save_general_config', {
+          language: config.language,
+          theme: config.theme,
+          autoRefreshMinutes: minMinutes
+        });
+        
+        // 触发配置更新事件（让 useAutoRefresh 重新设置定时器）
+        window.dispatchEvent(new Event('config-updated'));
+        
+        // 通知用户
+        const oldText = oldValue < 0 ? t('wakeup.refreshInterval.disabled') : `${oldValue} ${t('wakeup.refreshInterval.minutes')}`;
+        const newText = `${minMinutes} ${t('wakeup.refreshInterval.minutes')}`;
+        
+        setNotice({
+          text: t('wakeup.notice.refreshIntervalAdjusted', { old: oldText, new: newText }),
+          tone: 'success',
+        });
+      }
+    } catch (error) {
+      console.error('[WakeupTasks] 调整刷新间隔失败:', error);
+    }
+  };
+
+  const handleSaveTask = async () => {
     const name = formName.trim();
     if (!name) {
       setFormError(t('wakeup.notice.nameRequired'));
@@ -1488,6 +1533,11 @@ export function WakeupTasksPage({ onNavigate }: WakeupPageProps) {
       }
       return [baseTask, ...prev];
     });
+
+    // 如果启用了配额重置模式，确保刷新间隔满足最小要求
+    if (formEnabled && formTriggerMode === 'quota_reset') {
+      await ensureMinRefreshInterval(2);
+    }
 
     setShowModal(false);
     setNotice({ text: t('wakeup.notice.taskSaved', { name }), tone: 'success' });

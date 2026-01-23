@@ -55,6 +55,7 @@
       "every30min": "Alle 30 Minuten",
       "every1hour": "Jede Stunde",
       "minutes": "Min.",
+      "refreshIntervalLimited": "Das Aufwachen beim Zurücksetzen des Kontingents ist aktiviert, daher beträgt das minimale Aktualisierungsintervall 2 Minuten.",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Bitte eine crontab-Ausdruck eingeben",
       "taskSaved": "Aufgabe „{{name}}“ gespeichert",
       "featureOff": "Weckfunktion deaktiviert",
-      "featureOn": "Weckfunktion aktiviert"
+      "featureOn": "Weckfunktion aktiviert",
+      "refreshIntervalAdjusted": "Aktualisierungsintervall angepasst: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Deaktiviert",
+      "minutes": "Minuten"
     },
     "triggerSource": {
       "scheduled": "Geplant",

@@ -55,6 +55,7 @@
       "every30min": "Every 30 minutes",
       "every1hour": "Every hour",
       "minutes": "min",
+      "refreshIntervalLimited": "Quota reset wakeup enabled, minimum refresh interval is 2 minutes",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Please enter a crontab expression",
       "taskSaved": "Task \"{{name}}\" saved",
       "featureOff": "Wakeup disabled",
-      "featureOn": "Wakeup enabled"
+      "featureOn": "Wakeup enabled",
+      "refreshIntervalAdjusted": "Refresh interval adjusted: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Disabled",
+      "minutes": "minutes"
     },
     "triggerSource": {
       "scheduled": "Scheduled",

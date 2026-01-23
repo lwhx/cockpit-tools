@@ -55,6 +55,7 @@
       "every30min": "30분마다",
       "every1hour": "1시간마다",
       "minutes": "분",
+      "refreshIntervalLimited": "할당량 재설정 시 깨우기가 활성화되어 있으므로 새로고침 간격의 최소값은 2분입니다.",
       "storageTitle": "디렉터리 및 저장소",
       "dataDir": "데이터 디렉터리",
       "dataDirDesc": "계정 및 구성 파일 저장 위치.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Crontab 표현식을 입력하세요",
       "taskSaved": "작업 \"{{name}}\" 저장됨",
       "featureOff": "깨우기 비활성화",
-      "featureOn": "깨우기 활성화"
+      "featureOn": "깨우기 활성화",
+      "refreshIntervalAdjusted": "할당량 새로고침 간격이 조정되었습니다: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "비활성화",
+      "minutes": "분"
     },
     "triggerSource": {
       "scheduled": "예약",

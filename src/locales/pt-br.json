@@ -55,6 +55,7 @@
       "every30min": "A cada 30 minutos",
       "every1hour": "A cada hora",
       "minutes": "min",
+      "refreshIntervalLimited": "O despertar ao redefinir a cota está ativado, portanto, o intervalo mínimo de atualização é de 2 minutos.",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Informe uma expressão crontab",
       "taskSaved": "Tarefa \"{{name}}\" salva",
       "featureOff": "Despertar desativado",
-      "featureOn": "Despertar ativado"
+      "featureOn": "Despertar ativado",
+      "refreshIntervalAdjusted": "Intervalo de atualização ajustado: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Desativado",
+      "minutes": "minutos"
     },
     "triggerSource": {
       "scheduled": "Agendado",

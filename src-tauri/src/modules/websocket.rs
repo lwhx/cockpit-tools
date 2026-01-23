@@ -140,6 +140,8 @@ pub struct AccountInfo {
     pub disabled: bool,
     pub has_fingerprint: bool,
     pub last_used: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subscription_tier: Option<String>,
 }
 
 /// 账号信息（包含 Token，用于同步）
@@ -152,6 +154,8 @@ pub struct AccountTokenInfo {
     pub disabled: bool,
     pub has_fingerprint: bool,
     pub last_used: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subscription_tier: Option<String>,
     pub refresh_token: String,
     pub access_token: String,
     pub expires_at: i64,
@@ -586,6 +590,7 @@ fn get_accounts_info() -> Result<(Vec<AccountInfo>, Option<String>), String> {
     let current_id = account::get_current_account_id()?;
     
     let account_infos: Vec<AccountInfo> = accounts.iter().map(|acc| {
+        let subscription_tier = acc.quota.as_ref().and_then(|quota| quota.subscription_tier.clone());
         AccountInfo {
             id: acc.id.clone(),
             email: acc.email.clone(),
@@ -594,6 +599,7 @@ fn get_accounts_info() -> Result<(Vec<AccountInfo>, Option<String>), String> {
             disabled: acc.disabled,
             has_fingerprint: acc.fingerprint_id.is_some(),
             last_used: acc.last_used,
+            subscription_tier,
         }
     }).collect();
     
@@ -608,6 +614,7 @@ fn get_accounts_with_tokens_info() -> Result<(Vec<AccountTokenInfo>, Option<Stri
     let current_id = account::get_current_account_id()?;
 
     let account_infos: Vec<AccountTokenInfo> = accounts.iter().map(|acc| {
+        let subscription_tier = acc.quota.as_ref().and_then(|quota| quota.subscription_tier.clone());
         AccountTokenInfo {
             id: acc.id.clone(),
             email: acc.email.clone(),
@@ -616,6 +623,7 @@ fn get_accounts_with_tokens_info() -> Result<(Vec<AccountTokenInfo>, Option<Stri
             disabled: acc.disabled,
             has_fingerprint: acc.fingerprint_id.is_some(),
             last_used: acc.last_used,
+            subscription_tier,
             refresh_token: acc.token.refresh_token.clone(),
             access_token: acc.token.access_token.clone(),
             expires_at: acc.token.expiry_timestamp,
@@ -634,6 +642,7 @@ fn get_current_account_info() -> Result<Option<AccountInfo>, String> {
     let current_id = account::get_current_account_id()?;
     
     Ok(current.map(|acc| {
+        let subscription_tier = acc.quota.as_ref().and_then(|quota| quota.subscription_tier.clone());
         AccountInfo {
             id: acc.id.clone(),
             email: acc.email.clone(),
@@ -642,6 +651,7 @@ fn get_current_account_info() -> Result<Option<AccountInfo>, String> {
             disabled: acc.disabled,
             has_fingerprint: acc.fingerprint_id.is_some(),
             last_used: acc.last_used,
+            subscription_tier,
         }
     }))
 }

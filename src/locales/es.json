@@ -55,6 +55,7 @@
       "every30min": "Cada 30 minutos",
       "every1hour": "Cada hora",
       "minutes": "min",
+      "refreshIntervalLimited": "El despertar al restablecer la cuota está habilitado, por lo que el intervalo mínimo de actualización es de 2 minutos.",
       "storageTitle": "Directories & Storage",
       "dataDir": "Data Directory",
       "dataDirDesc": "Storage location for accounts and configuration files.",
@@ -398,7 +399,12 @@
       "crontabRequired": "Introduce una expresión crontab",
       "taskSaved": "Tarea \"{{name}}\" guardada",
       "featureOff": "Activación deshabilitada",
-      "featureOn": "Activación habilitada"
+      "featureOn": "Activación habilitada",
+      "refreshIntervalAdjusted": "Intervalo de actualización ajustado: {{old}} → {{new}}"
+    },
+    "refreshInterval": {
+      "disabled": "Deshabilitado",
+      "minutes": "minutos"
     },
     "triggerSource": {
       "scheduled": "Programado",
