@@ -2,6 +2,7 @@ use std::process::Command;
 use std::thread;
 use std::time::Duration;
 use sysinfo::System;
+use std::collections::HashSet;
 
 /// 检查 Antigravity 是否在运行
 pub fn is_antigravity_running() -> bool {
@@ -297,4 +298,123 @@ pub fn start_antigravity() -> Result<(), String> {
 
     crate::modules::logger::log_info("Antigravity 启动命令已发送");
     Ok(())
+}
+
+pub fn find_pids_by_port(port: u16) -> Result<Vec<u32>, String> {
+    let current_pid = std::process::id();
+    let mut pids = HashSet::new();
+
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    {
+        let output = Command::new("lsof")
+            .args([
+                "-nP",
+                &format!("-iTCP:{}", port),
+                "-sTCP:LISTEN",
+                "-t",
+            ])
+            .output()
+            .map_err(|e| format!("执行 lsof 失败: {}", e))?;
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        for line in stdout.lines() {
+            if let Ok(pid) = line.trim().parse::<u32>() {
+                if pid != current_pid {
+                    pids.insert(pid);
+                }
+            }
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        let output = Command::new("netstat")
+            .args(["-ano", "-p", "tcp"])
+            .output()
+            .map_err(|e| format!("执行 netstat 失败: {}", e))?;
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let port_suffix = format!(":{}", port);
+        for line in stdout.lines() {
+            let line = line.trim();
+            if !line.starts_with("TCP") {
+                continue;
+            }
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() < 5 {
+                continue;
+            }
+            let local = parts[1];
+            let state = parts[3];
+            let pid_str = parts[4];
+            if !state.eq_ignore_ascii_case("LISTENING") {
+                continue;
+            }
+            if !local.ends_with(&port_suffix) {
+                continue;
+            }
+            if let Ok(pid) = pid_str.parse::<u32>() {
+                if pid != current_pid {
+                    pids.insert(pid);
+                }
+            }
+        }
+    }
+
+    Ok(pids.into_iter().collect())
+}
+
+pub fn is_port_in_use(port: u16) -> Result<bool, String> {
+    Ok(!find_pids_by_port(port)?.is_empty())
+}
+
+pub fn kill_port_processes(port: u16) -> Result<usize, String> {
+    let pids = find_pids_by_port(port)?;
+    if pids.is_empty() {
+        return Ok(0);
+    }
+
+    let mut failed = Vec::new();
+
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        for pid in &pids {
+            let output = Command::new("taskkill")
+                .args(["/F", "/PID", &pid.to_string()])
+                .creation_flags(0x08000000)
+                .output();
+            match output {
+                Ok(out) if out.status.success() => {}
+                Ok(out) => {
+                    let stderr = String::from_utf8_lossy(&out.stderr);
+                    failed.push(format!("pid {}: {}", pid, stderr.trim()));
+                }
+                Err(e) => failed.push(format!("pid {}: {}", pid, e)),
+            }
+        }
+    }
+
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    {
+        for pid in &pids {
+            let output = Command::new("kill")
+                .args(["-9", &pid.to_string()])
+                .output();
+            match output {
+                Ok(out) if out.status.success() => {}
+                Ok(out) => {
+                    let stderr = String::from_utf8_lossy(&out.stderr);
+                    failed.push(format!("pid {}: {}", pid, stderr.trim()));
+                }
+                Err(e) => failed.push(format!("pid {}: {}", pid, e)),
+            }
+        }
+    }
+
+    if !failed.is_empty() {
+        return Err(format!("关闭进程失败: {}", failed.join("; ")));
+    }
+
+    Ok(pids.len())
 }

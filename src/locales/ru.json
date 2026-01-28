@@ -23,11 +23,13 @@
     "preview": "Предпросмотр"
   },
   "nav": {
-    "overview": "Обзор",
+    "overview": "Аккаунт Antigravity",
     "accounts": "Аккаунты",
     "wakeup": "Задачи пробуждения",
     "fingerprints": "Отпечатки",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "codex": "Аккаунты Codex",
+    "dashboard": "Панель"
   },
   "settings": {
     "title": "Настройки приложения",
@@ -47,7 +49,7 @@
       "themeDark": "Темная",
       "themeSystem": "Системная",
       "accountManagement": "Управление аккаунтами",
-      "autoRefresh": "Автообновление квот",
+      "autoRefresh": "Автообновление квоты Antigravity",
       "autoRefreshDesc": "Частота фонового обновления",
       "autoRefreshDisabled": "Выключено",
       "autoRefreshCustom": "Настроить...",
@@ -82,7 +84,12 @@
       "author": "Автор",
       "wechat": "WeChat",
       "github": "Репозиторий GitHub",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "Поддержать",
+      "sponsorDesc": "Support development",
+      "feedback": "Обратная связь",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "Поддержать разработку",
       "checkUpdate": "Проверить обновления",
       "checking": "Проверка...",
@@ -201,7 +208,8 @@
     "switchTo": "Переключиться на этот аккаунт",
     "switching": "Переключение...",
     "fingerprint": "Отпечаток",
-    "bound": "Привязан"
+    "bound": "Привязан",
+    "brandTitle": "Управление аккаунтом Antigravity"
   },
   "fingerprints": {
     "title": "Отпечатки устройства",
@@ -217,7 +225,12 @@
       "name": "Название отпечатка",
       "machineId": "ID машины",
       "accounts": "Привязанные аккаунты",
-      "actions": "Действия"
+      "actions": "Действия",
+      "accountCount": "{{count}} аккаунтов",
+      "apply": "Применить",
+      "noData": "Нет данных отпечатков",
+      "preview": "Предпросмотр",
+      "rename": "Переименовать"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "Импорт отпечатков",
         "fromTools": "Импорт из Antigravity Tools",
-        "desc": "Импорт из директории ~/.antigravity_tools/"
+        "desc": "Импорт из директории ~/.antigravity_tools/",
+        "fromJsonBtn": "Импорт из JSON",
+        "jsonExample": "Пример формата:",
+        "jsonPlaceholder": "Рабочий отпечаток",
+        "orPasteJson": "Или вставьте JSON"
       },
       "bound": {
         "title": "Привязанные аккаунты",
@@ -243,7 +260,8 @@
         "empty": "Нет привязанных аккаунтов",
         "emptyAll": "Все аккаунты привязаны",
         "select": "Выберите аккаунты для добавления",
-        "from": "Из: {{name}}"
+        "from": "Из: {{name}}",
+        "back": "Назад"
       },
       "detail": {
         "title": "Детали отпечатка",
@@ -263,7 +281,23 @@
       "previewNotReady": "Предпросмотр не готов, пожалуйста, подождите",
       "duplicate": "Такой отпечаток уже существует: {{name}}",
       "readOnly": "Только для чтения",
-      "current": "Текущий"
+      "current": "Текущий",
+      "addCount": "Добавлено {{count}} аккаунтов",
+      "addFailed": "Не удалось добавить",
+      "adding": "Добавление...",
+      "applyFailed": "Не удалось применить",
+      "boundCount": "Привязано {{count}} аккаунтов",
+      "captureFailed": "Не удалось захватить",
+      "count": "{{count}}",
+      "deleteFailed": "Не удалось удалить",
+      "fpLabel": "Отпечаток:",
+      "generateFailed": "Не удалось создать",
+      "importFailed": "Не удалось импортировать",
+      "importing": "Импорт...",
+      "loadFailed": "Не удалось загрузить список отпечатков",
+      "processing": "Обработка...",
+      "renameFailed": "Не удалось переименовать",
+      "serviceMachineIdEmpty": "Пусто"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "Список групп",
     "group_name_placeholder": "Название группы",
     "save": "Сохранить группы"
+  },
+  "codex": {
+    "title": "Управление аккаунтами Codex",
+    "subtitle": "Управляйте аккаунтами OpenAI Codex",
+    "addAccount": "Добавить аккаунт",
+    "refreshAll": "Обновить все",
+    "refreshQuota": "Обновить квоту",
+    "switch": "Переключить",
+    "switched": "Переключено на {{email}}",
+    "switchFailed": "Ошибка переключения: {{error}}",
+    "current": "Текущий",
+    "empty": {
+      "title": "Нет аккаунтов",
+      "description": "Нажмите «Добавить аккаунт», чтобы начать"
+    },
+    "addModal": {
+      "title": "Добавить аккаунт Codex",
+      "oauth": "Вход OAuth",
+      "token": "Импорт JSON",
+      "local": "Локальный импорт"
+    },
+    "oauth": {
+      "desc": "Нажмите ниже и завершите авторизацию OpenAI в браузере",
+      "preparing": "Подготовка ссылки авторизации...",
+      "openBrowser": "Открыть в браузере",
+      "hint": "После авторизации это окно обновится автоматически",
+      "exchanging": "Обмен токена...",
+      "success": "Авторизация успешна",
+      "failed": "Ошибка авторизации",
+      "portInUse": "Порт {{port}} уже занят. Закройте приложение, которое его использует, и попробуйте снова.",
+      "portInUseTitle": "Порт занят",
+      "portInUseConfirm": "Порт {{port}} занят. Закрыть процесс, который использует этот порт?",
+      "portCloseFailed": "Не удалось закрыть порт: {{error}}",
+      "portStillInUse": "Порт {{port}} все еще занят."
+    },
+    "token": {
+      "desc": "Вставьте содержимое auth.json или JSON данных аккаунта",
+      "placeholder": "Вставьте JSON...",
+      "import": "Импортировать",
+      "importing": "Импорт...",
+      "importSuccessMsg": "Импортировано аккаунтов: {{count}}",
+      "importFailedMsg": "Импорт не удался: {{error}}",
+      "empty": "Введите token или JSON"
+    },
+    "local": {
+      "desc": "Импортировать текущий аккаунт из ~/.codex/auth.json",
+      "import": "Получить локальный аккаунт"
+    },
+    "import": {
+      "label": "Импорт",
+      "importing": "Импорт локального аккаунта...",
+      "successMsg": "Импорт успешен: {{email}}",
+      "failedMsg": "Ошибка импорта: {{error}}"
+    },
+    "quota": {
+      "hourly": "Квота 5 часов",
+      "weekly": "Недельная квота",
+      "reset": "Сброс",
+      "noData": "Нет данных квоты",
+      "resetDone": "Сброшено"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}} д",
+      "relativeDaysHours": "{{days}} д {{hours}} ч",
+      "relativeHours": "{{hours}} ч",
+      "relativeHoursMinutes": "{{hours}} ч {{minutes}} мин",
+      "relativeMinutes": "{{minutes}} мин",
+      "lessThanMinute": "<1 мин",
+      "today": "Сегодня {{time}}",
+      "tomorrow": "Завтра {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "Поиск аккаунтов...",
+    "view": {
+      "list": "Список",
+      "grid": "Карточки"
+    },
+    "filter": {
+      "all": "Все ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "Фильтр",
+    "sortLabel": "Сортировка",
+    "sort": {
+      "weekly": "Недельная квота",
+      "hourly": "5-часовая квота",
+      "descTooltip": "По убыванию (нажмите для возрастания)",
+      "ascTooltip": "По возрастанию (нажмите для убывания)",
+      "toggleDirection": "Изменить порядок",
+      "createdAt": "Дата создания"
+    },
+    "export": "Экспорт",
+    "noMatch": {
+      "title": "Нет подходящих аккаунтов",
+      "desc": "Попробуйте изменить поиск или фильтры"
+    },
+    "columns": {
+      "email": "Аккаунт",
+      "plan": "План",
+      "hourly": "Квота 5ч",
+      "weekly": "Квота нед",
+      "actions": "Действия"
+    }
+  },
+  "dashboard": {
+    "title": "Панель аккаунтов",
+    "summary": {
+      "label": "Обзор",
+      "title": "Сводка аккаунтов",
+      "desc": "Antigravity и Codex одним взглядом"
+    },
+    "stats": {
+      "antigravity": "Аккаунты Antigravity",
+      "codex": "Аккаунты Codex",
+      "currentAntigravity": "Текущий Antigravity",
+      "currentCodex": "Текущий Codex",
+      "providers": "Провайдеры",
+      "totalAccounts": "Всего аккаунтов"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "Распределение планов",
+      "current": "Текущий аккаунт",
+      "recommended": "Рекомендуемый аккаунт",
+      "empty": "Аккаунтов нет",
+      "emptyDesc": "Добавьте аккаунт для просмотра деталей"
+    },
+    "quota": {
+      "remaining": "Остаток квоты {{value}}%",
+      "codex": "5 часов {{hourly}}% · Неделя {{weekly}}%"
+    },
+    "emptyAccount": "Нет аккаунта",
+    "sections": {
+      "antigravity": "Аккаунты Antigravity",
+      "codex": "Аккаунты Codex"
+    },
+    "actions": {
+      "refresh": "Обновить карточки",
+      "viewAll": "Все аккаунты"
+    },
+    "badges": {
+      "recommended": "Рекомендуемый"
+    },
+    "totalAccounts": "Всего аккаунтов",
+    "current": "Текущий аккаунт",
+    "recommended": "Рекомендуемый аккаунт",
+    "noAccount": "Нет аккаунта",
+    "switch": "Переключить",
+    "switchTo": "Переключить на этот аккаунт",
+    "noRecommendation": "Нет более подходящей рекомендации",
+    "noData": "Нет данных",
+    "viewAllAccounts": "Все аккаунты"
   }
 }

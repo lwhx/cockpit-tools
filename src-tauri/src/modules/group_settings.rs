@@ -112,10 +112,6 @@ impl GroupSettings {
     }
     
     /// 获取模型所属分组
-    pub fn get_model_group(&self, model_id: &str) -> Option<String> {
-        self.group_mappings.get(model_id).cloned()
-    }
-    
     /// 获取排序后的分组列表（最多返回指定数量）
     pub fn get_ordered_groups(&self, max_count: Option<usize>) -> Vec<String> {
         let mut groups = self.group_order.clone();
@@ -261,46 +257,6 @@ pub fn update_group_settings(settings: GroupSettings) -> Result<(), String> {
     save_group_settings(&settings)
 }
 
-/// 获取分组的综合配额百分比
-/// 返回该分组内所有模型配额的平均值
-pub fn calculate_group_quota(
-    group_id: &str,
-    model_quotas: &HashMap<String, i32>,
-    settings: &GroupSettings,
-) -> Option<i32> {
-    let models = settings.get_models_in_group(group_id);
-    if models.is_empty() {
-        return None;
-    }
-    
-    let mut total = 0i32;
-    let mut count = 0;
-    
-    for model_id in models {
-        if let Some(&pct) = model_quotas.get(&model_id) {
-            total += pct;
-            count += 1;
-        }
-    }
-    
-    if count == 0 {
-        return None;
-    }
-    
-    Some(total / count)
-}
-
-/// 获取账号的综合配额百分比
-/// 返回所有模型配额的平均值
-pub fn calculate_overall_quota(model_quotas: &HashMap<String, i32>) -> i32 {
-    if model_quotas.is_empty() {
-        return 0;
-    }
-    
-    let total: i32 = model_quotas.values().sum();
-    total / model_quotas.len() as i32
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -318,7 +274,10 @@ mod tests {
         let mut settings = GroupSettings::default();
         settings.set_model_group("claude-sonnet-4-5", "claude");
         
-        assert_eq!(settings.get_model_group("claude-sonnet-4-5"), Some("claude".to_string()));
+        assert_eq!(
+            settings.group_mappings.get("claude-sonnet-4-5"),
+            Some(&"claude".to_string())
+        );
     }
     
     #[test]

@@ -23,11 +23,13 @@
     "preview": "Podgląd"
   },
   "nav": {
-    "overview": "Przegląd",
+    "overview": "Konto Antigravity",
     "accounts": "Konta",
     "wakeup": "Zadania wybudzania",
     "fingerprints": "Odciski palca",
-    "settings": "Ustawienia"
+    "settings": "Ustawienia",
+    "codex": "Konta Codex",
+    "dashboard": "Panel"
   },
   "settings": {
     "title": "Ustawienia aplikacji",
@@ -47,7 +49,7 @@
       "themeDark": "Ciemny",
       "themeSystem": "Systemowy",
       "accountManagement": "Zarządzanie kontami",
-      "autoRefresh": "Automatyczne odświeżanie limitów",
+      "autoRefresh": "Automatyczne odświeżanie limitu Antigravity",
       "autoRefreshDesc": "Częstotliwość aktualizacji w tle",
       "autoRefreshDisabled": "Wyłączone",
       "autoRefreshCustom": "Niestandardowe...",
@@ -82,7 +84,12 @@
       "author": "Autor",
       "wechat": "WeChat",
       "github": "Repozytorium GitHub",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "Sponsor",
+      "sponsorDesc": "Support development",
+      "feedback": "Informacje zwrotne",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "Wesprzyj rozwój",
       "checkUpdate": "Sprawdź aktualizacje",
       "checking": "Sprawdzanie...",
@@ -201,7 +208,8 @@
     "switchTo": "Przełącz na to konto",
     "switching": "Przełączanie...",
     "fingerprint": "Odcisk palca",
-    "bound": "Powiązane"
+    "bound": "Powiązane",
+    "brandTitle": "Zarządzanie kontem Antigravity"
   },
   "fingerprints": {
     "title": "Odciski palca urządzenia",
@@ -217,7 +225,12 @@
       "name": "Nazwa odcisku",
       "machineId": "ID maszyny",
       "accounts": "Powiązane konta",
-      "actions": "Akcje"
+      "actions": "Akcje",
+      "accountCount": "{{count}} kont",
+      "apply": "Zastosuj",
+      "noData": "Brak danych odcisków",
+      "preview": "Podgląd",
+      "rename": "Zmień nazwę"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "Importuj odciski palca",
         "fromTools": "Importuj z Antigravity Tools",
-        "desc": "Importuj z katalogu ~/.antigravity_tools/"
+        "desc": "Importuj z katalogu ~/.antigravity_tools/",
+        "fromJsonBtn": "Import z JSON",
+        "jsonExample": "Przykład formatu:",
+        "jsonPlaceholder": "Odcisk roboczy",
+        "orPasteJson": "Lub wklej JSON"
       },
       "bound": {
         "title": "Powiązane konta",
@@ -243,7 +260,8 @@
         "empty": "Brak powiązanych kont",
         "emptyAll": "Wszystkie konta są już powiązane",
         "select": "Wybierz konta do dodania",
-        "from": "Źródło: {{name}}"
+        "from": "Źródło: {{name}}",
+        "back": "Wstecz"
       },
       "detail": {
         "title": "Szczegóły odcisku",
@@ -263,7 +281,23 @@
       "previewNotReady": "Podgląd nie jest gotowy, proszę czekać",
       "duplicate": "Taki odcisk palca już istnieje: {{name}}",
       "readOnly": "Tylko do odczytu",
-      "current": "Aktualny"
+      "current": "Aktualny",
+      "addCount": "Dodano {{count}} kont",
+      "addFailed": "Dodawanie nieudane",
+      "adding": "Dodawanie...",
+      "applyFailed": "Zastosowanie nieudane",
+      "boundCount": "Powiązano {{count}} kont",
+      "captureFailed": "Przechwytywanie nieudane",
+      "count": "{{count}}",
+      "deleteFailed": "Usuwanie nieudane",
+      "fpLabel": "Odcisk:",
+      "generateFailed": "Generowanie nieudane",
+      "importFailed": "Import nieudany",
+      "importing": "Importowanie...",
+      "loadFailed": "Nie udało się wczytać listy odcisków",
+      "processing": "Przetwarzanie...",
+      "renameFailed": "Zmiana nazwy nieudana",
+      "serviceMachineIdEmpty": "Puste"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "Lista grup",
     "group_name_placeholder": "Nazwa grupy",
     "save": "Zapisz grupy"
+  },
+  "codex": {
+    "title": "Zarządzanie kontami Codex",
+    "subtitle": "Zarządzaj kontami OpenAI Codex",
+    "addAccount": "Dodaj konto",
+    "refreshAll": "Odśwież wszystko",
+    "refreshQuota": "Odśwież limit",
+    "switch": "Przełącz",
+    "switched": "Przełączono na {{email}}",
+    "switchFailed": "Nie udało się przełączyć: {{error}}",
+    "current": "Bieżące",
+    "empty": {
+      "title": "Brak kont",
+      "description": "Kliknij „Dodaj konto”, aby rozpocząć"
+    },
+    "addModal": {
+      "title": "Dodaj konto Codex",
+      "oauth": "Logowanie OAuth",
+      "token": "Import JSON",
+      "local": "Import lokalny"
+    },
+    "oauth": {
+      "desc": "Kliknij poniżej i zakończ autoryzację OpenAI w przeglądarce",
+      "preparing": "Przygotowywanie linku autoryzacji...",
+      "openBrowser": "Otwórz w przeglądarce",
+      "hint": "Po autoryzacji to okno zaktualizuje się automatycznie",
+      "exchanging": "Wymiana tokenu...",
+      "success": "Autoryzacja udana",
+      "failed": "Autoryzacja nieudana",
+      "portInUse": "Port {{port}} jest już zajęty. Zamknij aplikację, która go używa, i spróbuj ponownie.",
+      "portInUseTitle": "Port zajęty",
+      "portInUseConfirm": "Port {{port}} jest zajęty. Zamknąć proces używający tego portu?",
+      "portCloseFailed": "Nie udało się zamknąć portu: {{error}}",
+      "portStillInUse": "Port {{port}} nadal jest zajęty."
+    },
+    "token": {
+      "desc": "Wklej zawartość auth.json lub dane JSON konta",
+      "placeholder": "Wklej JSON...",
+      "import": "Importuj",
+      "importing": "Importowanie...",
+      "importSuccessMsg": "Zaimportowano {{count}} kont",
+      "importFailedMsg": "Import nieudany: {{error}}",
+      "empty": "Wprowadź token lub JSON"
+    },
+    "local": {
+      "desc": "Importuj bieżące konto z ~/.codex/auth.json",
+      "import": "Pobierz konto lokalne"
+    },
+    "import": {
+      "label": "Import",
+      "importing": "Importowanie lokalnego konta...",
+      "successMsg": "Import zakończony sukcesem: {{email}}",
+      "failedMsg": "Import nieudany: {{error}}"
+    },
+    "quota": {
+      "hourly": "Limit 5 godzin",
+      "weekly": "Limit tygodniowy",
+      "reset": "Resetuj",
+      "noData": "Brak danych limitu",
+      "resetDone": "Zresetowano"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}} d",
+      "relativeDaysHours": "{{days}} d {{hours}} h",
+      "relativeHours": "{{hours}} h",
+      "relativeHoursMinutes": "{{hours}} h {{minutes}} min",
+      "relativeMinutes": "{{minutes}} min",
+      "lessThanMinute": "<1 min",
+      "today": "Dzisiaj {{time}}",
+      "tomorrow": "Jutro {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "Szukaj kont...",
+    "view": {
+      "list": "Widok listy",
+      "grid": "Widok kart"
+    },
+    "filter": {
+      "all": "Wszystkie ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "Filtr",
+    "sortLabel": "Sortuj",
+    "sort": {
+      "weekly": "Limit tygodniowy",
+      "hourly": "Limit 5-godzinny",
+      "descTooltip": "Malejąco (kliknij, aby zmienić na rosnąco)",
+      "ascTooltip": "Rosnąco (kliknij, aby zmienić na malejąco)",
+      "toggleDirection": "Zmień kierunek sortowania",
+      "createdAt": "Data utworzenia"
+    },
+    "export": "Eksportuj",
+    "noMatch": {
+      "title": "Brak pasujących kont",
+      "desc": "Spróbuj zmienić wyszukiwanie lub filtry"
+    },
+    "columns": {
+      "email": "Konto",
+      "plan": "Plan",
+      "hourly": "Limit 5h",
+      "weekly": "Limit tyg.",
+      "actions": "Akcje"
+    }
+  },
+  "dashboard": {
+    "title": "Panel kont",
+    "summary": {
+      "label": "Przegląd",
+      "title": "Zrzut kont",
+      "desc": "Antigravity i Codex w jednym miejscu"
+    },
+    "stats": {
+      "antigravity": "Konta Antigravity",
+      "codex": "Konta Codex",
+      "currentAntigravity": "Bieżący Antigravity",
+      "currentCodex": "Bieżący Codex",
+      "providers": "Dostawcy",
+      "totalAccounts": "Łącznie kont"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "Rozkład planów",
+      "current": "Bieżące konto",
+      "recommended": "Polecane konto",
+      "empty": "Brak kont",
+      "emptyDesc": "Dodaj konto, aby zobaczyć szczegóły"
+    },
+    "quota": {
+      "remaining": "Pozostały limit {{value}}%",
+      "codex": "5 godzin {{hourly}}% · Tygodniowo {{weekly}}%"
+    },
+    "emptyAccount": "Brak konta",
+    "sections": {
+      "antigravity": "Konta Antigravity",
+      "codex": "Konta Codex"
+    },
+    "actions": {
+      "refresh": "Odśwież karty",
+      "viewAll": "Wszystkie konta"
+    },
+    "badges": {
+      "recommended": "Polecane"
+    },
+    "totalAccounts": "Łączna liczba kont",
+    "current": "Bieżące konto",
+    "recommended": "Polecane konto",
+    "noAccount": "Brak konta",
+    "switch": "Przełącz",
+    "switchTo": "Przełącz na to konto",
+    "noRecommendation": "Brak lepszej rekomendacji",
+    "noData": "Brak danych",
+    "viewAllAccounts": "Pokaż wszystkie konta"
   }
 }

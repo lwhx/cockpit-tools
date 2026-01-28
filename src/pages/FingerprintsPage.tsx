@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Download, Trash2, Fingerprint, Link, CircleAlert, Pencil, X, Plus, FolderOpen } from 'lucide-react';
+import { Sparkles, Download, Trash2, Fingerprint, Link, CircleAlert, Pencil, X, Plus, FolderOpen, AlarmClock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { confirm as confirmDialog } from '@tauri-apps/plugin-dialog';
 import { useAccountStore } from '../stores/useAccountStore';
 import * as accountService from '../services/accountService';
 import { FingerprintWithStats, Account, DeviceProfile } from '../types/account';
 import { getSubscriptionTier } from '../utils/account';
+import { Page } from '../types/navigation';
+import { RobotIcon } from '../components/icons/RobotIcon';
 
-export function FingerprintsPage() {
+interface FingerprintsPageProps {
+  onNavigate?: (page: Page) => void;
+}
+
+export function FingerprintsPage({ onNavigate }: FingerprintsPageProps) {
   const { t } = useTranslation();
   const { accounts, fetchAccounts } = useAccountStore();
   const [fingerprints, setFingerprints] = useState<FingerprintWithStats[]>([]);
@@ -302,16 +308,32 @@ export function FingerprintsPage() {
   return (
     <>
       <main className="main-content">
-        <section className="page-heading">
-          <div>
-            <h1>{t('fingerprints.title')}</h1>
-            <p>{t('fingerprints.subtitle')}</p>
+        <div className="page-tabs-row">
+          <div className="page-tabs-label">{t('overview.brandTitle')}</div>
+          <div className="page-tabs filter-tabs">
+            <button
+              className="filter-tab"
+              onClick={() => onNavigate?.('overview')}
+            >
+              <RobotIcon className="tab-icon" />
+              <span>{t('overview.title')}</span>
+            </button>
+            <button
+              className="filter-tab active"
+              onClick={() => onNavigate?.('fingerprints')}
+            >
+              <Fingerprint className="tab-icon" />
+              <span>{t('fingerprints.title')}</span>
+            </button>
+            <button
+              className="filter-tab"
+              onClick={() => onNavigate?.('wakeup')}
+            >
+              <AlarmClock className="tab-icon" />
+              <span>{t('wakeup.title')}</span>
+            </button>
           </div>
-          <div className="page-badges">
-            <span className="pill pill-soft">{t('accounts.total', { count: fingerprints.length })}</span>
-            <span className="pill">{t('common.editable')} {selectableFps.length}</span>
-          </div>
-        </section>
+        </div>
         {/* Toolbar */}
         <div className="toolbar">
           <div className="toolbar-right">
@@ -596,12 +618,16 @@ export function FingerprintsPage() {
                     <div className="empty-state" style={{ padding: 20 }}>{t('fingerprints.modals.bound.empty')}</div>
                   ) : (
                     <div className="bound-accounts-list">
-                      {boundAccounts.map((acc) => (
-                        <div key={acc.id} className="bound-account-item">
-                          <span className="bound-account-email">{acc.email}</span>
-                          <span className="bound-account-tier">{getSubscriptionTier(acc.quota)}</span>
-                        </div>
-                      ))}
+                      {boundAccounts.map((acc) => {
+                        const tier = getSubscriptionTier(acc.quota);
+                        const tierLabel = t(`accounts.tier.${tier.toLowerCase()}`, tier);
+                        return (
+                          <div key={acc.id} className="bound-account-item">
+                            <span className="bound-account-email">{acc.email}</span>
+                            <span className="bound-account-tier">{tierLabel}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </>

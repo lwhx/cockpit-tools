@@ -23,11 +23,13 @@
     "preview": "미리보기"
   },
   "nav": {
-    "overview": "개요",
+    "overview": "Antigravity 계정",
     "accounts": "계정 관리",
     "wakeup": "깨우기 작업",
     "fingerprints": "기기 지문",
-    "settings": "설정"
+    "settings": "설정",
+    "codex": "Codex 계정",
+    "dashboard": "대시보드"
   },
   "settings": {
     "title": "앱 설정",
@@ -47,7 +49,7 @@
       "themeDark": "다크",
       "themeSystem": "시스템 설정",
       "accountManagement": "계정 관리",
-      "autoRefresh": "할당량 자동 새로고침",
+      "autoRefresh": "Antigravity 자동 새로고침 할당량",
       "autoRefreshDesc": "백그라운드 업데이트 빈도",
       "autoRefreshDisabled": "비활성화됨",
       "autoRefreshCustom": "사용자 정의...",
@@ -82,7 +84,12 @@
       "author": "제작자",
       "wechat": "WeChat 플러스",
       "github": "GitHub 저장소",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "후원",
+      "sponsorDesc": "Support development",
+      "feedback": "피드백",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "개발 지원",
       "checkUpdate": "업데이트 확인",
       "checking": "확인 중...",
@@ -201,7 +208,8 @@
     "switchTo": "이 계정으로 전환",
     "switching": "전환 중...",
     "fingerprint": "지문",
-    "bound": "연결됨"
+    "bound": "연결됨",
+    "brandTitle": "Antigravity 계정 관리"
   },
   "fingerprints": {
     "title": "기기 지문",
@@ -217,7 +225,12 @@
       "name": "지문 이름",
       "machineId": "기기 ID",
       "accounts": "연결된 계정",
-      "actions": "작업"
+      "actions": "작업",
+      "accountCount": "{{count}}개 계정",
+      "apply": "적용",
+      "noData": "지문 데이터 없음",
+      "preview": "미리보기",
+      "rename": "이름 변경"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "지문 가져오기",
         "fromTools": "Antigravity Tools에서 가져오기",
-        "desc": "~/.antigravity_tools/ 디렉토리에서 가져옵니다"
+        "desc": "~/.antigravity_tools/ 디렉토리에서 가져옵니다",
+        "fromJsonBtn": "JSON에서 가져오기",
+        "jsonExample": "형식 예시:",
+        "jsonPlaceholder": "업무 지문",
+        "orPasteJson": "또는 JSON 붙여넣기"
       },
       "bound": {
         "title": "연결된 계정 관리",
@@ -243,7 +260,8 @@
         "empty": "연결된 계정 없음",
         "emptyAll": "모든 계정이 이미 연결되었습니다",
         "select": "추가할 계정 선택",
-        "from": "소스: {{name}}"
+        "from": "소스: {{name}}",
+        "back": "뒤로"
       },
       "detail": {
         "title": "지문 상세 정보",
@@ -263,7 +281,23 @@
       "previewNotReady": "미리보기가 준비되지 않았습니다. 잠시 후 다시 시도하십시오",
       "duplicate": "중복된 지문이 존재합니다: {{name}}",
       "readOnly": "읽기 전용",
-      "current": "현재"
+      "current": "현재",
+      "addCount": "계정 {{count}}개 추가됨",
+      "addFailed": "추가 실패",
+      "adding": "추가 중...",
+      "applyFailed": "적용 실패",
+      "boundCount": "{{count}}개 계정이 연결됨",
+      "captureFailed": "캡처 실패",
+      "count": "{{count}}개",
+      "deleteFailed": "삭제 실패",
+      "fpLabel": "지문:",
+      "generateFailed": "생성 실패",
+      "importFailed": "가져오기 실패",
+      "importing": "가져오는 중...",
+      "loadFailed": "지문 목록 불러오기 실패",
+      "processing": "처리 중...",
+      "renameFailed": "이름 변경 실패",
+      "serviceMachineIdEmpty": "비어 있음"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "그룹 목록",
     "group_name_placeholder": "그룹 이름",
     "save": "그룹 저장"
+  },
+  "codex": {
+    "title": "Codex 계정 관리",
+    "subtitle": "OpenAI Codex 계정을 관리합니다",
+    "addAccount": "계정 추가",
+    "refreshAll": "전체 새로고침",
+    "refreshQuota": "쿼터 새로고침",
+    "switch": "전환",
+    "switched": "{{email}}(으)로 전환했습니다",
+    "switchFailed": "전환 실패: {{error}}",
+    "current": "현재",
+    "empty": {
+      "title": "계정 없음",
+      "description": "\"계정 추가\"를 눌러 Codex 계정을 관리하세요"
+    },
+    "addModal": {
+      "title": "Codex 계정 추가",
+      "oauth": "OAuth 로그인",
+      "token": "JSON 가져오기",
+      "local": "로컬 가져오기"
+    },
+    "oauth": {
+      "desc": "아래 버튼을 클릭해 브라우저에서 OpenAI 인증을 완료하세요",
+      "preparing": "인증 링크 준비 중...",
+      "openBrowser": "브라우저에서 열기",
+      "hint": "인증이 완료되면 이 창이 자동으로 업데이트됩니다",
+      "exchanging": "토큰 교환 중...",
+      "success": "인증 성공",
+      "failed": "인증 실패",
+      "portInUse": "포트 {{port}}가 이미 사용 중입니다. 해당 포트를 사용하는 앱을 종료한 뒤 다시 시도해 주세요.",
+      "portInUseTitle": "포트 사용 중",
+      "portInUseConfirm": "포트 {{port}}가 사용 중입니다. 이 포트를 사용하는 프로세스를 종료할까요?",
+      "portCloseFailed": "포트 종료 실패: {{error}}",
+      "portStillInUse": "포트 {{port}}가 여전히 사용 중입니다."
+    },
+    "token": {
+      "desc": "auth.json 내용 또는 계정 JSON 데이터를 붙여넣으세요",
+      "placeholder": "JSON 내용 붙여넣기...",
+      "import": "가져오기",
+      "importing": "가져오는 중...",
+      "importSuccessMsg": "{{count}}개 계정을 가져왔습니다",
+      "importFailedMsg": "가져오기 실패: {{error}}",
+      "empty": "Token 또는 JSON을 입력하세요"
+    },
+    "local": {
+      "desc": "~/.codex/auth.json에서 현재 로그인된 계정 가져오기",
+      "import": "로컬 계정 가져오기"
+    },
+    "import": {
+      "label": "가져오기",
+      "importing": "로컬 계정 가져오는 중...",
+      "successMsg": "가져오기 성공: {{email}}",
+      "failedMsg": "가져오기 실패: {{error}}"
+    },
+    "quota": {
+      "hourly": "5시간 쿼터",
+      "weekly": "주간 쿼터",
+      "reset": "재설정",
+      "noData": "쿼터 데이터 없음",
+      "resetDone": "재설정됨"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}}일",
+      "relativeDaysHours": "{{days}}일 {{hours}}시간",
+      "relativeHours": "{{hours}}시간",
+      "relativeHoursMinutes": "{{hours}}시간 {{minutes}}분",
+      "relativeMinutes": "{{minutes}}분",
+      "lessThanMinute": "<1분",
+      "today": "오늘 {{time}}",
+      "tomorrow": "내일 {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "계정 검색...",
+    "view": {
+      "list": "목록 보기",
+      "grid": "카드 보기"
+    },
+    "filter": {
+      "all": "전체 ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "필터",
+    "sortLabel": "정렬",
+    "sort": {
+      "weekly": "주간 할당량",
+      "hourly": "5시간 할당량",
+      "descTooltip": "내림차순 (클릭하여 오름차순으로 전환)",
+      "ascTooltip": "오름차순 (클릭하여 내림차순으로 전환)",
+      "toggleDirection": "정렬 방향 전환",
+      "createdAt": "생성일"
+    },
+    "export": "내보내기",
+    "noMatch": {
+      "title": "일치하는 계정 없음",
+      "desc": "검색어 또는 필터를 조정해 보세요"
+    },
+    "columns": {
+      "email": "계정",
+      "plan": "플랜",
+      "hourly": "5시간 쿼터",
+      "weekly": "주간 쿼터",
+      "actions": "작업"
+    }
+  },
+  "dashboard": {
+    "title": "계정 대시보드",
+    "summary": {
+      "label": "개요",
+      "title": "계정 스냅샷",
+      "desc": "Antigravity와 Codex 상태를 한눈에 확인"
+    },
+    "stats": {
+      "antigravity": "Antigravity 계정",
+      "codex": "Codex 계정",
+      "currentAntigravity": "현재 Antigravity",
+      "currentCodex": "현재 Codex",
+      "providers": "서비스 제공자",
+      "totalAccounts": "전체 계정 수"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "플랜 분포",
+      "current": "현재 계정",
+      "recommended": "추천 계정",
+      "empty": "계정이 없습니다",
+      "emptyDesc": "계정을 추가해 상세를 확인하세요"
+    },
+    "quota": {
+      "remaining": "남은 할당량 {{value}}%",
+      "codex": "5시간 {{hourly}}% · 주간 {{weekly}}%"
+    },
+    "emptyAccount": "계정 없음",
+    "sections": {
+      "antigravity": "Antigravity 계정",
+      "codex": "Codex 계정"
+    },
+    "actions": {
+      "refresh": "카드 새로고침",
+      "viewAll": "전체 계정"
+    },
+    "badges": {
+      "recommended": "추천"
+    },
+    "totalAccounts": "총 계정 수",
+    "current": "현재 계정",
+    "recommended": "추천 계정",
+    "noAccount": "계정 없음",
+    "switch": "전환",
+    "switchTo": "이 계정으로 전환",
+    "noRecommendation": "더 나은 추천 없음",
+    "noData": "데이터 없음",
+    "viewAllAccounts": "모든 계정 보기"
   }
 }

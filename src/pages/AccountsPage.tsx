@@ -17,6 +17,7 @@ import {
   List,
   Search,
   Fingerprint,
+  AlarmClock,
   Link,
   CircleAlert,
   Play,
@@ -41,6 +42,7 @@ import {
   calculateOverallQuota,
   calculateGroupQuota,
 } from '../services/groupService';
+import { RobotIcon } from '../components/icons/RobotIcon';
 
 interface AccountsPageProps {
   onNavigate?: (page: Page) => void;
@@ -681,6 +683,7 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
       {filteredAccounts.map((account) => {
         const isCurrent = currentAccount?.id === account.id;
         const tier = getSubscriptionTier(account.quota);
+        const tierLabel = t(`accounts.tier.${tier.toLowerCase()}`, tier);
         const displayModels = getDisplayModels(account.quota);
         const isDisabled = account.disabled;
         const isSelected = selected.has(account.id);
@@ -706,13 +709,13 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
               </div>
               <span className="account-email" title={account.email}>{account.email}</span>
               {isCurrent && <span className="current-tag">{t('accounts.status.current')}</span>}
-              <span className={`tier-badge ${tier.toLowerCase()}`}>{tier}</span>
+              <span className={`tier-badge ${tier.toLowerCase()}`}>{tierLabel}</span>
             </div>
 
             {/* 模型配额 - 两列紧凑布局 */}
             <div className="card-quota-grid">
               {displayModels.map((model) => {
-                const resetLabel = formatResetTimeDisplay(model.reset_time);
+                const resetLabel = formatResetTimeDisplay(model.reset_time, t);
                 return (
                   <div key={model.name} className="quota-compact-item">
                     <div className="quota-compact-header">
@@ -808,6 +811,7 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
           {filteredAccounts.map((account) => {
             const isCurrent = currentAccount?.id === account.id;
             const tier = getSubscriptionTier(account.quota);
+            const tierLabel = t(`accounts.tier.${tier.toLowerCase()}`, tier);
             const displayModels = getDisplayModels(account.quota);
 
             return (
@@ -826,7 +830,7 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
                       {isCurrent && <span className="mini-tag current">{t('accounts.status.current')}</span>}
                     </div>
                     <div className="account-sub-line">
-                      <span className={`tier-badge ${tier.toLowerCase()}`}>{tier}</span>
+                      <span className={`tier-badge ${tier.toLowerCase()}`}>{tierLabel}</span>
                       {account.disabled && <span className="status-text disabled">{t('accounts.status.disabled')}</span>}
                     </div>
                   </div>
@@ -853,7 +857,7 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
                           />
                         </div>
                         <div className="quota-footer">
-                          <span className="quota-reset">{formatResetTimeDisplay(model.reset_time)}</span>
+                          <span className="quota-reset">{formatResetTimeDisplay(model.reset_time, t)}</span>
                         </div>
                       </div>
                     ))}
@@ -896,20 +900,32 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
   return (
     <>
       <main className="main-content accounts-page">
-        <section className="page-heading">
-          <div>
-            <h1>{t('overview.title')}</h1>
-            <p>{t('overview.subtitle')}</p>
+        <div className="page-tabs-row">
+          <div className="page-tabs-label">{t('overview.brandTitle')}</div>
+          <div className="page-tabs filter-tabs">
+            <button
+              className="filter-tab active"
+              onClick={() => onNavigate?.('overview')}
+            >
+              <RobotIcon className="tab-icon" />
+              <span>{t('overview.title')}</span>
+            </button>
+            <button
+              className="filter-tab"
+              onClick={() => onNavigate?.('fingerprints')}
+            >
+              <Fingerprint className="tab-icon" />
+              <span>{t('fingerprints.title')}</span>
+            </button>
+            <button
+              className="filter-tab"
+              onClick={() => onNavigate?.('wakeup')}
+            >
+              <AlarmClock className="tab-icon" />
+              <span>{t('wakeup.title')}</span>
+            </button>
           </div>
-          <div className="page-badges">
-            <span className="pill pill-soft">{t('overview.total', { count: accounts.length })}</span>
-            {currentAccount && (
-              <span className="pill pill-emphasis" title={currentAccount.email}>
-                {t('accounts.status.current')} {currentAccount.email}
-              </span>
-            )}
-          </div>
-        </section>
+        </div>
 
         {/* 工具栏 */}
         <div className="toolbar">
@@ -1280,8 +1296,9 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
       {showQuotaModal && (() => {
         const account = accounts.find(a => a.id === showQuotaModal);
         if (!account) return null;
-        const tierLabel = getSubscriptionTier(account.quota);
-        const tierClass = tierLabel === 'PRO' || tierLabel === 'ULTRA' ? 'pill-success' : 'pill-secondary';
+        const tier = getSubscriptionTier(account.quota);
+        const tierLabel = t(`accounts.tier.${tier.toLowerCase()}`, tier);
+        const tierClass = tier === 'PRO' || tier === 'ULTRA' ? 'pill-success' : 'pill-secondary';
         
         return (
           <div className="modal-overlay" onClick={() => setShowQuotaModal(null)}>
@@ -1311,7 +1328,7 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
                           ></div>
                         </div>
                         <div className="quota-reset-info">
-                          <p><strong>{t('modals.quota.resetTime')}:</strong> {formatResetTimeDisplay(model.reset_time)}</p>
+                          <p><strong>{t('modals.quota.resetTime')}:</strong> {formatResetTimeDisplay(model.reset_time, t)}</p>
                         </div>
                       </div>
                     ))}

@@ -26,29 +26,31 @@ export function getQuotaClass(percentage: number): string {
   return 'low';
 }
 
-export function formatResetTime(resetTime: string): string {
+type Translate = (key: string, options?: Record<string, unknown>) => string;
+
+export function formatResetTime(resetTime: string, t: Translate): string {
   if (!resetTime) return '';
   try {
     const reset = new Date(resetTime);
     if (Number.isNaN(reset.getTime())) return '';
     const now = new Date();
     const diffMs = reset.getTime() - now.getTime();
-    if (diffMs <= 0) return '已重置';
+    if (diffMs <= 0) return t('codex.quota.resetDone');
 
     const totalMinutes = Math.floor(diffMs / (1000 * 60));
     const days = Math.floor(totalMinutes / (60 * 24));
     const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
     const minutes = totalMinutes % 60;
 
-    if (days >= 1) {
-      if (minutes > 0) {
-        return `${days}d ${hours}h ${minutes}m`;
-      }
-      return `${days}d ${hours}h`;
-    }
-    if (hours >= 1) return `${hours}h ${minutes}m`;
-    if (minutes >= 1) return `${minutes}m`;
-    return '<1m';
+    let parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    
+    // If less than 1 minute but positive, show 1m or <1m. Let's use 1m for simplicity or <1m
+    if (parts.length === 0) return '<1m';
+    
+    return parts.join(' ');
   } catch {
     return '';
   }
@@ -59,22 +61,25 @@ export function formatResetTimeAbsolute(resetTime: string): string {
   const reset = new Date(resetTime);
   if (Number.isNaN(reset.getTime())) return '';
   const pad = (value: number) => String(value).padStart(2, '0');
-  const year = reset.getFullYear();
   const month = pad(reset.getMonth() + 1);
   const day = pad(reset.getDate());
   const hours = pad(reset.getHours());
   const minutes = pad(reset.getMinutes());
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
+  return `${month}/${day} ${hours}:${minutes}`;
 }
 
-export function formatResetTimeDisplay(resetTime: string): string {
-  const relative = formatResetTime(resetTime);
+export function formatResetTimeDisplay(resetTime: string, t: Translate): string {
+  const resetDone = t('codex.quota.resetDone');
+  const relative = formatResetTime(resetTime, t);
   const absolute = formatResetTimeAbsolute(resetTime);
   if (!relative && !absolute) return '';
-  if (relative === '已重置') return relative;
-  if (!absolute) return relative;
-  if (!relative) return absolute;
-  return `${absolute} (${relative})`;
+  if (relative === resetDone) return relative;
+  // If we have both, return "relative (absolute)"
+  // If only one, return that one
+  if (relative && absolute) {
+    return `${relative} (${absolute})`;
+  }
+  return relative || absolute;
 }
 
 export function getDisplayModels(quota?: QuotaData) {

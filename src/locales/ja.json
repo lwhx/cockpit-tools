@@ -23,11 +23,13 @@
     "preview": "プレビュー"
   },
   "nav": {
-    "overview": "概要",
+    "overview": "Antigravity アカウント",
     "accounts": "アカウント管理",
     "wakeup": "ウェイクアップタスク",
     "fingerprints": "デバイス指紋",
-    "settings": "設定"
+    "settings": "設定",
+    "codex": "Codex アカウント",
+    "dashboard": "ダッシュボード"
   },
   "settings": {
     "title": "アプリ設定",
@@ -47,7 +49,7 @@
       "themeDark": "ダーク",
       "themeSystem": "システム設定に従う",
       "accountManagement": "アカウント管理",
-      "autoRefresh": "クォータの自動更新",
+      "autoRefresh": "Antigravity 自動更新クォータ",
       "autoRefreshDesc": "バックグラウンドでの更新頻度",
       "autoRefreshDisabled": "無効",
       "autoRefreshCustom": "カスタム...",
@@ -82,7 +84,12 @@
       "author": "著者",
       "wechat": "WeChat 公衆号",
       "github": "GitHub リポジトリ",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "スポンサー",
+      "sponsorDesc": "Support development",
+      "feedback": "フィードバック",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "開発を支援する",
       "checkUpdate": "アップデートを確認",
       "checking": "確認中...",
@@ -201,7 +208,8 @@
     "switchTo": "このアカウントに切り替え",
     "switching": "切り替え中...",
     "fingerprint": "指紋",
-    "bound": "紐付け済み"
+    "bound": "紐付け済み",
+    "brandTitle": "Antigravity アカウント管理"
   },
   "fingerprints": {
     "title": "デバイス指紋",
@@ -217,7 +225,12 @@
       "name": "指紋名",
       "machineId": "デバイス ID",
       "accounts": "紐付けアカウント",
-      "actions": "操作"
+      "actions": "操作",
+      "accountCount": "{{count}} 件のアカウント",
+      "apply": "適用",
+      "noData": "指紋データがありません",
+      "preview": "プレビュー",
+      "rename": "名前変更"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "指紋をインポート",
         "fromTools": "Antigravity Tools からインポート",
-        "desc": "~/.antigravity_tools/ ディレクトリから読み込みます"
+        "desc": "~/.antigravity_tools/ ディレクトリから読み込みます",
+        "fromJsonBtn": "JSON からインポート",
+        "jsonExample": "形式例：",
+        "jsonPlaceholder": "仕事用指紋",
+        "orPasteJson": "または JSON を貼り付け"
       },
       "bound": {
         "title": "紐付けアカウント管理",
@@ -243,7 +260,8 @@
         "empty": "紐付けられたアカウントはありません",
         "emptyAll": "すべてのアカウントが紐付けられています",
         "select": "追加するアカウントを選択",
-        "from": "ソース: {{name}}"
+        "from": "ソース: {{name}}",
+        "back": "戻る"
       },
       "detail": {
         "title": "指紋の詳細",
@@ -263,7 +281,23 @@
       "previewNotReady": "プレビューの準備ができていません。しばらくお待ちください",
       "duplicate": "重複する指紋が存在します: {{name}}",
       "readOnly": "読み取り専用",
-      "current": "現在"
+      "current": "現在",
+      "addCount": "{{count}} 件のアカウントを追加しました",
+      "addFailed": "追加に失敗しました",
+      "adding": "追加中...",
+      "applyFailed": "適用に失敗しました",
+      "boundCount": "{{count}} 件のアカウントを紐付け済み",
+      "captureFailed": "キャプチャに失敗しました",
+      "count": "{{count}} 件",
+      "deleteFailed": "削除に失敗しました",
+      "fpLabel": "指紋:",
+      "generateFailed": "生成に失敗しました",
+      "importFailed": "インポートに失敗しました",
+      "importing": "インポート中...",
+      "loadFailed": "指紋リストの読み込みに失敗しました",
+      "processing": "処理中...",
+      "renameFailed": "名前変更に失敗しました",
+      "serviceMachineIdEmpty": "空"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "グループ一覧",
     "group_name_placeholder": "グループ名",
     "save": "グループを保存"
+  },
+  "codex": {
+    "title": "Codex アカウント管理",
+    "subtitle": "OpenAI Codex アカウントを管理します",
+    "addAccount": "アカウントを追加",
+    "refreshAll": "すべて更新",
+    "refreshQuota": "クォータ更新",
+    "switch": "切替",
+    "switched": "{{email}} に切り替えました",
+    "switchFailed": "切り替え失敗: {{error}}",
+    "current": "現在",
+    "empty": {
+      "title": "アカウントなし",
+      "description": "「アカウントを追加」から Codex アカウントを管理できます"
+    },
+    "addModal": {
+      "title": "Codex アカウントを追加",
+      "oauth": "OAuth ログイン",
+      "token": "JSON インポート",
+      "local": "ローカルインポート"
+    },
+    "oauth": {
+      "desc": "下のボタンをクリックしてブラウザで OpenAI 認可を完了してください",
+      "preparing": "認可リンクを準備中...",
+      "openBrowser": "ブラウザで開く",
+      "hint": "認可完了後、このウィンドウは自動更新されます",
+      "exchanging": "トークンを交換中...",
+      "success": "認可成功",
+      "failed": "認可失敗",
+      "portInUse": "ポート {{port}} は既に使用中です。このポートを使用しているアプリを閉じて再試行してください。",
+      "portInUseTitle": "ポートが使用中",
+      "portInUseConfirm": "ポート {{port}} が使用中です。このポートを使用しているプロセスを終了しますか？",
+      "portCloseFailed": "ポートの終了に失敗しました: {{error}}",
+      "portStillInUse": "ポート {{port}} はまだ使用中です。"
+    },
+    "token": {
+      "desc": "auth.json の内容またはアカウント JSON を貼り付けてください",
+      "placeholder": "JSON を貼り付け...",
+      "import": "インポート",
+      "importing": "インポート中...",
+      "importSuccessMsg": "{{count}} 件のアカウントをインポートしました",
+      "importFailedMsg": "インポート失敗: {{error}}",
+      "empty": "Token または JSON を入力してください"
+    },
+    "local": {
+      "desc": "~/.codex/auth.json から現在ログイン中のアカウントをインポート",
+      "import": "ローカルアカウント取得"
+    },
+    "import": {
+      "label": "インポート",
+      "importing": "ローカルアカウントをインポート中...",
+      "successMsg": "インポート成功: {{email}}",
+      "failedMsg": "インポート失敗: {{error}}"
+    },
+    "quota": {
+      "hourly": "5 時間クォータ",
+      "weekly": "週次クォータ",
+      "reset": "リセット",
+      "noData": "クォータデータなし",
+      "resetDone": "リセット済み"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}}日",
+      "relativeDaysHours": "{{days}}日{{hours}}時間",
+      "relativeHours": "{{hours}}時間",
+      "relativeHoursMinutes": "{{hours}}時間{{minutes}}分",
+      "relativeMinutes": "{{minutes}}分",
+      "lessThanMinute": "<1分",
+      "today": "今日 {{time}}",
+      "tomorrow": "明日 {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "アカウントを検索...",
+    "view": {
+      "list": "リスト表示",
+      "grid": "カード表示"
+    },
+    "filter": {
+      "all": "すべて ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "フィルター",
+    "sortLabel": "並べ替え",
+    "sort": {
+      "weekly": "週間クォータ",
+      "hourly": "5時間クォータ",
+      "descTooltip": "降順（クリックで昇順へ）",
+      "ascTooltip": "昇順（クリックで降順へ）",
+      "toggleDirection": "順序を切り替え",
+      "createdAt": "作成日時"
+    },
+    "export": "エクスポート",
+    "noMatch": {
+      "title": "一致するアカウントなし",
+      "desc": "検索条件を変更してください"
+    },
+    "columns": {
+      "email": "アカウント",
+      "plan": "プラン",
+      "hourly": "5時間クォータ",
+      "weekly": "週間クォータ",
+      "actions": "操作"
+    }
+  },
+  "dashboard": {
+    "title": "アカウントダッシュボード",
+    "summary": {
+      "label": "概要",
+      "title": "アカウントスナップショット",
+      "desc": "Antigravity と Codex の状況を一目で確認"
+    },
+    "stats": {
+      "antigravity": "Antigravity アカウント",
+      "codex": "Codex アカウント",
+      "currentAntigravity": "現在の Antigravity",
+      "currentCodex": "現在の Codex",
+      "providers": "プロバイダー",
+      "totalAccounts": "総アカウント数"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "プラン分布",
+      "current": "現在のアカウント",
+      "recommended": "おすすめアカウント",
+      "empty": "アカウントがありません",
+      "emptyDesc": "アカウントを追加して詳細を表示"
+    },
+    "quota": {
+      "remaining": "残りのクォータ {{value}}%",
+      "codex": "5時間 {{hourly}}% ・ 週間 {{weekly}}%"
+    },
+    "emptyAccount": "アカウントなし",
+    "sections": {
+      "antigravity": "Antigravity アカウント",
+      "codex": "Codex アカウント"
+    },
+    "actions": {
+      "refresh": "カードを更新",
+      "viewAll": "全てのアカウント"
+    },
+    "badges": {
+      "recommended": "おすすめ"
+    },
+    "totalAccounts": "アカウント総数",
+    "current": "現在のアカウント",
+    "recommended": "おすすめアカウント",
+    "noAccount": "アカウントなし",
+    "switch": "切り替え",
+    "switchTo": "このアカウントに切り替え",
+    "noRecommendation": "より良いおすすめがありません",
+    "noData": "データなし",
+    "viewAllAccounts": "すべてのアカウントを見る"
   }
 }

@@ -23,11 +23,13 @@
     "preview": "Vorschau"
   },
   "nav": {
-    "overview": "Übersicht",
+    "overview": "Antigravity Konto",
     "accounts": "Konten",
     "wakeup": "Weckaufgaben",
     "fingerprints": "Fingerabdrücke",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "codex": "Codex-Konten",
+    "dashboard": "Dashboard"
   },
   "settings": {
     "title": "App-Einstellungen",
@@ -47,7 +49,7 @@
       "themeDark": "Dunkel",
       "themeSystem": "System",
       "accountManagement": "Kontoverwaltung",
-      "autoRefresh": "Kontingent automatisch aktualisieren",
+      "autoRefresh": "Antigravity-Quote automatisch aktualisieren",
       "autoRefreshDesc": "Hintergrundaktualisierungsfrequenz",
       "autoRefreshDisabled": "Deaktiviert",
       "autoRefreshCustom": "Benutzerdefiniert...",
@@ -82,7 +84,12 @@
       "author": "Autor",
       "wechat": "WeChat",
       "github": "GitHub Repository",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "Sponsoren",
+      "sponsorDesc": "Support development",
+      "feedback": "Feedback",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "Entwicklung unterstützen",
       "checkUpdate": "Auf Updates prüfen",
       "checking": "Suche...",
@@ -201,7 +208,8 @@
     "switchTo": "Zu diesem Konto wechseln",
     "switching": "Wechselt...",
     "fingerprint": "Fingerabdruck",
-    "bound": "Gebunden"
+    "bound": "Gebunden",
+    "brandTitle": "Antigravity Kontoverwaltung"
   },
   "fingerprints": {
     "title": "Geräte-Fingerabdrücke",
@@ -217,7 +225,12 @@
       "name": "Fingerabdruck-Name",
       "machineId": "Maschinen-ID",
       "accounts": "Gebundene Konten",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "accountCount": "{{count}} Konten",
+      "apply": "Anwenden",
+      "noData": "Keine Fingerabdruckdaten",
+      "preview": "Vorschau",
+      "rename": "Umbenennen"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "Fingerabdrücke importieren",
         "fromTools": "Von Antigravity Tools importieren",
-        "desc": "Import aus dem Verzeichnis ~/.antigravity_tools/"
+        "desc": "Import aus dem Verzeichnis ~/.antigravity_tools/",
+        "fromJsonBtn": "Aus JSON importieren",
+        "jsonExample": "Beispielformat:",
+        "jsonPlaceholder": "Arbeits-Fingerabdruck",
+        "orPasteJson": "Oder JSON einfügen"
       },
       "bound": {
         "title": "Gebundene Konten",
@@ -243,7 +260,8 @@
         "empty": "Keine Konten gebunden",
         "emptyAll": "Alle Konten sind gebunden",
         "select": "Wählen Sie Konten zum Hinzufügen aus",
-        "from": "Von: {{name}}"
+        "from": "Von: {{name}}",
+        "back": "Zurück"
       },
       "detail": {
         "title": "Fingerabdruck-Details",
@@ -263,7 +281,23 @@
       "previewNotReady": "Vorschau noch nicht bereit, bitte warten",
       "duplicate": "Gleicher Fingerabdruck existiert bereits: {{name}}",
       "readOnly": "Schreibgeschützt",
-      "current": "Aktuell"
+      "current": "Aktuell",
+      "addCount": "{{count}} Konten hinzugefügt",
+      "addFailed": "Hinzufügen fehlgeschlagen",
+      "adding": "Wird hinzugefügt...",
+      "applyFailed": "Anwenden fehlgeschlagen",
+      "boundCount": "{{count}} Konten gebunden",
+      "captureFailed": "Erfassung fehlgeschlagen",
+      "count": "{{count}}",
+      "deleteFailed": "Löschen fehlgeschlagen",
+      "fpLabel": "Fingerabdruck:",
+      "generateFailed": "Erstellung fehlgeschlagen",
+      "importFailed": "Import fehlgeschlagen",
+      "importing": "Importieren...",
+      "loadFailed": "Fingerabdruckliste konnte nicht geladen werden",
+      "processing": "Wird verarbeitet...",
+      "renameFailed": "Umbenennen fehlgeschlagen",
+      "serviceMachineIdEmpty": "Leer"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "Gruppenliste",
     "group_name_placeholder": "Gruppenname",
     "save": "Gruppen speichern"
+  },
+  "codex": {
+    "title": "Codex-Konten verwalten",
+    "subtitle": "Verwalte deine OpenAI Codex-Konten",
+    "addAccount": "Konto hinzufügen",
+    "refreshAll": "Alle aktualisieren",
+    "refreshQuota": "Kontingent aktualisieren",
+    "switch": "Wechseln",
+    "switched": "Gewechselt zu {{email}}",
+    "switchFailed": "Wechsel fehlgeschlagen: {{error}}",
+    "current": "Aktuell",
+    "empty": {
+      "title": "Keine Konten",
+      "description": "Klicke auf \"Konto hinzufügen\", um zu starten"
+    },
+    "addModal": {
+      "title": "Codex-Konto hinzufügen",
+      "oauth": "OAuth-Anmeldung",
+      "token": "JSON-Import",
+      "local": "Lokaler Import"
+    },
+    "oauth": {
+      "desc": "Klicke unten und schließe die OpenAI-Autorisierung im Browser ab",
+      "preparing": "Autorisierungslink wird vorbereitet...",
+      "openBrowser": "Im Browser öffnen",
+      "hint": "Nach der Autorisierung wird dieses Fenster automatisch aktualisiert",
+      "exchanging": "Token wird ausgetauscht...",
+      "success": "Autorisierung erfolgreich",
+      "failed": "Autorisierung fehlgeschlagen",
+      "portInUse": "Port {{port}} ist bereits belegt. Bitte schließen Sie die Anwendung, die ihn nutzt, und versuchen Sie es erneut.",
+      "portInUseTitle": "Port belegt",
+      "portInUseConfirm": "Port {{port}} ist belegt. Prozess schließen, der den Port verwendet?",
+      "portCloseFailed": "Port konnte nicht geschlossen werden: {{error}}",
+      "portStillInUse": "Port {{port}} ist weiterhin belegt."
+    },
+    "token": {
+      "desc": "auth.json-Inhalt oder Konto-JSON einfügen",
+      "placeholder": "JSON-Inhalt einfügen...",
+      "import": "Importieren",
+      "importing": "Importiere...",
+      "importSuccessMsg": "{{count}} Konto/Konten importiert",
+      "importFailedMsg": "Import fehlgeschlagen: {{error}}",
+      "empty": "Bitte Token oder JSON eingeben"
+    },
+    "local": {
+      "desc": "Aktuell eingeloggtes Konto aus ~/.codex/auth.json importieren",
+      "import": "Lokales Konto abrufen"
+    },
+    "import": {
+      "label": "Importieren",
+      "importing": "Lokales Konto wird importiert...",
+      "successMsg": "Import erfolgreich: {{email}}",
+      "failedMsg": "Import fehlgeschlagen: {{error}}"
+    },
+    "quota": {
+      "hourly": "5-Stunden-Kontingent",
+      "weekly": "Wöchentliches Kontingent",
+      "reset": "Zurücksetzen",
+      "noData": "Keine Kontingentdaten",
+      "resetDone": "Zurückgesetzt"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}} T",
+      "relativeDaysHours": "{{days}} T {{hours}} Std",
+      "relativeHours": "{{hours}} Std",
+      "relativeHoursMinutes": "{{hours}} Std {{minutes}} Min",
+      "relativeMinutes": "{{minutes}} Min",
+      "lessThanMinute": "<1 Min",
+      "today": "Heute {{time}}",
+      "tomorrow": "Morgen {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "Konten suchen...",
+    "view": {
+      "list": "Listenansicht",
+      "grid": "Kartenansicht"
+    },
+    "filter": {
+      "all": "Alle ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "Filter",
+    "sortLabel": "Sortieren",
+    "sort": {
+      "weekly": "Wöchentliches Kontingent",
+      "hourly": "5-Stunden-Kontingent",
+      "descTooltip": "Absteigend (Klicken für Aufsteigend)",
+      "ascTooltip": "Aufsteigend (Klicken für Absteigend)",
+      "toggleDirection": "Sortierrichtung ändern",
+      "createdAt": "Erstelldatum"
+    },
+    "export": "Exportieren",
+    "noMatch": {
+      "title": "Keine passenden Konten",
+      "desc": "Versuchen Sie, Ihre Suche oder Filter anzupassen"
+    },
+    "columns": {
+      "email": "Konto",
+      "plan": "Plan",
+      "hourly": "5-Std-Quote",
+      "weekly": "Wochenquote",
+      "actions": "Aktionen"
+    }
+  },
+  "dashboard": {
+    "title": "Account-Dashboard",
+    "summary": {
+      "label": "Überblick",
+      "title": "Account-Snapshot",
+      "desc": "Antigravity und Codex auf einen Blick"
+    },
+    "stats": {
+      "antigravity": "Antigravity-Konten",
+      "codex": "Codex-Konten",
+      "currentAntigravity": "Aktuelles Antigravity",
+      "currentCodex": "Aktuelles Codex",
+      "providers": "Anbieter",
+      "totalAccounts": "Gesamtanzahl"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "Planverteilung",
+      "current": "Aktuelles Konto",
+      "recommended": "Empfohlenes Konto",
+      "empty": "Keine Konten",
+      "emptyDesc": "Fügen Sie ein Konto hinzu, um Details zu sehen"
+    },
+    "quota": {
+      "remaining": "Verbleibendes Kontingent {{value}}%",
+      "codex": "5 Std. {{hourly}}% · Woche {{weekly}}%"
+    },
+    "emptyAccount": "Kein Konto",
+    "sections": {
+      "antigravity": "Antigravity-Konten",
+      "codex": "Codex-Konten"
+    },
+    "actions": {
+      "refresh": "Karten aktualisieren",
+      "viewAll": "Alle Konten"
+    },
+    "badges": {
+      "recommended": "Empfohlen"
+    },
+    "totalAccounts": "Gesamtanzahl Konten",
+    "current": "Aktuelles Konto",
+    "recommended": "Empfohlenes Konto",
+    "noAccount": "Kein Konto",
+    "switch": "Wechseln",
+    "switchTo": "Zu diesem Konto wechseln",
+    "noRecommendation": "Keine bessere Empfehlung",
+    "noData": "Keine Daten",
+    "viewAllAccounts": "Alle Konten anzeigen"
   }
 }

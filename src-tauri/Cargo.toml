@@ -1,6 +1,6 @@
 [package]
 name = "antigravity-cockpit-tools"
-version = "0.3.3"
+version = "0.4.0"
 description = "Cockpit Tools"
 authors = ["jlcodes"]
 license = "CC-BY-NC-SA-4.0"
@@ -42,3 +42,7 @@ futures = "0.3"
 sysinfo = "0.33"
 tokio-tungstenite = "0.26"
 futures-util = "0.3"
+md5 = "0.7"
+tiny_http = "0.12"
+urlencoding = "2.1"
+lazy_static = "1.5"

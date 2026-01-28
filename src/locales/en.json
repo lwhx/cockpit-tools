@@ -23,11 +23,13 @@
     "preview": "Preview"
   },
   "nav": {
-    "overview": "Overview",
+    "overview": "Antigravity Account",
     "accounts": "Accounts",
     "wakeup": "Wakeup Tasks",
     "fingerprints": "Fingerprints",
-    "settings": "Settings"
+    "settings": "Settings",
+    "codex": "Codex Accounts",
+    "dashboard": "Dashboard"
   },
   "settings": {
     "title": "Settings",
@@ -47,7 +49,7 @@
       "themeDark": "Dark",
       "themeSystem": "System",
       "accountManagement": "Account Management",
-      "autoRefresh": "Auto Refresh Quota",
+      "autoRefresh": "Antigravity Auto Refresh Quota",
       "autoRefreshDesc": "Background update frequency",
       "autoRefreshDisabled": "Disabled",
       "autoRefreshCustom": "Custom...",
@@ -82,7 +84,12 @@
       "author": "Author",
       "wechat": "WeChat",
       "github": "GitHub",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "Sponsor",
+      "sponsorDesc": "Support development",
+      "feedback": "Feedback",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "Support Development",
       "checkUpdate": "Check Updates",
       "checking": "Checking...",
@@ -201,7 +208,8 @@
     "switchTo": "Switch to this account",
     "switching": "Switching...",
     "fingerprint": "Fingerprint",
-    "bound": "Bound"
+    "bound": "Bound",
+    "brandTitle": "Antigravity Account Management"
   },
   "fingerprints": {
     "title": "Device Fingerprints",
@@ -217,7 +225,12 @@
       "name": "Fingerprint Name",
       "machineId": "Machine ID",
       "accounts": "Bound Accounts",
-      "actions": "Actions"
+      "actions": "Actions",
+      "accountCount": "{{count}} accounts",
+      "apply": "Apply",
+      "noData": "No fingerprint data",
+      "preview": "Preview",
+      "rename": "Rename"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "Import Fingerprints",
         "fromTools": "Import from Antigravity Tools",
-        "desc": "Import from ~/.antigravity_tools/"
+        "desc": "Import from ~/.antigravity_tools/",
+        "fromJsonBtn": "Import from JSON",
+        "jsonExample": "Example format:",
+        "jsonPlaceholder": "Work fingerprint",
+        "orPasteJson": "Or paste JSON"
       },
       "bound": {
         "title": "Bound Accounts",
@@ -243,7 +260,8 @@
         "empty": "No accounts bound",
         "emptyAll": "All accounts are bound",
         "select": "Select accounts to add",
-        "from": "From: {{name}}"
+        "from": "From: {{name}}",
+        "back": "Back"
       },
       "detail": {
         "title": "Fingerprint Details",
@@ -263,7 +281,23 @@
       "previewNotReady": "Preview not ready, please wait",
       "duplicate": "Duplicate fingerprint exists: {{name}}",
       "readOnly": "Read-only",
-      "current": "Current"
+      "current": "Current",
+      "addCount": "Added {{count}} accounts",
+      "addFailed": "Add failed",
+      "adding": "Adding...",
+      "applyFailed": "Apply failed",
+      "boundCount": "Bound {{count}} accounts",
+      "captureFailed": "Capture failed",
+      "count": "{{count}}",
+      "deleteFailed": "Delete failed",
+      "fpLabel": "Fingerprint:",
+      "generateFailed": "Generate failed",
+      "importFailed": "Import failed",
+      "importing": "Importing...",
+      "loadFailed": "Failed to load fingerprint list",
+      "processing": "Processing...",
+      "renameFailed": "Rename failed",
+      "serviceMachineIdEmpty": "Empty"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "Group List",
     "group_name_placeholder": "Group Name",
     "save": "Save Groups"
+  },
+  "codex": {
+    "title": "Codex Account Management",
+    "subtitle": "Manage your OpenAI Codex accounts",
+    "addAccount": "Add Account",
+    "refreshAll": "Refresh All",
+    "refreshQuota": "Refresh Quota",
+    "switch": "Switch",
+    "switched": "Switched to {{email}}",
+    "switchFailed": "Switch failed: {{error}}",
+    "current": "Current",
+    "empty": {
+      "title": "No Accounts",
+      "description": "Click \"Add Account\" to get started"
+    },
+    "addModal": {
+      "title": "Add Codex Account",
+      "oauth": "OAuth Login",
+      "token": "JSON Import",
+      "local": "Local Import"
+    },
+    "oauth": {
+      "desc": "Click the button below and complete OpenAI authorization in your browser",
+      "preparing": "Preparing authorization link...",
+      "openBrowser": "Open in Browser",
+      "hint": "Once authorized, this window will update automatically",
+      "exchanging": "Exchanging token...",
+      "success": "Authorization successful",
+      "failed": "Authorization failed",
+      "portInUse": "Port {{port}} is already in use. Please close the app using this port and try again.",
+      "portInUseTitle": "Port in use",
+      "portInUseConfirm": "Port {{port}} is in use. Close the process using this port?",
+      "portCloseFailed": "Failed to close port: {{error}}",
+      "portStillInUse": "Port {{port}} is still in use."
+    },
+    "token": {
+      "desc": "Paste auth.json content or account JSON data",
+      "placeholder": "Paste JSON content...",
+      "import": "Import",
+      "importing": "Importing...",
+      "importSuccessMsg": "Imported {{count}} account(s) successfully",
+      "importFailedMsg": "Import failed: {{error}}",
+      "empty": "Please enter a token or JSON"
+    },
+    "local": {
+      "desc": "Import the currently logged-in account from ~/.codex/auth.json",
+      "import": "Get Local Account"
+    },
+    "import": {
+      "label": "Import",
+      "importing": "Importing local account...",
+      "successMsg": "Import successful: {{email}}",
+      "failedMsg": "Import failed: {{error}}"
+    },
+    "quota": {
+      "hourly": "5-hour quota",
+      "weekly": "Weekly quota",
+      "reset": "Reset",
+      "noData": "No quota data",
+      "resetDone": "Reset"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}}d",
+      "relativeDaysHours": "{{days}}d {{hours}}h",
+      "relativeHours": "{{hours}}h",
+      "relativeHoursMinutes": "{{hours}}h {{minutes}}m",
+      "relativeMinutes": "{{minutes}}m",
+      "lessThanMinute": "<1m",
+      "today": "Today {{time}}",
+      "tomorrow": "Tomorrow {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "Search accounts...",
+    "view": {
+      "list": "List view",
+      "grid": "Card view"
+    },
+    "filter": {
+      "all": "All ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "Filter",
+    "sortLabel": "Sort",
+    "sort": {
+      "weekly": "Weekly quota",
+      "hourly": "5-hour quota",
+      "descTooltip": "Current: Descending. Click to switch to ascending",
+      "ascTooltip": "Current: Ascending. Click to switch to descending",
+      "toggleDirection": "Toggle sort direction",
+      "createdAt": "Created time"
+    },
+    "export": "Export",
+    "noMatch": {
+      "title": "No matching accounts",
+      "desc": "Try adjusting your search or filters"
+    },
+    "columns": {
+      "email": "Account",
+      "plan": "Plan",
+      "hourly": "5-hour quota",
+      "weekly": "Weekly quota",
+      "actions": "Actions"
+    }
+  },
+  "dashboard": {
+    "title": "Account Dashboard",
+    "summary": {
+      "label": "Overview",
+      "title": "Account Snapshot",
+      "desc": "See Antigravity and Codex at a glance"
+    },
+    "stats": {
+      "antigravity": "Antigravity Accounts",
+      "codex": "Codex Accounts",
+      "currentAntigravity": "Current Antigravity",
+      "currentCodex": "Current Codex",
+      "providers": "Providers",
+      "totalAccounts": "Total accounts"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "Plan distribution",
+      "current": "Current account",
+      "recommended": "Recommended account",
+      "empty": "No accounts yet",
+      "emptyDesc": "Add an account to see details"
+    },
+    "quota": {
+      "remaining": "Remaining quota {{value}}%",
+      "codex": "5-hour {{hourly}}% · Weekly {{weekly}}%"
+    },
+    "emptyAccount": "No account",
+    "sections": {
+      "antigravity": "Antigravity Accounts",
+      "codex": "Codex Accounts"
+    },
+    "actions": {
+      "refresh": "Refresh cards",
+      "viewAll": "All accounts"
+    },
+    "badges": {
+      "recommended": "Recommended"
+    },
+    "totalAccounts": "Total accounts",
+    "current": "Current account",
+    "recommended": "Recommended account",
+    "noAccount": "No account",
+    "switch": "Switch",
+    "switchTo": "Switch to this account",
+    "noRecommendation": "No better recommendation",
+    "noData": "No data",
+    "viewAllAccounts": "View all accounts"
   }
 }

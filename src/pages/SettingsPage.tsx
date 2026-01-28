@@ -8,7 +8,7 @@ import * as accountService from '../services/accountService';
 import './settings/Settings.css';
 import { 
   Github, User, Rocket, Save, FolderOpen,
-  AlertCircle, RefreshCw, Check, ExternalLink
+  AlertCircle, RefreshCw, Check, ExternalLink, Heart, MessageSquare
 } from 'lucide-react';
 
 
@@ -54,7 +54,7 @@ export function SettingsPage() {
   // General Settings States
   const [language, setLanguage] = useState(getCurrentLanguage());
   const [theme, setTheme] = useState('system');
-  const [autoRefresh, setAutoRefresh] = useState('10');
+  const [autoRefresh, setAutoRefresh] = useState('5');
   const [generalLoaded, setGeneralLoaded] = useState(false);
   const generalSaveTimerRef = useRef<number | null>(null);
   const suppressGeneralSaveRef = useRef(false);
@@ -299,30 +299,23 @@ export function SettingsPage() {
 
   return (
     <main className="main-content">
-      <section className="page-heading">
-        <div>
-          <h1>{t('settings.title')}</h1>
-          <p>{t('settings.subtitle')}</p>
-        </div>
-      </section>
-      
-      {/* 1. Tab Navigation */}
-      <div className="settings-tabs-wrapper">
-        <div className="settings-tabs">
+      <div className="page-tabs-row">
+        <div className="page-tabs-label">{t('settings.title')}</div>
+        <div className="page-tabs filter-tabs">
           <button 
-            className={`settings-tab ${activeTab === 'general' ? 'active' : ''}`}
+            className={`filter-tab ${activeTab === 'general' ? 'active' : ''}`}
             onClick={() => setActiveTab('general')}
           >
             {t('settings.tabs.general')}
           </button>
           <button 
-            className={`settings-tab ${activeTab === 'network' ? 'active' : ''}`}
+            className={`filter-tab ${activeTab === 'network' ? 'active' : ''}`}
             onClick={() => setActiveTab('network')}
           >
             {t('settings.tabs.network')}
           </button>
           <button 
-            className={`settings-tab ${activeTab === 'about' ? 'active' : ''}`}
+            className={`filter-tab ${activeTab === 'about' ? 'active' : ''}`}
             onClick={() => setActiveTab('about')}
           >
             {t('settings.tabs.about')}
@@ -629,10 +622,23 @@ export function SettingsPage() {
                 <p>jlcodes99</p>
               </button>
               
+              
               <button className="credit-item" onClick={() => openLink('https://github.com/jlcodes99/antigravity-cockpit-tools')}>
                 <div className="credit-icon" style={{ color: '#0f172a' }}><Github size={24} /></div>
                 <h3>{t('settings.about.github')}</h3>
                 <p>antigravity-cockpit-tools</p>
+              </button>
+
+              <button className="credit-item" onClick={() => openLink('https://github.com/jlcodes99/antigravity-cockpit-tools/blob/main/docs/DONATE.md')}>
+                <div className="credit-icon" style={{ color: '#ef4444' }}><Heart size={24} /></div>
+                <h3>{t('settings.about.sponsor')}</h3>
+                <p>{t('settings.about.sponsorDesc', 'Donate')}</p>
+              </button>
+
+              <button className="credit-item" onClick={() => openLink('https://github.com/jlcodes99/antigravity-cockpit-tools/issues')}>
+                <div className="credit-icon" style={{ color: '#3b82f6' }}><MessageSquare size={24} /></div>
+                <h3>{t('settings.about.feedback', '意见反馈')}</h3>
+                <p>{t('settings.about.feedbackDesc', 'Issues')}</p>
               </button>
             </div>
           </div>

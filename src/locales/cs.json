@@ -23,11 +23,13 @@
     "preview": "Náhled"
   },
   "nav": {
-    "overview": "Přehled",
+    "overview": "Účet Antigravity",
     "accounts": "Účty",
     "wakeup": "Úlohy probuzení",
     "fingerprints": "Otisky",
-    "settings": "Nastavení"
+    "settings": "Nastavení",
+    "codex": "Účty Codex",
+    "dashboard": "Dashboard"
   },
   "settings": {
     "title": "Nastavení aplikace",
@@ -47,7 +49,7 @@
       "themeDark": "Tmavý",
       "themeSystem": "Systémový",
       "accountManagement": "Správa účtů",
-      "autoRefresh": "Automatické obnovení kvóty",
+      "autoRefresh": "Automatické obnovení kvóty Antigravity",
       "autoRefreshDesc": "Frekvence aktualizace na pozadí",
       "autoRefreshDisabled": "Zakázáno",
       "autoRefreshCustom": "Vlastní...",
@@ -82,7 +84,12 @@
       "author": "Autor",
       "wechat": "WeChat",
       "github": "GitHub repozitář",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "Sponzorovat",
+      "sponsorDesc": "Support development",
+      "feedback": "Zpětná vazba",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "Podpořit vývoj",
       "checkUpdate": "Zkontrolovat aktualizace",
       "checking": "Kontrola...",
@@ -201,7 +208,8 @@
     "switchTo": "Přepnout na tento účet",
     "switching": "Přepínání...",
     "fingerprint": "Otisk",
-    "bound": "Vázáno"
+    "bound": "Vázáno",
+    "brandTitle": "Správa účtu Antigravity"
   },
   "fingerprints": {
     "title": "Otisky zařízení",
@@ -217,7 +225,12 @@
       "name": "Název otisku",
       "machineId": "ID stroje",
       "accounts": "Vázané účty",
-      "actions": "Akce"
+      "actions": "Akce",
+      "accountCount": "{{count}} účtů",
+      "apply": "Použít",
+      "noData": "Žádná data otisků",
+      "preview": "Náhled",
+      "rename": "Přejmenovat"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "Importovat otisky",
         "fromTools": "Importovat z Antigravity Tools",
-        "desc": "Importovat z adresáře ~/.antigravity_tools/"
+        "desc": "Importovat z adresáře ~/.antigravity_tools/",
+        "fromJsonBtn": "Importovat z JSON",
+        "jsonExample": "Příklad formátu:",
+        "jsonPlaceholder": "Pracovní otisk",
+        "orPasteJson": "Nebo vložte JSON"
       },
       "bound": {
         "title": "Vázané účty",
@@ -243,7 +260,8 @@
         "empty": "Žádné vázané účty",
         "emptyAll": "Všechny účty jsou již vázány",
         "select": "Vyberte účty k přidání",
-        "from": "Zdroj: {{name}}"
+        "from": "Zdroj: {{name}}",
+        "back": "Zpět"
       },
       "detail": {
         "title": "Detaily otisku",
@@ -263,7 +281,23 @@
       "previewNotReady": "Náhled není připraven, čekejte prosím",
       "duplicate": "Tento otisk již existuje: {{name}}",
       "readOnly": "Pouze pro čtení",
-      "current": "Aktuální"
+      "current": "Aktuální",
+      "addCount": "Přidáno {{count}} účtů",
+      "addFailed": "Přidání se nezdařilo",
+      "adding": "Přidávání...",
+      "applyFailed": "Použití se nezdařilo",
+      "boundCount": "Přiřazeno {{count}} účtů",
+      "captureFailed": "Zachycení se nezdařilo",
+      "count": "{{count}}",
+      "deleteFailed": "Smazání se nezdařilo",
+      "fpLabel": "Otisk:",
+      "generateFailed": "Vytvoření se nezdařilo",
+      "importFailed": "Import se nezdařil",
+      "importing": "Probíhá import...",
+      "loadFailed": "Nepodařilo se načíst seznam otisků",
+      "processing": "Zpracování...",
+      "renameFailed": "Přejmenování se nezdařilo",
+      "serviceMachineIdEmpty": "Prázdné"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "Seznam skupin",
     "group_name_placeholder": "Název skupiny",
     "save": "Uložit skupiny"
+  },
+  "codex": {
+    "title": "Správa účtů Codex",
+    "subtitle": "Spravujte své účty OpenAI Codex",
+    "addAccount": "Přidat účet",
+    "refreshAll": "Obnovit vše",
+    "refreshQuota": "Obnovit kvótu",
+    "switch": "Přepnout",
+    "switched": "Přepnuto na {{email}}",
+    "switchFailed": "Přepnutí se nezdařilo: {{error}}",
+    "current": "Aktuální",
+    "empty": {
+      "title": "Žádné účty",
+      "description": "Klikněte na „Přidat účet“"
+    },
+    "addModal": {
+      "title": "Přidat účet Codex",
+      "oauth": "OAuth přihlášení",
+      "token": "Import JSON",
+      "local": "Lokální import"
+    },
+    "oauth": {
+      "desc": "Klikněte níže a dokončete autorizaci OpenAI v prohlížeči",
+      "preparing": "Připravuje se autorizační odkaz...",
+      "openBrowser": "Otevřít v prohlížeči",
+      "hint": "Po autorizaci se toto okno automaticky aktualizuje",
+      "exchanging": "Probíhá výměna tokenu...",
+      "success": "Autorizace úspěšná",
+      "failed": "Autorizace selhala",
+      "portInUse": "Port {{port}} je již používán. Zavřete aplikaci, která jej používá, a zkuste to znovu.",
+      "portInUseTitle": "Port je obsazen",
+      "portInUseConfirm": "Port {{port}} je obsazen. Zavřít proces, který jej používá?",
+      "portCloseFailed": "Nepodařilo se zavřít port: {{error}}",
+      "portStillInUse": "Port {{port}} je stále obsazen."
+    },
+    "token": {
+      "desc": "Vložte obsah auth.json nebo JSON dat účtu",
+      "placeholder": "Vložte JSON...",
+      "import": "Importovat",
+      "importing": "Importování...",
+      "importSuccessMsg": "Importováno {{count}} účtů",
+      "importFailedMsg": "Import selhal: {{error}}",
+      "empty": "Zadejte token nebo JSON"
+    },
+    "local": {
+      "desc": "Importovat aktuální účet z ~/.codex/auth.json",
+      "import": "Načíst lokální účet"
+    },
+    "import": {
+      "label": "Importovat",
+      "importing": "Import lokálního účtu...",
+      "successMsg": "Import proběhl úspěšně: {{email}}",
+      "failedMsg": "Import se nezdařil: {{error}}"
+    },
+    "quota": {
+      "hourly": "Kvóta 5 hodin",
+      "weekly": "Týdenní kvóta",
+      "reset": "Reset",
+      "noData": "Žádná data kvóty",
+      "resetDone": "Resetováno"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}} d",
+      "relativeDaysHours": "{{days}} d {{hours}} h",
+      "relativeHours": "{{hours}} h",
+      "relativeHoursMinutes": "{{hours}} h {{minutes}} min",
+      "relativeMinutes": "{{minutes}} min",
+      "lessThanMinute": "<1 min",
+      "today": "Dnes {{time}}",
+      "tomorrow": "Zítra {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "Hledat účty...",
+    "view": {
+      "list": "Seznam",
+      "grid": "Karty"
+    },
+    "filter": {
+      "all": "Vše ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "Filtr",
+    "sortLabel": "Seřadit",
+    "sort": {
+      "weekly": "Týdenní kvóta",
+      "hourly": "5hodinová kvóta",
+      "descTooltip": "Sestupně (kliknutím přepnete na vzestupně)",
+      "ascTooltip": "Vzestupně (kliknutím přepnete na sestupně)",
+      "toggleDirection": "Přepnout směr",
+      "createdAt": "Datum vytvoření"
+    },
+    "export": "Exportovat",
+    "noMatch": {
+      "title": "Žádné vyhovující účty",
+      "desc": "Zkuste upravit hledání nebo filtry"
+    },
+    "columns": {
+      "email": "Účet",
+      "plan": "Plán",
+      "hourly": "Kvóta 5h",
+      "weekly": "Kvóta týdn.",
+      "actions": "Akce"
+    }
+  },
+  "dashboard": {
+    "title": "Přehled účtů",
+    "summary": {
+      "label": "Přehled",
+      "title": "Snímek účtů",
+      "desc": "Antigravity a Codex na první pohled"
+    },
+    "stats": {
+      "antigravity": "Účty Antigravity",
+      "codex": "Účty Codex",
+      "currentAntigravity": "Aktuální Antigravity",
+      "currentCodex": "Aktuální Codex",
+      "providers": "Poskytovatelé",
+      "totalAccounts": "Celkem účtů"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "Rozložení plánů",
+      "current": "Aktuální účet",
+      "recommended": "Doporučený účet",
+      "empty": "Žádné účty",
+      "emptyDesc": "Přidejte účet pro zobrazení detailů"
+    },
+    "quota": {
+      "remaining": "Zbývající kvóta {{value}}%",
+      "codex": "5 hodin {{hourly}}% · Týdně {{weekly}}%"
+    },
+    "emptyAccount": "Žádný účet",
+    "sections": {
+      "antigravity": "Antigravity účty",
+      "codex": "Codex účty"
+    },
+    "actions": {
+      "refresh": "Obnovit karty",
+      "viewAll": "Všechny účty"
+    },
+    "badges": {
+      "recommended": "Doporučeno"
+    },
+    "totalAccounts": "Celkem účtů",
+    "current": "Aktuální účet",
+    "recommended": "Doporučený účet",
+    "noAccount": "Žádný účet",
+    "switch": "Přepnout",
+    "switchTo": "Přepnout na tento účet",
+    "noRecommendation": "Žádné lepší doporučení",
+    "noData": "Žádná data",
+    "viewAllAccounts": "Zobrazit všechny účty"
   }
 }

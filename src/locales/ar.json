@@ -23,11 +23,13 @@
     "preview": "معاينة"
   },
   "nav": {
-    "overview": "نظرة عامة على الحسابات",
+    "overview": "حساب Antigravity",
     "accounts": "إدارة الحسابات",
     "wakeup": "مهام الاستيقاظ",
     "fingerprints": "بصمات الجهاز",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "codex": "حسابات Codex",
+    "dashboard": "لوحة التحكم"
   },
   "settings": {
     "title": "إعدادات التطبيق",
@@ -47,7 +49,7 @@
       "themeDark": "داكن (Dark)",
       "themeSystem": "حسب النظام",
       "accountManagement": "إدارة الحسابات",
-      "autoRefresh": "تحديث تلقائي للحصة",
+      "autoRefresh": "تحديث تلقائي لحصة Antigravity",
       "autoRefreshDesc": "تردد التحديث التلقائي في الخلفية",
       "autoRefreshDisabled": "معطل",
       "autoRefreshCustom": "مخصص...",
@@ -77,12 +79,17 @@
       "saveFailed": "فشل الحفظ: {{error}}"
     },
     "about": {
-      "appName": "Antigravity Cockpit Tools",
+      "appName": "Cockpit Tools",
       "slogan": "حل احترافي لإدارة الحسابات",
       "author": "المؤلف الرئيسي",
       "wechat": "حساب WeChat الرسمي",
       "github": "مستودع GitHub",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "رعاية المشروع",
+      "sponsorDesc": "Support development",
+      "feedback": "تعليقات",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "دعم التطوير",
       "checkUpdate": "التحقق من التحديثات",
       "checking": "جاري التحقق...",
@@ -201,7 +208,8 @@
     "switchTo": "التبديل إلى هذا الحساب",
     "switching": "جارِ التبديل...",
     "fingerprint": "البصمة",
-    "bound": "مرتبط"
+    "bound": "مرتبط",
+    "brandTitle": "إدارة حساب Antigravity"
   },
   "fingerprints": {
     "title": "بصمات الجهاز",
@@ -217,7 +225,12 @@
       "name": "اسم البصمة",
       "machineId": "معرف الجهاز",
       "accounts": "الحسابات المرتبطة",
-      "actions": "الإجراءات"
+      "actions": "الإجراءات",
+      "accountCount": "{{count}} حساب",
+      "apply": "تطبيق",
+      "noData": "لا توجد بيانات للبصمات",
+      "preview": "معاينة",
+      "rename": "إعادة تسمية"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "استيراد بصمات",
         "fromTools": "استيراد بصمات Antigravity Tools",
-        "desc": "الاستيراد من مجلد ~/.antigravity_tools/"
+        "desc": "الاستيراد من مجلد ~/.antigravity_tools/",
+        "fromJsonBtn": "استيراد من JSON",
+        "jsonExample": "مثال التنسيق:",
+        "jsonPlaceholder": "بصمة العمل",
+        "orPasteJson": "أو لصق JSON"
       },
       "bound": {
         "title": "إدارة الحسابات المرتبطة",
@@ -243,7 +260,8 @@
         "empty": "لا توجد حسابات مرتبطة بهذه البصمة",
         "emptyAll": "جميع الحسابات مرتبطة بالفعل بهذه البصمة",
         "select": "اختر الحساب المراد إضافته",
-        "from": "من: {{name}}"
+        "from": "من: {{name}}",
+        "back": "رجوع"
       },
       "detail": {
         "title": "تفاصيل البصمة",
@@ -263,7 +281,23 @@
       "previewNotReady": "المعاينة غير جاهزة، يرجى المحاولة لاحقاً",
       "duplicate": "البصمة موجودة بالفعل: {{name}}، لا حاجة للإضافة مجدداً.",
       "readOnly": "للقراءة فقط",
-      "current": "الحالي"
+      "current": "الحالي",
+      "addCount": "تمت إضافة {{count}} حساب",
+      "addFailed": "فشل الإضافة",
+      "adding": "جارٍ الإضافة...",
+      "applyFailed": "فشل التطبيق",
+      "boundCount": "تم ربط {{count}} حساب",
+      "captureFailed": "فشل الالتقاط",
+      "count": "{{count}}",
+      "deleteFailed": "فشل الحذف",
+      "fpLabel": "البصمة:",
+      "generateFailed": "فشل الإنشاء",
+      "importFailed": "فشل الاستيراد",
+      "importing": "جارٍ الاستيراد...",
+      "loadFailed": "فشل تحميل قائمة البصمات",
+      "processing": "جارٍ المعالجة...",
+      "renameFailed": "فشل إعادة التسمية",
+      "serviceMachineIdEmpty": "فارغ"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "قائمة المجموعات",
     "group_name_placeholder": "اسم المجموعة",
     "save": "حفظ المجموعات"
+  },
+  "codex": {
+    "title": "إدارة حسابات Codex",
+    "subtitle": "إدارة حسابات OpenAI Codex",
+    "addAccount": "إضافة حساب",
+    "refreshAll": "تحديث الكل",
+    "refreshQuota": "تحديث الحصة",
+    "switch": "تبديل",
+    "switched": "تم التبديل إلى {{email}}",
+    "switchFailed": "فشل التبديل: {{error}}",
+    "current": "الحالي",
+    "empty": {
+      "title": "لا توجد حسابات",
+      "description": "انقر على \"إضافة حساب\" للبدء"
+    },
+    "addModal": {
+      "title": "إضافة حساب Codex",
+      "oauth": "تسجيل OAuth",
+      "token": "استيراد JSON",
+      "local": "استيراد محلي"
+    },
+    "oauth": {
+      "desc": "انقر أدناه وأكمل تفويض OpenAI في المتصفح",
+      "preparing": "جارٍ إعداد رابط التفويض...",
+      "openBrowser": "فتح في المتصفح",
+      "hint": "بعد إكمال التفويض سيتم تحديث هذه النافذة تلقائيًا",
+      "exchanging": "جارٍ تبادل الرمز...",
+      "success": "تم التفويض بنجاح",
+      "failed": "فشل التفويض",
+      "portInUse": "المنفذ {{port}} قيد الاستخدام بالفعل. أغلق التطبيق الذي يستخدمه ثم حاول مرة أخرى.",
+      "portInUseTitle": "المنفذ قيد الاستخدام",
+      "portInUseConfirm": "المنفذ {{port}} قيد الاستخدام. هل تريد إغلاق العملية التي تستخدم هذا المنفذ؟",
+      "portCloseFailed": "فشل إغلاق المنفذ: {{error}}",
+      "portStillInUse": "المنفذ {{port}} ما يزال قيد الاستخدام."
+    },
+    "token": {
+      "desc": "الصق محتوى auth.json أو بيانات JSON للحساب",
+      "placeholder": "الصق محتوى JSON...",
+      "import": "استيراد",
+      "importing": "جارٍ الاستيراد...",
+      "importSuccessMsg": "تم استيراد {{count}} حسابًا",
+      "importFailedMsg": "فشل الاستيراد: {{error}}",
+      "empty": "يرجى إدخال Token أو JSON"
+    },
+    "local": {
+      "desc": "استيراد الحساب الحالي من ~/.codex/auth.json",
+      "import": "جلب الحساب المحلي"
+    },
+    "import": {
+      "label": "استيراد",
+      "importing": "جارٍ استيراد الحساب المحلي...",
+      "successMsg": "تم الاستيراد بنجاح: {{email}}",
+      "failedMsg": "فشل الاستيراد: {{error}}"
+    },
+    "quota": {
+      "hourly": "حصة 5 ساعات",
+      "weekly": "الحصة الأسبوعية",
+      "reset": "إعادة ضبط",
+      "noData": "لا توجد بيانات للحصة",
+      "resetDone": "تمت إعادة الضبط"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}} يوم",
+      "relativeDaysHours": "{{days}} يوم {{hours}} ساعة",
+      "relativeHours": "{{hours}} ساعة",
+      "relativeHoursMinutes": "{{hours}} ساعة {{minutes}} دقيقة",
+      "relativeMinutes": "{{minutes}} دقيقة",
+      "lessThanMinute": "<1 دقيقة",
+      "today": "اليوم {{time}}",
+      "tomorrow": "غدًا {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "بحث في الحسابات...",
+    "view": {
+      "list": "عرض القائمة",
+      "grid": "عرض البطاقات"
+    },
+    "filter": {
+      "all": "الكل ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "تصفية",
+    "sortLabel": "ترتيب",
+    "sort": {
+      "weekly": "الحصة الأسبوعية",
+      "hourly": "حصة 5 ساعات",
+      "descTooltip": "تنازلي (انقر للتبديل إلى تصاعدي)",
+      "ascTooltip": "تصاعدي (انقر للتبديل إلى تنازلي)",
+      "toggleDirection": "تبديل اتجاه الترتيب",
+      "createdAt": "وقت الإنشاء"
+    },
+    "export": "تصدير",
+    "noMatch": {
+      "title": "لا توجد حسابات مطابقة",
+      "desc": "حاول تعديل البحث أو المرشحات"
+    },
+    "columns": {
+      "email": "الحساب",
+      "plan": "الخطة",
+      "hourly": "حصة 5 ساعات",
+      "weekly": "حصة أسبوعية",
+      "actions": "إجراءات"
+    }
+  },
+  "dashboard": {
+    "title": "لوحة حسابات",
+    "summary": {
+      "label": "نظرة عامة",
+      "title": "لمحة عن الحسابات",
+      "desc": "عرض Antigravity و Codex في لمحة"
+    },
+    "stats": {
+      "antigravity": "حسابات Antigravity",
+      "codex": "حسابات Codex",
+      "currentAntigravity": "Antigravity الحالي",
+      "currentCodex": "Codex الحالي",
+      "providers": "المزوّدون",
+      "totalAccounts": "إجمالي الحسابات"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "توزيع الخطط",
+      "current": "الحساب الحالي",
+      "recommended": "الحساب الموصى به",
+      "empty": "لا توجد حسابات",
+      "emptyDesc": "أضف حسابًا لرؤية التفاصيل"
+    },
+    "quota": {
+      "remaining": "الحصة المتبقية {{value}}%",
+      "codex": "٥ ساعات {{hourly}}% · أسبوعي {{weekly}}%"
+    },
+    "emptyAccount": "لا يوجد حساب",
+    "sections": {
+      "antigravity": "حسابات Antigravity",
+      "codex": "حسابات Codex"
+    },
+    "actions": {
+      "refresh": "تحديث البطاقات",
+      "viewAll": "كل الحسابات"
+    },
+    "badges": {
+      "recommended": "موصى به"
+    },
+    "totalAccounts": "إجمالي الحسابات",
+    "current": "الحساب الحالي",
+    "recommended": "الحساب الموصى به",
+    "noAccount": "لا يوجد حساب",
+    "switch": "تبديل",
+    "switchTo": "التبديل إلى هذا الحساب",
+    "noRecommendation": "لا توجد توصية أفضل",
+    "noData": "لا توجد بيانات",
+    "viewAllAccounts": "عرض كل الحسابات"
   }
 }

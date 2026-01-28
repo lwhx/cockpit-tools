@@ -1,7 +1,8 @@
-import { LayoutGrid, Fingerprint, Settings, Rocket, AlarmClock } from 'lucide-react';
+import { Settings, Rocket, GaugeCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useState, useRef, useCallback } from 'react';
 import { Page } from '../../types/navigation';
+import { RobotIcon } from '../icons/RobotIcon';
 
 interface FlyingRocket {
   id: number;
@@ -14,8 +15,17 @@ interface SideNavProps {
   setPage: (page: Page) => void;
 }
 
+import { CodexIcon } from '../icons/CodexIcon';
+
+interface FlyingRocket {
+  id: number;
+  x: number;
+  y: number;
+}
+
 export function SideNav({ page, setPage }: SideNavProps) {
   const { t } = useTranslation();
+  const isOverviewGroup = page === 'overview' || page === 'fingerprints' || page === 'wakeup';
   const [clickCount, setClickCount] = useState(0);
   const [flyingRockets, setFlyingRockets] = useState<FlyingRocket[]>([]);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -81,31 +91,32 @@ export function SideNav({ page, setPage }: SideNavProps) {
       </div>
       
       <div className="nav-items">
+
         <button 
-          className={`nav-item ${page === 'overview' ? 'active' : ''}`} 
+          className={`nav-item ${page === 'dashboard' ? 'active' : ''}`} 
+          onClick={() => setPage('dashboard')}
+          title={t('nav.dashboard')}
+        >
+          <GaugeCircle size={20} />
+          <span className="tooltip">{t('nav.dashboard')}</span>
+        </button>
+
+        <button 
+          className={`nav-item ${isOverviewGroup ? 'active' : ''}`} 
           onClick={() => setPage('overview')}
           title={t('nav.overview')}
         >
-          <LayoutGrid size={20} />
+          <RobotIcon />
           <span className="tooltip">{t('nav.overview')}</span>
         </button>
         
         <button 
-          className={`nav-item ${page === 'fingerprints' ? 'active' : ''}`} 
-          onClick={() => setPage('fingerprints')}
-          title={t('nav.fingerprints')}
+          className={`nav-item ${page === 'codex' ? 'active' : ''}`} 
+          onClick={() => setPage('codex')}
+          title={t('nav.codex')}
         >
-          <Fingerprint size={20} />
-          <span className="tooltip">{t('nav.fingerprints')}</span>
-        </button>
-
-        <button 
-          className={`nav-item ${page === 'wakeup' ? 'active' : ''}`} 
-          onClick={() => setPage('wakeup')}
-          title={t('nav.wakeup')}
-        >
-          <AlarmClock size={20} />
-          <span className="tooltip">{t('nav.wakeup')}</span>
+          <CodexIcon />
+          <span className="tooltip">{t('nav.codex')}</span>
         </button>
         
         <button 

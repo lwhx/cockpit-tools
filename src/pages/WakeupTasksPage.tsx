@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { confirm as confirmDialog } from '@tauri-apps/plugin-dialog';
-import { Plus, Pencil, Trash2, Power, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Power, X, AlarmClock, Fingerprint } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAccountStore } from '../stores/useAccountStore';
 import { Page } from '../types/navigation';
 import { Account } from '../types/account';
 import { getModelShortName } from '../utils/account';
+import { RobotIcon } from '../components/icons/RobotIcon';
 
 const TASKS_STORAGE_KEY = 'agtools.wakeup.tasks';
 const WAKEUP_ENABLED_KEY = 'agtools.wakeup.enabled';
@@ -1631,19 +1632,32 @@ export function WakeupTasksPage({ onNavigate }: WakeupPageProps) {
 
   return (
     <main className="main-content wakeup-page">
-      <section className="page-heading wakeup-heading">
-        <div>
-          <h1>{t('wakeup.title')}</h1>
-          <p>{t('wakeup.subtitle')}</p>
+      <div className="page-tabs-row">
+        <div className="page-tabs-label">{t('overview.brandTitle')}</div>
+        <div className="page-tabs filter-tabs">
+          <button
+            className="filter-tab"
+            onClick={() => onNavigate?.('overview')}
+          >
+            <RobotIcon className="tab-icon" />
+            <span>{t('overview.title')}</span>
+          </button>
+          <button
+            className="filter-tab"
+            onClick={() => onNavigate?.('fingerprints')}
+          >
+            <Fingerprint className="tab-icon" />
+            <span>{t('fingerprints.title')}</span>
+          </button>
+          <button
+            className="filter-tab active"
+            onClick={() => onNavigate?.('wakeup')}
+          >
+            <AlarmClock className="tab-icon" />
+            <span>{t('wakeup.title')}</span>
+          </button>
         </div>
-        <div className="wakeup-global-toggle">
-          <span className="toggle-label">{t('wakeup.globalToggle')}</span>
-          <label className="wakeup-switch" onClick={handleToggleWakeup}>
-            <input type="checkbox" checked={wakeupEnabled} readOnly />
-            <span className="wakeup-slider" />
-          </label>
-        </div>
-      </section>
+      </div>
 
       <div className="toolbar">
         <div className="toolbar-right">
@@ -1661,6 +1675,13 @@ export function WakeupTasksPage({ onNavigate }: WakeupPageProps) {
               ? t('wakeup.historyCount', { count: historyRecords.length })
               : t('wakeup.history')}
           </button>
+          <div className="wakeup-global-toggle">
+            <span className="toggle-label">{t('wakeup.globalToggle')}</span>
+            <label className="wakeup-switch" onClick={handleToggleWakeup}>
+              <input type="checkbox" checked={wakeupEnabled} readOnly />
+              <span className="wakeup-slider" />
+            </label>
+          </div>
           {accounts.length === 0 && (
             <button className="btn btn-secondary" onClick={() => onNavigate?.('overview')}>
               {t('wakeup.gotoAddAccount')}

@@ -23,11 +23,13 @@
     "preview": "Preview"
   },
   "nav": {
-    "overview": "Tổng quan",
+    "overview": "Tài khoản Antigravity",
     "accounts": "Quản lý tài khoản",
     "wakeup": "Wakeup Tasks",
     "fingerprints": "Vân tay thiết bị",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "codex": "Tài khoản Codex",
+    "dashboard": "Bảng điều khiển"
   },
   "settings": {
     "title": "Cài đặt ứng dụng",
@@ -47,7 +49,7 @@
       "themeDark": "Tối (Dark)",
       "themeSystem": "Theo hệ thống",
       "accountManagement": "Quản lý tài khoản",
-      "autoRefresh": "Tự động làm mới hạn mức",
+      "autoRefresh": "Tự động làm mới hạn mức Antigravity",
       "autoRefreshDesc": "Tần suất cập nhật tự động dưới nền",
       "autoRefreshDisabled": "Vô hiệu hóa",
       "autoRefreshCustom": "Tùy chỉnh...",
@@ -77,12 +79,17 @@
       "saveFailed": "Lưu thất bại: {{error}}"
     },
     "about": {
-      "appName": "Antigravity Cockpit Tools",
+      "appName": "Cockpit Tools",
       "slogan": "Giải pháp quản lý tài khoản chuyên nghiệp",
       "author": "Tác giả chính",
       "wechat": "Tài khoản WeChat chính thức",
       "github": "Kho lưu trữ mã nguồn",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "Tài trợ dự án",
+      "sponsorDesc": "Support development",
+      "feedback": "Phản hồi",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "Hỗ trợ phát triển",
       "checkUpdate": "Kiểm tra cập nhật",
       "checking": "Đang kiểm tra...",
@@ -201,7 +208,8 @@
     "switchTo": "Chuyển sang tài khoản này",
     "switching": "Đang chuyển...",
     "fingerprint": "Vân tay",
-    "bound": "Đã liên kết"
+    "bound": "Đã liên kết",
+    "brandTitle": "Quản lý tài khoản Antigravity"
   },
   "fingerprints": {
     "title": "Vân tay thiết bị",
@@ -217,7 +225,12 @@
       "name": "Tên vân tay",
       "machineId": "ID thiết bị",
       "accounts": "Tài khoản liên kết",
-      "actions": "Thao tác"
+      "actions": "Thao tác",
+      "accountCount": "{{count}} tài khoản",
+      "apply": "Áp dụng",
+      "noData": "Không có dữ liệu vân tay",
+      "preview": "Xem trước",
+      "rename": "Đổi tên"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "Nhập vân tay",
         "fromTools": "Nhập vân tay Antigravity Tools",
-        "desc": "Nhập từ thư mục ~/.antigravity_tools/"
+        "desc": "Nhập từ thư mục ~/.antigravity_tools/",
+        "fromJsonBtn": "Nhập từ JSON",
+        "jsonExample": "Ví dụ định dạng:",
+        "jsonPlaceholder": "Dấu vân tay công việc",
+        "orPasteJson": "Hoặc dán JSON"
       },
       "bound": {
         "title": "Quản lý tài khoản liên kết",
@@ -243,7 +260,8 @@
         "empty": "Chưa có tài khoản nào liên kết với vân tay này",
         "emptyAll": "Tất cả tài khoản đều đã liên kết với vân tay này",
         "select": "Chọn tài khoản muốn thêm",
-        "from": "Từ: {{name}}"
+        "from": "Từ: {{name}}",
+        "back": "Quay lại"
       },
       "detail": {
         "title": "Thông tin chi tiết vân tay",
@@ -263,7 +281,23 @@
       "previewNotReady": "Bản xem trước chưa sẵn sàng, vui lòng thử lại sau",
       "duplicate": "Đã tồn tại vân tay tương tự: {{name}}, không cần thêm lại.",
       "readOnly": "Chỉ đọc",
-      "current": "Hiện tại"
+      "current": "Hiện tại",
+      "addCount": "Đã thêm {{count}} tài khoản",
+      "addFailed": "Thêm thất bại",
+      "adding": "Đang thêm...",
+      "applyFailed": "Áp dụng thất bại",
+      "boundCount": "Đã liên kết {{count}} tài khoản",
+      "captureFailed": "Chụp thất bại",
+      "count": "{{count}}",
+      "deleteFailed": "Xóa thất bại",
+      "fpLabel": "Dấu vân tay:",
+      "generateFailed": "Tạo thất bại",
+      "importFailed": "Nhập thất bại",
+      "importing": "Đang nhập...",
+      "loadFailed": "Không thể tải danh sách vân tay",
+      "processing": "Đang xử lý...",
+      "renameFailed": "Đổi tên thất bại",
+      "serviceMachineIdEmpty": "Trống"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "Danh sách nhóm",
     "group_name_placeholder": "Tên nhóm",
     "save": "Lưu nhóm"
+  },
+  "codex": {
+    "title": "Quản lý tài khoản Codex",
+    "subtitle": "Quản lý các tài khoản OpenAI Codex",
+    "addAccount": "Thêm tài khoản",
+    "refreshAll": "Làm mới tất cả",
+    "refreshQuota": "Làm mới hạn mức",
+    "switch": "Chuyển",
+    "switched": "Đã chuyển sang {{email}}",
+    "switchFailed": "Chuyển thất bại: {{error}}",
+    "current": "Hiện tại",
+    "empty": {
+      "title": "Chưa có tài khoản",
+      "description": "Nhấn \"Thêm tài khoản\" để bắt đầu"
+    },
+    "addModal": {
+      "title": "Thêm tài khoản Codex",
+      "oauth": "Đăng nhập OAuth",
+      "token": "Nhập JSON",
+      "local": "Nhập từ máy"
+    },
+    "oauth": {
+      "desc": "Nhấn nút bên dưới và hoàn tất ủy quyền OpenAI trong trình duyệt",
+      "preparing": "Đang chuẩn bị liên kết ủy quyền...",
+      "openBrowser": "Mở trong trình duyệt",
+      "hint": "Sau khi ủy quyền, cửa sổ này sẽ tự cập nhật",
+      "exchanging": "Đang đổi token...",
+      "success": "Ủy quyền thành công",
+      "failed": "Ủy quyền thất bại",
+      "portInUse": "Cổng {{port}} đang được sử dụng. Hãy đóng ứng dụng đang dùng cổng này và thử lại.",
+      "portInUseTitle": "Cổng đang được sử dụng",
+      "portInUseConfirm": "Cổng {{port}} đang được sử dụng. Bạn có muốn đóng tiến trình dùng cổng này không?",
+      "portCloseFailed": "Không thể đóng cổng: {{error}}",
+      "portStillInUse": "Cổng {{port}} vẫn đang được sử dụng."
+    },
+    "token": {
+      "desc": "Dán nội dung auth.json hoặc dữ liệu JSON tài khoản",
+      "placeholder": "Dán nội dung JSON...",
+      "import": "Nhập",
+      "importing": "Đang nhập...",
+      "importSuccessMsg": "Đã nhập {{count}} tài khoản",
+      "importFailedMsg": "Nhập thất bại: {{error}}",
+      "empty": "Vui lòng nhập Token hoặc JSON"
+    },
+    "local": {
+      "desc": "Nhập tài khoản hiện tại từ ~/.codex/auth.json",
+      "import": "Lấy tài khoản cục bộ"
+    },
+    "import": {
+      "label": "Nhập",
+      "importing": "Đang nhập tài khoản cục bộ...",
+      "successMsg": "Nhập thành công: {{email}}",
+      "failedMsg": "Nhập thất bại: {{error}}"
+    },
+    "quota": {
+      "hourly": "Hạn mức 5 giờ",
+      "weekly": "Hạn mức tuần",
+      "reset": "Đặt lại",
+      "noData": "Không có dữ liệu hạn mức",
+      "resetDone": "Đã đặt lại"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}} ngày",
+      "relativeDaysHours": "{{days}} ngày {{hours}} giờ",
+      "relativeHours": "{{hours}} giờ",
+      "relativeHoursMinutes": "{{hours}} giờ {{minutes}} phút",
+      "relativeMinutes": "{{minutes}} phút",
+      "lessThanMinute": "<1 phút",
+      "today": "Hôm nay {{time}}",
+      "tomorrow": "Ngày mai {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "Tìm kiếm tài khoản...",
+    "view": {
+      "list": "Dạng danh sách",
+      "grid": "Dạng thẻ"
+    },
+    "filter": {
+      "all": "Tất cả ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "Bộ lọc",
+    "sortLabel": "Sắp xếp",
+    "sort": {
+      "weekly": "Hạn mức tuần",
+      "hourly": "Hạn mức 5 giờ",
+      "descTooltip": "Giảm dần (nhấn để chuyển Tăng dần)",
+      "ascTooltip": "Tăng dần (nhấn để chuyển Giảm dần)",
+      "toggleDirection": "Đổi hướng sắp xếp",
+      "createdAt": "Thời gian tạo"
+    },
+    "export": "Xuất",
+    "noMatch": {
+      "title": "Không có tài khoản phù hợp",
+      "desc": "Thử điều chỉnh tìm kiếm hoặc bộ lọc"
+    },
+    "columns": {
+      "email": "Tài khoản",
+      "plan": "Gói",
+      "hourly": "Hạn mức 5h",
+      "weekly": "Hạn mức tuần",
+      "actions": "Hành động"
+    }
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển tài khoản",
+    "summary": {
+      "label": "Tổng quan",
+      "title": "Ảnh chụp tài khoản",
+      "desc": "Xem Antigravity và Codex trong nháy mắt"
+    },
+    "stats": {
+      "antigravity": "Tài khoản Antigravity",
+      "codex": "Tài khoản Codex",
+      "currentAntigravity": "Antigravity hiện tại",
+      "currentCodex": "Codex hiện tại",
+      "providers": "Nhà cung cấp",
+      "totalAccounts": "Tổng tài khoản"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "Phân bố gói",
+      "current": "Tài khoản hiện tại",
+      "recommended": "Tài khoản đề xuất",
+      "empty": "Chưa có tài khoản",
+      "emptyDesc": "Thêm tài khoản để xem chi tiết"
+    },
+    "quota": {
+      "remaining": "Hạn mức còn lại {{value}}%",
+      "codex": "5 giờ {{hourly}}% · Tuần {{weekly}}%"
+    },
+    "emptyAccount": "Chưa có tài khoản",
+    "sections": {
+      "antigravity": "Tài khoản Antigravity",
+      "codex": "Tài khoản Codex"
+    },
+    "actions": {
+      "refresh": "Làm mới thẻ",
+      "viewAll": "Tất cả tài khoản"
+    },
+    "badges": {
+      "recommended": "Đề xuất"
+    },
+    "totalAccounts": "Tổng số tài khoản",
+    "current": "Tài khoản hiện tại",
+    "recommended": "Tài khoản đề xuất",
+    "noAccount": "Không có tài khoản",
+    "switch": "Chuyển",
+    "switchTo": "Chuyển sang tài khoản này",
+    "noRecommendation": "Không có đề xuất tốt hơn",
+    "noData": "Không có dữ liệu",
+    "viewAllAccounts": "Xem tất cả tài khoản"
   }
 }

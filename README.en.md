@@ -1,4 +1,4 @@
-# Antigravity Cockpit Tools
+# Cockpit Tools
 
 English · [简体中文](README.md)
 
@@ -6,9 +6,9 @@ English · [简体中文](README.md)
 [![GitHub issues](https://img.shields.io/github/issues/jlcodes99/antigravity-cockpit-tools)](https://github.com/jlcodes99/antigravity-cockpit-tools/issues)
 [![License](https://img.shields.io/github/license/jlcodes99/antigravity-cockpit-tools)](https://github.com/jlcodes99/antigravity-cockpit-tools)
 
-A desktop multi-account management tool **designed specifically for Antigravity client users**.
+A **universal AI IDE account management tool**, currently supporting **Antigravity** and **Codex**.
 
-> ⚠️ **Note**: This tool requires the local Antigravity client to be installed. The core feature is **one-click account switching**, helping users quickly switch between multiple accounts, reduce the risk of account switching, and fully utilize quotas from different accounts.
+> Designed to help users efficiently manage multiple AI IDE accounts, this tool supports one-click switching, quota monitoring, automatic wake-up tasks, and more, helping you fully utilize resources from different accounts.
 
 **Features**: One-click Switch · Multi-account Management · Quota Monitoring · Wake-up Tasks · Device Fingerprints · Plugin Integration
 
@@ -20,83 +20,47 @@ A desktop multi-account management tool **designed specifically for Antigravity 
 
 ## Feature Overview
 
-### One-Click Account Switching (Core Feature)
+### 1. Dashboard
 
-![Accounts](docs/images/accounts.png)
+A brand new visual dashboard providing a one-stop status overview:
 
-The core feature of this tool is **one-click account switching**, helping users quickly switch between multiple Antigravity accounts:
+- **Dual Platform Support**: Simultaneously displays Antigravity and Codex account status
+- **Quota Monitoring**: Real-time view of remaining quotas and reset times for each model
+- **Quick Actions**: One-click refresh, one-click wake-up
+- **Visual Progress**: Intuitive progress bars showing quota consumption
 
-- **Quick Switch**: One-click switch the currently active account, no manual login/logout required
-- **Multiple Import Methods**: OAuth authorization, Refresh Token, sync from plugin, import from JSON
-- **Batch Operations**: Batch refresh quotas, batch delete, batch export
-- **Card/List View**: Two view modes, switch as needed
-- **Quota Display**: Real-time view of remaining quota and reset time for each model
+> ![Dashboard Overview](docs/images/dashboard_overview.png)
 
----
+### 2. Antigravity Account Management
 
-### Wake-up Tasks
+- **One-Click Switch**: Switch the currently active account instantly without manual login/logout
+- **Multiple Import Methods**: OAuth, Refresh Token, Plugin Sync
+- **Wake-up Tasks**: Schedule AI model wake-ups to trigger quota reset cycles in advance
+- **Device Fingerprints**: Generate, manage, and bind device fingerprints to reduce risk
 
-![Wakeup Tasks](docs/images/wakeup-tasks.png)
+> ![Antigravity Accounts](docs/images/antigravity_list.png)
+>
+> *(Wakeup Tasks & Device Fingerprints)*
+> ![Wakeup Tasks](docs/images/wakeup_detail.png)
+> ![Device Fingerprints](docs/images/fingerprint_detail.png)
 
-Schedule AI model wake-ups to trigger quota reset cycles in advance:
+### 3. Codex Account Management
 
-- **Multiple Trigger Modes**:
-  - Scheduled: Daily / Weekly / Interval loop
-  - Crontab advanced mode
-  - Quota reset trigger
-- **Multi-model Support**: Wake up multiple models simultaneously
-- **Multi-account Support**: Specify multiple accounts for task execution
-- **Time Window**: Restrict tasks to run only within specified time periods
-- **History Records**: View detailed trigger logs and AI responses
-- **Test Run**: Manually test wake-up effects
+- **Dedicated Support**: Optimized account management experience for Codex
+- **Quota Display**: Clear display of Hourly and Weekly quota status
+- **Plan Recognition**: Automatically identifies account Plan types (Basic, Plus, Team, etc.)
 
----
+> ![Codex Accounts](docs/images/codex_list.png)
 
-### Device Fingerprints
+### 4. General Settings
 
-![Fingerprints](docs/images/fingerprints.png)
+- **Personalized Settings**: Theme switching, language settings, auto-refresh interval
 
-Manage device fingerprints bound to accounts:
-
-- **Generate Fingerprint**: Randomly generate new device fingerprints
-- **Capture Current**: Capture the fingerprint currently used by the client
-- **Bind Accounts**: Bind fingerprints to multiple accounts
-- **Import/Export**: Support importing from legacy tools or JSON
-- **Batch Management**: Batch delete fingerprints
+> ![Settings](docs/images/settings_page.png)
 
 ---
 
-### Quota Monitoring
 
-Real-time monitoring of model quotas for each account:
-
-- **Multi-model Display**: Shows popular models (Claude Sonnet, Gemini Pro, Gemini Flash, etc.)
-- **Quota Progress Bar**: Visualize remaining quota percentage
-- **Reset Countdown**: Display remaining time until quota reset
-- **Color Indicators**: Green/Yellow/Red three-tier reminder
-
----
-
-### Plugin Integration
-
-Supports integration with [Antigravity Cockpit](https://github.com/jlcodes99/vscode-antigravity-cockpit) VS Code extension:
-
-- **Switch from Plugin**: Directly call Tools from within the VS Code extension for quick account switching, without leaving the editor
-- **Account Sync**: Sync authorized accounts from the plugin to Tools
-- **Current Account Sync**: Automatically sync the current account used by the local client
-- **Two-way Communication**: Real-time communication with the plugin
-
----
-
-## Screenshots
-
-| Account Overview | Wake-up Tasks |
-| :---: | :---: |
-| ![Accounts](docs/images/accounts.png) | ![Wakeup Tasks](docs/images/wakeup-tasks.png) |
-
-| Device Fingerprints | - |
-| :---: | :---: |
-| ![Fingerprints](docs/images/fingerprints.png) | - |
 
 ---
 
@@ -120,19 +84,9 @@ Due to macOS security mechanisms, apps not downloaded from the App Store may tri
     ```bash
     sudo xattr -rd com.apple.quarantine "/Applications/Cockpit Tools.app"
     ```
-    > **Note**: If you changed the app name (e.g., to `Antigravity Cockpit Tools.app`), please adjust the path in the command accordingly.
+    > **Note**: If you changed the app name, please adjust the path in the command accordingly.
 
 2.  **Or**: Go to "System Settings" -> "Privacy & Security" and click "Open Anyway".
-
----
-
-## Quick Start
-
-1. Download and install the release package
-2. Add accounts (OAuth / Refresh Token / Sync from Plugin / JSON Import)
-3. View quotas and status in "Account Overview"
-4. Create wake-up tasks to schedule model wake-ups
-5. Manage device fingerprints (optional)
 
 ---
 
@@ -164,33 +118,21 @@ npm run tauri build
 
 ---
 
-## Tech Stack
+## Sponsor
 
-- **Frontend**: React 19 + TypeScript + Vite
-- **Backend**: Tauri 2 (Rust)
-- **Internationalization**: i18next + react-i18next
-- **State Management**: Zustand
-- **Styling**: TailwindCSS + DaisyUI
+If you find this project useful, consider supporting it here: [☕ Donate](docs/DONATE.md)
+
+Every bit of support helps sustain open-source development. Thank you!
 
 ---
 
 ## Acknowledgments
 
-- Account switching logic based on: [Antigravity-Manager](https://github.com/lbjlaq/Antigravity-Manager)
+- Antigravity account switching logic based on: [Antigravity-Manager](https://github.com/lbjlaq/Antigravity-Manager)
 
 Thanks to the project author for their open-source contributions! If these projects have helped you, please give them a ⭐ Star to show your support!
 
-
 ---
-
-## Support
-
-- ⭐ [GitHub Star](https://github.com/jlcodes99/antigravity-cockpit-tools)
-- 💬 [Report Issues](https://github.com/jlcodes99/antigravity-cockpit-tools/issues)
-
----
-
-
 
 ## License
 

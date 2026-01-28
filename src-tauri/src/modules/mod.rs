@@ -15,6 +15,9 @@ pub mod wakeup;
 pub mod sync_settings;
 pub mod update_checker;
 pub mod group_settings;
+pub mod codex_account;
+pub mod codex_quota;
+pub mod codex_oauth;
 
 // 重新导出常用函数
 pub use account::*;

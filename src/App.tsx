@@ -4,6 +4,8 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 import { AccountsPage } from './pages/AccountsPage';
+import { CodexAccountsPage } from './pages/CodexAccountsPage';
+
 import { FingerprintsPage } from './pages/FingerprintsPage';
 import { WakeupTasksPage } from './pages/WakeupTasksPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -13,8 +15,10 @@ import { Page } from './types/navigation';
 import { useAutoRefresh } from './hooks/useAutoRefresh';
 import { changeLanguage, getCurrentLanguage, normalizeLanguage } from './i18n';
 
+import { DashboardPage } from './pages/DashboardPage';
+
 function App() {
-  const [page, setPage] = useState<Page>('overview');
+  const [page, setPage] = useState<Page>('dashboard');
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
   
   // 启用自动刷新 hook
@@ -87,8 +91,11 @@ function App() {
 
       <div className="main-wrapper">
         {/* overview 现在是合并后的账号总览页面 */}
+
+        {page === 'dashboard' && <DashboardPage onNavigate={setPage} />}
         {page === 'overview' && <AccountsPage onNavigate={setPage} />}
-        {page === 'fingerprints' && <FingerprintsPage />}
+        {page === 'codex' && <CodexAccountsPage />}
+        {page === 'fingerprints' && <FingerprintsPage onNavigate={setPage} />}
         {page === 'wakeup' && <WakeupTasksPage onNavigate={setPage} />}
         {page === 'settings' && <SettingsPage />}
       </div>

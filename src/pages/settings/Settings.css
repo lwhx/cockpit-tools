@@ -8,16 +8,16 @@
   gap: 24px;
   animation: fadeUp 0.5s ease both;
   width: 100%;
-  align-items: center;
+  align-items: stretch;
 }
 
 .settings-content {
-  width: min(860px, 100%);
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  margin: 0 auto;
-  padding: 0 8px;
+  margin: 0;
+  padding: 0;
 }
 
 /* Tab Navigation - Left Aligned Pill */

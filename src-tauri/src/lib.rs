@@ -147,6 +147,24 @@ pub fn run() {
             commands::group::delete_group,
             commands::group::update_group_order,
             commands::group::get_display_groups,
+            
+            // Codex Commands
+            commands::codex::list_codex_accounts,
+            commands::codex::get_current_codex_account,
+            commands::codex::switch_codex_account,
+            commands::codex::delete_codex_account,
+            commands::codex::delete_codex_accounts,
+            commands::codex::import_codex_from_local,
+            commands::codex::import_codex_from_json,
+            commands::codex::export_codex_accounts,
+            commands::codex::refresh_codex_quota,
+            commands::codex::refresh_all_codex_quotas,
+            commands::codex::prepare_codex_oauth_url,
+            commands::codex::complete_codex_oauth,
+            commands::codex::cancel_codex_oauth,
+            commands::codex::add_codex_account_with_token,
+            commands::codex::is_codex_oauth_port_in_use,
+            commands::codex::close_codex_oauth_port,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

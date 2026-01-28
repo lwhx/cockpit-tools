@@ -23,11 +23,13 @@
     "preview": "預覽"
   },
   "nav": {
-    "overview": "帳號總覽",
+    "overview": "Antigravity 帳號",
     "accounts": "帳號管理",
     "wakeup": "喚醒任務",
     "fingerprints": "裝置指纹",
-    "settings": "設定"
+    "settings": "設定",
+    "codex": "Codex 帳號",
+    "dashboard": "儀表板"
   },
   "settings": {
     "title": "應用程式設定",
@@ -47,7 +49,7 @@
       "themeDark": "深色 (Dark)",
       "themeSystem": "跟隨系統",
       "accountManagement": "帳號管理",
-      "autoRefresh": "自動更新配額",
+      "autoRefresh": "Antigravity 自動刷新配額",
       "autoRefreshDesc": "背景自動更新頻率",
       "autoRefreshDisabled": "停用",
       "autoRefreshCustom": "自訂...",
@@ -82,7 +84,12 @@
       "author": "主作者",
       "wechat": "微信公眾號",
       "github": "開源倉庫",
-      "sponsor": "贊助項目",
+      "alipay": "支付寶",
+      "wechatpay": "微信支付",
+      "sponsor": "贊助支持",
+      "sponsorDesc": "支持項目持續開發",
+      "feedback": "意見反饋",
+      "feedbackDesc": "回報問題或提交建議",
       "supportDev": "支持開發",
       "checkUpdate": "檢查更新",
       "checking": "檢查中...",
@@ -201,7 +208,8 @@
     "switchTo": "切換至該帳號",
     "switching": "切換中...",
     "fingerprint": "指紋",
-    "bound": "已綁定"
+    "bound": "已綁定",
+    "brandTitle": "Antigravity 帳號管理"
   },
   "fingerprints": {
     "title": "裝置指紋",
@@ -217,7 +225,12 @@
       "name": "指紋名稱",
       "machineId": "裝置 ID",
       "accounts": "綁定帳號",
-      "actions": "操作"
+      "actions": "操作",
+      "accountCount": "{{count}} 個帳號",
+      "apply": "套用",
+      "noData": "暫無指紋資料",
+      "preview": "預覽",
+      "rename": "重新命名"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "匯入指紋",
         "fromTools": "匯入 Antigravity Tools 指紋",
-        "desc": "從 ~/.antigravity_tools/ 目錄匯入"
+        "desc": "從 ~/.antigravity_tools/ 目錄匯入",
+        "fromJsonBtn": "從 JSON 匯入",
+        "jsonExample": "格式範例：",
+        "jsonPlaceholder": "工作指紋",
+        "orPasteJson": "或貼上 JSON"
       },
       "bound": {
         "title": "綁定帳號管理",
@@ -243,7 +260,8 @@
         "empty": "暫無帳號綁定此指紋",
         "emptyAll": "所有帳號都已綁定此指紋",
         "select": "選擇要新增的帳號",
-        "from": "來自: {{name}}"
+        "from": "來自: {{name}}",
+        "back": "返回"
       },
       "detail": {
         "title": "指紋詳細資訊",
@@ -263,7 +281,23 @@
       "previewNotReady": "預覽未就緒，請稍後重試",
       "duplicate": "已存在相同指紋：{{name}}，無需重複新增。",
       "readOnly": "唯讀",
-      "current": "目前"
+      "current": "目前",
+      "addCount": "新增 {{count}} 個帳號",
+      "addFailed": "新增失敗",
+      "adding": "新增中...",
+      "applyFailed": "套用失敗",
+      "boundCount": "已綁定 {{count}} 個帳號",
+      "captureFailed": "擷取失敗",
+      "count": "{{count}} 個",
+      "deleteFailed": "刪除失敗",
+      "fpLabel": "指紋：",
+      "generateFailed": "產生失敗",
+      "importFailed": "匯入失敗",
+      "importing": "匯入中...",
+      "loadFailed": "載入指紋列表失敗",
+      "processing": "處理中...",
+      "renameFailed": "重新命名失敗",
+      "serviceMachineIdEmpty": "空"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "分組列表",
     "group_name_placeholder": "分組名稱",
     "save": "保存分組"
+  },
+  "codex": {
+    "title": "Codex 帳號管理",
+    "subtitle": "管理您的 OpenAI Codex 帳號",
+    "addAccount": "新增帳號",
+    "refreshAll": "全部刷新",
+    "refreshQuota": "刷新配額",
+    "switch": "切換",
+    "switched": "已切換至 {{email}}",
+    "switchFailed": "切換失敗: {{error}}",
+    "current": "目前",
+    "empty": {
+      "title": "暫無帳號",
+      "description": "點擊「新增帳號」開始管理您的 Codex 帳號"
+    },
+    "addModal": {
+      "title": "新增 Codex 帳號",
+      "oauth": "OAuth 登入",
+      "token": "JSON 匯入",
+      "local": "本機匯入"
+    },
+    "oauth": {
+      "desc": "點擊下方按鈕，在瀏覽器中完成 OpenAI 帳號授權",
+      "preparing": "正在準備授權連結...",
+      "openBrowser": "在瀏覽器中開啟",
+      "hint": "完成授權後，此視窗將自動更新",
+      "exchanging": "正在交換權杖...",
+      "success": "授權成功",
+      "failed": "授權失敗",
+      "portInUse": "連接埠 {{port}} 已被佔用，請關閉佔用該連接埠的程式後重試。",
+      "portInUseTitle": "連接埠被佔用",
+      "portInUseConfirm": "連接埠 {{port}} 已被佔用，是否關閉佔用該連接埠的程式？",
+      "portCloseFailed": "關閉連接埠失敗: {{error}}",
+      "portStillInUse": "連接埠 {{port}} 仍被佔用。"
+    },
+    "token": {
+      "desc": "貼上 auth.json 內容或帳號 JSON 資料",
+      "placeholder": "貼上 JSON 內容...",
+      "import": "匯入",
+      "importing": "匯入中...",
+      "importSuccessMsg": "成功匯入 {{count}} 個帳號",
+      "importFailedMsg": "匯入失敗: {{error}}",
+      "empty": "請輸入 Token 或 JSON"
+    },
+    "local": {
+      "desc": "從 ~/.codex/auth.json 匯入目前已登入的帳號",
+      "import": "取得本機帳號"
+    },
+    "import": {
+      "label": "匯入",
+      "importing": "正在匯入本地帳號...",
+      "successMsg": "匯入成功: {{email}}",
+      "failedMsg": "匯入失敗: {{error}}"
+    },
+    "quota": {
+      "hourly": "5 小時配額",
+      "weekly": "週配額",
+      "reset": "重置",
+      "noData": "暫無配額資料",
+      "resetDone": "已重置"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}}天",
+      "relativeDaysHours": "{{days}}天{{hours}}小時",
+      "relativeHours": "{{hours}}小時",
+      "relativeHoursMinutes": "{{hours}}小時{{minutes}}分鐘",
+      "relativeMinutes": "{{minutes}}分鐘",
+      "lessThanMinute": "<1分鐘",
+      "today": "今天 {{time}}",
+      "tomorrow": "明天 {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "搜尋帳號...",
+    "view": {
+      "list": "列表檢視",
+      "grid": "卡片檢視"
+    },
+    "filter": {
+      "all": "全部 ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "篩選",
+    "sortLabel": "排序",
+    "sort": {
+      "weekly": "按週配額",
+      "hourly": "按5小時配額",
+      "descTooltip": "目前：降序，點擊切換為升序",
+      "ascTooltip": "目前：升序，點擊切換為降序",
+      "toggleDirection": "切換排序方向",
+      "createdAt": "按建立時間"
+    },
+    "export": "匯出",
+    "noMatch": {
+      "title": "沒有匹配的帳號",
+      "desc": "請嘗試調整搜尋或篩選條件"
+    },
+    "columns": {
+      "email": "帳號",
+      "plan": "訂閱",
+      "hourly": "5小時配額",
+      "weekly": "週配額",
+      "actions": "操作"
+    }
+  },
+  "dashboard": {
+    "title": "帳號儀表板",
+    "summary": {
+      "label": "總覽",
+      "title": "帳號快照",
+      "desc": "同時查看 Antigravity 與 Codex 帳號狀態"
+    },
+    "stats": {
+      "antigravity": "Antigravity 帳號",
+      "codex": "Codex 帳號",
+      "currentAntigravity": "目前 Antigravity",
+      "currentCodex": "目前 Codex",
+      "providers": "服務商",
+      "totalAccounts": "總帳戶數"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "方案分佈",
+      "current": "目前帳號",
+      "recommended": "推薦帳號",
+      "empty": "暫無帳號",
+      "emptyDesc": "新增帳號後查看詳情"
+    },
+    "quota": {
+      "remaining": "剩餘配額 {{value}}%",
+      "codex": "5小時 {{hourly}}% · 週 {{weekly}}%"
+    },
+    "emptyAccount": "暫無帳號",
+    "sections": {
+      "antigravity": "Antigravity 帳號",
+      "codex": "Codex 帳號"
+    },
+    "actions": {
+      "refresh": "重新整理卡片",
+      "viewAll": "全部帳號"
+    },
+    "badges": {
+      "recommended": "推薦"
+    },
+    "totalAccounts": "帳號總數",
+    "current": "目前帳號",
+    "recommended": "推薦帳號",
+    "noAccount": "無帳號",
+    "switch": "切換",
+    "switchTo": "切換至此帳號",
+    "noRecommendation": "暫無更佳推薦",
+    "noData": "暫無資料",
+    "viewAllAccounts": "查看所有帳號"
   }
 }

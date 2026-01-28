@@ -1,1 +1,1 @@
-export type Page = 'overview' | 'dashboard' | 'accounts' | 'fingerprints' | 'wakeup' | 'settings';
+export type Page = 'dashboard' | 'overview' | 'codex' | 'accounts' | 'fingerprints' | 'wakeup' | 'settings';

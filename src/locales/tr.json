@@ -23,11 +23,13 @@
     "preview": "Önizleme"
   },
   "nav": {
-    "overview": "Genel Bakış",
+    "overview": "Antigravity Hesabı",
     "accounts": "Hesaplar",
     "wakeup": "Uyandırma Görevleri",
     "fingerprints": "Parmak İzleri",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "codex": "Codex Hesapları",
+    "dashboard": "Gösterge Paneli"
   },
   "settings": {
     "title": "Uygulama Ayarları",
@@ -47,7 +49,7 @@
       "themeDark": "Koyu",
       "themeSystem": "Sistem",
       "accountManagement": "Hesap Yönetimi",
-      "autoRefresh": "Otomatik Kota Yenileme",
+      "autoRefresh": "Antigravity kota otomatik yenileme",
       "autoRefreshDesc": "Arka plan güncelleme sıklığı",
       "autoRefreshDisabled": "Devre Dışı",
       "autoRefreshCustom": "Özel...",
@@ -82,7 +84,12 @@
       "author": "Yazar",
       "wechat": "WeChat",
       "github": "GitHub Deposu",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "Sponsor",
+      "sponsorDesc": "Support development",
+      "feedback": "Geri bildirim",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "Geliştirmeyi Destekle",
       "checkUpdate": "Güncellemeleri Kontrol Et",
       "checking": "Kontrol ediliyor...",
@@ -201,7 +208,8 @@
     "switchTo": "Bu hesaba geç",
     "switching": "Geçiliyor...",
     "fingerprint": "Parmak İzi",
-    "bound": "Bağlı"
+    "bound": "Bağlı",
+    "brandTitle": "Antigravity Hesap Yönetimi"
   },
   "fingerprints": {
     "title": "Cihaz Parmak İzleri",
@@ -217,7 +225,12 @@
       "name": "Parmak İzi Adı",
       "machineId": "Makine ID",
       "accounts": "Bağlı Hesaplar",
-      "actions": "İşlemler"
+      "actions": "İşlemler",
+      "accountCount": "{{count}} hesap",
+      "apply": "Uygula",
+      "noData": "Parmak izi verisi yok",
+      "preview": "Önizleme",
+      "rename": "Yeniden adlandır"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "Parmak İzlerini İçe Aktar",
         "fromTools": "Antigravity Tools'tan İçe Aktar",
-        "desc": "~/.antigravity_tools/ dizininden içe aktar"
+        "desc": "~/.antigravity_tools/ dizininden içe aktar",
+        "fromJsonBtn": "JSON'dan içe aktar",
+        "jsonExample": "Biçim örneği:",
+        "jsonPlaceholder": "İş parmak izi",
+        "orPasteJson": "Veya JSON yapıştır"
       },
       "bound": {
         "title": "Bağlı Hesaplar",
@@ -243,7 +260,8 @@
         "empty": "Bağlı hesap yok",
         "emptyAll": "Tüm hesaplar bağlı",
         "select": "Eklenecek hesapları seçin",
-        "from": "Kaynağı: {{name}}"
+        "from": "Kaynağı: {{name}}",
+        "back": "Geri"
       },
       "detail": {
         "title": "Parmak İzi Detayları",
@@ -263,7 +281,23 @@
       "previewNotReady": "Önizleme hazır değil, lütfen bekleyin",
       "duplicate": "Aynı parmak izi zaten var: {{name}}",
       "readOnly": "Salt Okunur",
-      "current": "Mevcut"
+      "current": "Mevcut",
+      "addCount": "{{count}} hesap eklendi",
+      "addFailed": "Ekleme başarısız",
+      "adding": "Ekleniyor...",
+      "applyFailed": "Uygulama başarısız",
+      "boundCount": "{{count}} hesap bağlandı",
+      "captureFailed": "Yakalama başarısız",
+      "count": "{{count}}",
+      "deleteFailed": "Silme başarısız",
+      "fpLabel": "Parmak izi:",
+      "generateFailed": "Oluşturma başarısız",
+      "importFailed": "İçe aktarma başarısız",
+      "importing": "İçe aktarılıyor...",
+      "loadFailed": "Parmak izi listesi yüklenemedi",
+      "processing": "İşleniyor...",
+      "renameFailed": "Yeniden adlandırma başarısız",
+      "serviceMachineIdEmpty": "Boş"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "Grup listesi",
     "group_name_placeholder": "Grup adı",
     "save": "Grupları kaydet"
+  },
+  "codex": {
+    "title": "Codex Hesap Yönetimi",
+    "subtitle": "OpenAI Codex hesaplarınızı yönetin",
+    "addAccount": "Hesap ekle",
+    "refreshAll": "Tümünü yenile",
+    "refreshQuota": "Kotayı yenile",
+    "switch": "Değiştir",
+    "switched": "{{email}} hesabına geçildi",
+    "switchFailed": "Değiştirme başarısız: {{error}}",
+    "current": "Geçerli",
+    "empty": {
+      "title": "Hesap yok",
+      "description": "\"Hesap ekle\"ye tıklayın"
+    },
+    "addModal": {
+      "title": "Codex hesabı ekle",
+      "oauth": "OAuth girişi",
+      "token": "JSON içe aktar",
+      "local": "Yerel içe aktar"
+    },
+    "oauth": {
+      "desc": "Aşağıdaki butona tıklayın ve tarayıcıda OpenAI yetkilendirmesini tamamlayın",
+      "preparing": "Yetkilendirme bağlantısı hazırlanıyor...",
+      "openBrowser": "Tarayıcıda aç",
+      "hint": "Yetkilendirme tamamlanınca bu pencere otomatik güncellenir",
+      "exchanging": "Token değiş tokuşu...",
+      "success": "Yetkilendirme başarılı",
+      "failed": "Yetkilendirme başarısız",
+      "portInUse": "{{port}} portu zaten kullanımda. Bu portu kullanan uygulamayı kapatıp tekrar deneyin.",
+      "portInUseTitle": "Port kullanımda",
+      "portInUseConfirm": "Port {{port}} kullanımda. Bu portu kullanan işlemi kapatmak ister misiniz?",
+      "portCloseFailed": "Port kapatılamadı: {{error}}",
+      "portStillInUse": "Port {{port}} hâlâ kullanımda."
+    },
+    "token": {
+      "desc": "auth.json içeriğini veya hesap JSON verisini yapıştırın",
+      "placeholder": "JSON içeriğini yapıştırın...",
+      "import": "İçe aktar",
+      "importing": "İçe aktarılıyor...",
+      "importSuccessMsg": "{{count}} hesap içe aktarıldı",
+      "importFailedMsg": "İçe aktarma başarısız: {{error}}",
+      "empty": "Token veya JSON girin"
+    },
+    "local": {
+      "desc": "~/.codex/auth.json'dan mevcut hesabı içe aktar",
+      "import": "Yerel hesabı al"
+    },
+    "import": {
+      "label": "İçe aktar",
+      "importing": "Yerel hesap içe aktarılıyor...",
+      "successMsg": "İçe aktarma başarılı: {{email}}",
+      "failedMsg": "İçe aktarma başarısız: {{error}}"
+    },
+    "quota": {
+      "hourly": "5 saatlik kota",
+      "weekly": "Haftalık kota",
+      "reset": "Sıfırla",
+      "noData": "Kota verisi yok",
+      "resetDone": "Sıfırlandı"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}} g",
+      "relativeDaysHours": "{{days}} g {{hours}} sa",
+      "relativeHours": "{{hours}} sa",
+      "relativeHoursMinutes": "{{hours}} sa {{minutes}} dk",
+      "relativeMinutes": "{{minutes}} dk",
+      "lessThanMinute": "<1 dk",
+      "today": "Bugün {{time}}",
+      "tomorrow": "Yarın {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "Hesap ara...",
+    "view": {
+      "list": "Liste görünümü",
+      "grid": "Kart görünümü"
+    },
+    "filter": {
+      "all": "Tümü ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "Filtre",
+    "sortLabel": "Sırala",
+    "sort": {
+      "weekly": "Haftalık kota",
+      "hourly": "5 saatlik kota",
+      "descTooltip": "Azalan (Artan için tıkla)",
+      "ascTooltip": "Artan (Azalan için tıkla)",
+      "toggleDirection": "Sıralama yönünü değiştir",
+      "createdAt": "Oluşturulma tarihi"
+    },
+    "export": "Dışa aktar",
+    "noMatch": {
+      "title": "Eşleşen hesap yok",
+      "desc": "Aramanızı veya filtrelerinizi ayarlamayı deneyin"
+    },
+    "columns": {
+      "email": "Hesap",
+      "plan": "Plan",
+      "hourly": "5 saatlik kota",
+      "weekly": "Haftalık kota",
+      "actions": "İşlemler"
+    }
+  },
+  "dashboard": {
+    "title": "Hesap Gösterge Paneli",
+    "summary": {
+      "label": "Genel Bakış",
+      "title": "Hesap Anlık Görüntüsü",
+      "desc": "Antigravity ve Codex'i bir bakışta görün"
+    },
+    "stats": {
+      "antigravity": "Antigravity Hesapları",
+      "codex": "Codex Hesapları",
+      "currentAntigravity": "Mevcut Antigravity",
+      "currentCodex": "Mevcut Codex",
+      "providers": "Sağlayıcılar",
+      "totalAccounts": "Toplam hesap"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "Plan dağılımı",
+      "current": "Mevcut hesap",
+      "recommended": "Önerilen hesap",
+      "empty": "Hesap yok",
+      "emptyDesc": "Ayrıntılar için hesap ekleyin"
+    },
+    "quota": {
+      "remaining": "Kalan kota {{value}}%",
+      "codex": "5 saat {{hourly}}% · Haftalık {{weekly}}%"
+    },
+    "emptyAccount": "Hesap yok",
+    "sections": {
+      "antigravity": "Antigravity hesapları",
+      "codex": "Codex hesapları"
+    },
+    "actions": {
+      "refresh": "Kartları yenile",
+      "viewAll": "Tüm hesaplar"
+    },
+    "badges": {
+      "recommended": "Önerilen"
+    },
+    "totalAccounts": "Toplam hesap",
+    "current": "Mevcut hesap",
+    "recommended": "Önerilen hesap",
+    "noAccount": "Hesap yok",
+    "switch": "Değiştir",
+    "switchTo": "Bu hesaba geç",
+    "noRecommendation": "Daha iyi öneri yok",
+    "noData": "Veri yok",
+    "viewAllAccounts": "Tüm hesapları görüntüle"
   }
 }

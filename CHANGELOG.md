@@ -2,11 +2,28 @@
 
 English · [简体中文](CHANGELOG.zh-CN.md)
 
-All notable changes to Antigravity Cockpit Tools will be documented in this file.
+All notable changes to Cockpit Tools will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
+## [0.4.0] - 2026-01-28
+
+### Added
+- **Visual Dashboard**: Brand new dashboard providing a one-stop overview of both Antigravity and Codex accounts status.
+- **Codex Support**: Full support for Codex account management.
+  - View Hourly (5H) and Weekly quotas.
+  - Automatic Plan recognition (Basic, Plus, Team, Enterprise).
+  - Independent account list and card view.
+- **Rebranding**: Project officially renamed to **Cockpit Tools**.
+- **Sponsor & Feedback**: Added "Sponsor" and "Feedback" sections in Settings -> About for better community engagement.
+
+### Changed
+- **UI Overhaul**: Redesigned dashboard cards for extreme compactness and symmetry.
+- **Typography**: switched default font to **Inter** for better readability.
+- **Documentation**: Comprehensive update to README with fresh screenshots and structured feature overview.
+- **i18n**: Updated translations for all 17 languages to cover new Dashboard and Codex features.
+
 
 ## [0.3.3] - 2026-01-24
 

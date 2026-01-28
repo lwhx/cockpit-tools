@@ -2,11 +2,27 @@
 
 简体中文 · [English](CHANGELOG.md)
 
-本文件记录 Antigravity Cockpit Tools 的所有重要变更。
+本文件记录 Cockpit Tools 的所有重要变更。
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
 ---
+## [0.4.0] - 2026-01-28
+
+### 新增
+- **可视化仪表盘**: 全新的仪表盘界面，提供 Antigravity 和 Codex 账号状态的一站式总览。
+- **Codex 支持**: 全面支持 Codex 账号管理。
+  - 查看 5小时 (Hourly) 和周 (Weekly) 配额。
+  - 自动识别账号订阅计划 (Basic, Plus, Team, Enterprise)。
+  - 独立的账号列表和卡片视图。
+- **品牌重塑**: 项目正式更名为 **Cockpit Tools**。
+- **赞助与反馈**: 在 设置 -> 关于 页面新增 "赞助支持" 和 "意见反馈" 入口，加强社区互动。
+
+### 变更
+- **字体优化**: 默认字体切换为 **Inter**，提升阅读体验。
+- **文档更新**: 全面更新 README 文档，增加最新截图和结构化的功能概览。
+- **国际化**: 更新所有 17 种语言的翻译，覆盖新的仪表盘和 Codex 功能。
+
 
 ## [0.3.3] - 2026-01-24
 

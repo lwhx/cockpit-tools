@@ -23,11 +23,13 @@
     "preview": "Aperçu"
   },
   "nav": {
-    "overview": "Aperçu",
+    "overview": "Compte Antigravity",
     "accounts": "Comptes",
     "wakeup": "Tâches de réveil",
     "fingerprints": "Empreintes",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "codex": "Comptes Codex",
+    "dashboard": "Tableau de bord"
   },
   "settings": {
     "title": "Paramètres de l'application",
@@ -47,7 +49,7 @@
       "themeDark": "Sombre",
       "themeSystem": "Système",
       "accountManagement": "Gestion des comptes",
-      "autoRefresh": "Actualisation automatique du quota",
+      "autoRefresh": "Actualisation automatique du quota Antigravity",
       "autoRefreshDesc": "Fréquence de mise à jour en arrière-plan",
       "autoRefreshDisabled": "Désactivé",
       "autoRefreshCustom": "Personnalisé...",
@@ -82,7 +84,12 @@
       "author": "Auteur",
       "wechat": "WeChat",
       "github": "Dépôt GitHub",
+      "alipay": "Alipay",
+      "wechatpay": "WeChat Pay",
       "sponsor": "Soutenir",
+      "sponsorDesc": "Support development",
+      "feedback": "Feedback",
+      "feedbackDesc": "Report issues/suggestions",
       "supportDev": "Soutenir le développement",
       "checkUpdate": "Vérifier les mises à jour",
       "checking": "Vérification...",
@@ -201,7 +208,8 @@
     "switchTo": "Basculer vers ce compte",
     "switching": "Bascule en cours...",
     "fingerprint": "Empreinte",
-    "bound": "Lié"
+    "bound": "Lié",
+    "brandTitle": "Gestion du compte Antigravity"
   },
   "fingerprints": {
     "title": "Empreintes d'appareil",
@@ -217,7 +225,12 @@
       "name": "Nom de l'empreinte",
       "machineId": "ID de machine",
       "accounts": "Comptes liés",
-      "actions": "Actions"
+      "actions": "Actions",
+      "accountCount": "{{count}} comptes",
+      "apply": "Appliquer",
+      "noData": "Aucune donnée d'empreinte",
+      "preview": "Aperçu",
+      "rename": "Renommer"
     },
     "modals": {
       "generate": {
@@ -235,7 +248,11 @@
       "import": {
         "title": "Importer empreintes",
         "fromTools": "Importer depuis Antigravity Tools",
-        "desc": "Importation depuis le répertoire ~/.antigravity_tools/"
+        "desc": "Importation depuis le répertoire ~/.antigravity_tools/",
+        "fromJsonBtn": "Importer depuis JSON",
+        "jsonExample": "Exemple de format :",
+        "jsonPlaceholder": "Empreinte de travail",
+        "orPasteJson": "Ou coller le JSON"
       },
       "bound": {
         "title": "Comptes liés",
@@ -243,7 +260,8 @@
         "empty": "Aucun compte lié",
         "emptyAll": "Tous les comptes sont liés",
         "select": "Sélectionnez les comptes à ajouter",
-        "from": "Depuis : {{name}}"
+        "from": "Depuis : {{name}}",
+        "back": "Retour"
       },
       "detail": {
         "title": "Détails de l'empreinte",
@@ -263,7 +281,23 @@
       "previewNotReady": "Prévisualisation pas prête, veuillez patienter",
       "duplicate": "Une empreinte identique existe déjà : {{name}}",
       "readOnly": "Lecture seule",
-      "current": "Actuelle"
+      "current": "Actuelle",
+      "addCount": "{{count}} comptes ajoutés",
+      "addFailed": "Échec de l'ajout",
+      "adding": "Ajout en cours...",
+      "applyFailed": "Échec de l'application",
+      "boundCount": "{{count}} comptes liés",
+      "captureFailed": "Échec de la capture",
+      "count": "{{count}}",
+      "deleteFailed": "Échec de la suppression",
+      "fpLabel": "Empreinte :",
+      "generateFailed": "Échec de la génération",
+      "importFailed": "Échec de l'importation",
+      "importing": "Importation en cours...",
+      "loadFailed": "Échec du chargement de la liste d'empreintes",
+      "processing": "Traitement en cours...",
+      "renameFailed": "Échec du renommage",
+      "serviceMachineIdEmpty": "Vide"
     }
   },
   "modals": {
@@ -501,5 +535,170 @@
     "group_list": "Liste des groupes",
     "group_name_placeholder": "Nom du groupe",
     "save": "Enregistrer les groupes"
+  },
+  "codex": {
+    "title": "Gestion des comptes Codex",
+    "subtitle": "Gérez vos comptes OpenAI Codex",
+    "addAccount": "Ajouter un compte",
+    "refreshAll": "Tout rafraîchir",
+    "refreshQuota": "Rafraîchir le quota",
+    "switch": "Basculer",
+    "switched": "Basculé vers {{email}}",
+    "switchFailed": "Échec du basculement : {{error}}",
+    "current": "Actuel",
+    "empty": {
+      "title": "Aucun compte",
+      "description": "Cliquez sur « Ajouter un compte » pour commencer"
+    },
+    "addModal": {
+      "title": "Ajouter un compte Codex",
+      "oauth": "Connexion OAuth",
+      "token": "Import JSON",
+      "local": "Import local"
+    },
+    "oauth": {
+      "desc": "Cliquez ci-dessous et terminez l'autorisation OpenAI dans le navigateur",
+      "preparing": "Préparation du lien d'autorisation...",
+      "openBrowser": "Ouvrir dans le navigateur",
+      "hint": "Une fois l'autorisation terminée, cette fenêtre se mettra à jour automatiquement",
+      "exchanging": "Échange du token...",
+      "success": "Autorisation réussie",
+      "failed": "Autorisation échouée",
+      "portInUse": "Le port {{port}} est déjà utilisé. Fermez l'application qui l'utilise puis réessayez.",
+      "portInUseTitle": "Port utilisé",
+      "portInUseConfirm": "Le port {{port}} est utilisé. Fermer le processus qui l'utilise ?",
+      "portCloseFailed": "Échec de fermeture du port : {{error}}",
+      "portStillInUse": "Le port {{port}} est toujours utilisé."
+    },
+    "token": {
+      "desc": "Collez le contenu auth.json ou les données JSON du compte",
+      "placeholder": "Coller le contenu JSON...",
+      "import": "Importer",
+      "importing": "Importation...",
+      "importSuccessMsg": "{{count}} compte(s) importé(s)",
+      "importFailedMsg": "Échec de l'import : {{error}}",
+      "empty": "Veuillez saisir un token ou du JSON"
+    },
+    "local": {
+      "desc": "Importer le compte connecté depuis ~/.codex/auth.json",
+      "import": "Récupérer le compte local"
+    },
+    "import": {
+      "label": "Importer",
+      "importing": "Importation du compte local...",
+      "successMsg": "Importation réussie : {{email}}",
+      "failedMsg": "Échec de l'importation : {{error}}"
+    },
+    "quota": {
+      "hourly": "Quota de 5 heures",
+      "weekly": "Quota hebdomadaire",
+      "reset": "Réinitialiser",
+      "noData": "Aucune donnée de quota",
+      "resetDone": "Réinitialisé"
+    },
+    "plan": {
+      "free": "FREE",
+      "plus": "PLUS",
+      "pro": "PRO",
+      "team": "TEAM",
+      "enterprise": "ENTERPRISE"
+    },
+    "time": {
+      "relativeDays": "{{days}} j",
+      "relativeDaysHours": "{{days}} j {{hours}} h",
+      "relativeHours": "{{hours}} h",
+      "relativeHoursMinutes": "{{hours}} h {{minutes}} min",
+      "relativeMinutes": "{{minutes}} min",
+      "lessThanMinute": "<1 min",
+      "today": "Aujourd'hui {{time}}",
+      "tomorrow": "Demain {{time}}",
+      "dateTime": "{{date}} {{time}}",
+      "relativeWithAbsolute": "{{relative}} ({{absolute}})"
+    },
+    "search": "Rechercher des comptes...",
+    "view": {
+      "list": "Vue liste",
+      "grid": "Vue cartes"
+    },
+    "filter": {
+      "all": "Tous ({{count}})",
+      "free": "FREE ({{count}})",
+      "plus": "PLUS ({{count}})",
+      "pro": "PRO ({{count}})",
+      "team": "TEAM ({{count}})",
+      "enterprise": "ENTERPRISE ({{count}})"
+    },
+    "filterLabel": "Filtrer",
+    "sortLabel": "Trier",
+    "sort": {
+      "weekly": "Quota hebdomadaire",
+      "hourly": "Quota de 5 heures",
+      "descTooltip": "Descendant (cliquer pour ascendant)",
+      "ascTooltip": "Ascendant (cliquer pour descendant)",
+      "toggleDirection": "Changer la direction",
+      "createdAt": "Date de création"
+    },
+    "export": "Exporter",
+    "noMatch": {
+      "title": "Aucun compte correspondant",
+      "desc": "Essayez d'autres filtres"
+    },
+    "columns": {
+      "email": "Compte",
+      "plan": "Plan",
+      "hourly": "Quota 5h",
+      "weekly": "Quota hebdo",
+      "actions": "Actions"
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de bord des comptes",
+    "summary": {
+      "label": "Aperçu",
+      "title": "Instantané des comptes",
+      "desc": "Voir Antigravity et Codex en un coup d'œil"
+    },
+    "stats": {
+      "antigravity": "Comptes Antigravity",
+      "codex": "Comptes Codex",
+      "currentAntigravity": "Antigravity actuel",
+      "currentCodex": "Codex actuel",
+      "providers": "Fournisseurs",
+      "totalAccounts": "Total des comptes"
+    },
+    "panels": {
+      "antigravity": "Antigravity",
+      "codex": "Codex",
+      "planDistribution": "Répartition des plans",
+      "current": "Compte actuel",
+      "recommended": "Compte recommandé",
+      "empty": "Aucun compte",
+      "emptyDesc": "Ajoutez un compte pour voir les détails"
+    },
+    "quota": {
+      "remaining": "Quota restant {{value}}%",
+      "codex": "5 heures {{hourly}}% · Hebdo {{weekly}}%"
+    },
+    "emptyAccount": "Aucun compte",
+    "sections": {
+      "antigravity": "Comptes Antigravity",
+      "codex": "Comptes Codex"
+    },
+    "actions": {
+      "refresh": "Rafraîchir les cartes",
+      "viewAll": "Tous les comptes"
+    },
+    "badges": {
+      "recommended": "Recommandé"
+    },
+    "totalAccounts": "Total des comptes",
+    "current": "Compte actuel",
+    "recommended": "Compte recommandé",
+    "noAccount": "Aucun compte",
+    "switch": "Basculer",
+    "switchTo": "Basculer vers ce compte",
+    "noRecommendation": "Aucune meilleure recommandation",
+    "noData": "Aucune donnée",
+    "viewAllAccounts": "Voir tous les comptes"
   }
 }
