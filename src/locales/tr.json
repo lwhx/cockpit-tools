@@ -145,6 +145,7 @@
       "desc": "Mevcut filtrelere uygun hesap bulunamadı"
     },
     "view": {
+      "compact": "Kompakt görünüm",
       "list": "Liste görünümü",
       "grid": "Kart görünümü"
     },
@@ -617,6 +618,7 @@
     },
     "search": "Hesap ara...",
     "view": {
+      "compact": "Kompakt görünüm",
       "list": "Liste görünümü",
       "grid": "Kart görünümü"
     },

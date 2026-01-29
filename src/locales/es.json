@@ -145,6 +145,7 @@
       "desc": "No se encontraron cuentas que coincidan con los filtros"
     },
     "view": {
+      "compact": "Vista compacta",
       "list": "Vista de lista",
       "grid": "Vista de tarjetas"
     },
@@ -617,6 +618,7 @@
     },
     "search": "Buscar cuentas...",
     "view": {
+      "compact": "Vista compacta",
       "list": "Vista de lista",
       "grid": "Vista de tarjetas"
     },

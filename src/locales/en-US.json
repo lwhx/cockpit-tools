@@ -145,6 +145,7 @@
       "desc": "No accounts match the current filters"
     },
     "view": {
+      "compact": "Compact view",
       "list": "List view",
       "grid": "Card view"
     },
@@ -617,6 +618,7 @@
     },
     "search": "Search accounts...",
     "view": {
+      "compact": "Compact view",
       "list": "List view",
       "grid": "Card view"
     },

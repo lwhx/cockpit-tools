@@ -3781,15 +3781,26 @@ html[data-theme="dark"] body {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
   padding: 2px;
-  gap: 4px;
+  gap: 2px;
   height: 32px;
   border-radius: 10px;
+  display: flex;
+  align-items: center;
 }
 
 .accounts-page .view-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.accounts-page .view-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .accounts-page .view-btn.active {
@@ -5545,3 +5556,4 @@ html[data-theme="dark"] body {
     transform: translateY(0);
   }
 }
+

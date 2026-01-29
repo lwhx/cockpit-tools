@@ -145,6 +145,7 @@
       "desc": "Không có tài khoản nào phù hợp với bộ lọc hiện tại"
     },
     "view": {
+      "compact": "Chế độ thu gọn",
       "list": "Chế độ danh sách",
       "grid": "Chế độ lưới"
     },

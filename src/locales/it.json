@@ -145,6 +145,7 @@
       "desc": "Nessun account corrisponde ai filtri"
     },
     "view": {
+      "compact": "Vista compatta",
       "list": "Vista elenco",
       "grid": "Vista schede"
     },
@@ -617,6 +618,7 @@
     },
     "search": "Cerca account...",
     "view": {
+      "compact": "Vista compatta",
       "list": "Vista elenco",
       "grid": "Vista schede"
     },

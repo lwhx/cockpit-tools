@@ -145,6 +145,7 @@
       "desc": "Keine Konten entsprechen den Filtern"
     },
     "view": {
+      "compact": "Kompaktansicht",
       "list": "Listenansicht",
       "grid": "Kartenansicht"
     },
@@ -617,6 +618,7 @@
     },
     "search": "Konten suchen...",
     "view": {
+      "compact": "Kompaktansicht",
       "list": "Listenansicht",
       "grid": "Kartenansicht"
     },

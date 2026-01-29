@@ -145,6 +145,7 @@
       "desc": "Žádné účty neodpovídají aktuálním filtrům"
     },
     "view": {
+      "compact": "Kompaktní",
       "list": "Seznam",
       "grid": "Karty"
     },
@@ -617,6 +618,7 @@
     },
     "search": "Hledat účty...",
     "view": {
+      "compact": "Kompaktní",
       "list": "Seznam",
       "grid": "Karty"
     },

@@ -145,6 +145,7 @@
       "desc": "Brak kont pasujących do obecnych filtrów"
     },
     "view": {
+      "compact": "Widok kompaktowy",
       "list": "Widok listy",
       "grid": "Widok kart"
     },
@@ -617,6 +618,7 @@
     },
     "search": "Szukaj kont...",
     "view": {
+      "compact": "Widok kompaktowy",
       "list": "Widok listy",
       "grid": "Widok kart"
     },

@@ -145,6 +145,7 @@
       "desc": "Nenhuma conta corresponde aos filtros"
     },
     "view": {
+      "compact": "Vista compacta",
       "list": "Vista em lista",
       "grid": "Vista em cartões"
     },
