@@ -985,7 +985,10 @@ fn collect_antigravity_pids_by_user_data_dir(user_data_dir: &str) -> Vec<u32> {
             continue;
         }
 
+        #[cfg(target_os = "macos")]
         let _name = process.name().to_string_lossy().to_lowercase();
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        let name = process.name().to_string_lossy().to_lowercase();
         let exe_path = process
             .exe()
             .and_then(|p| p.to_str())
@@ -1600,16 +1603,10 @@ pub fn start_antigravity() -> Result<u32, String> {
 pub fn start_antigravity_with_args(user_data_dir: &str, extra_args: &[String]) -> Result<u32, String> {
     crate::modules::logger::log_info("正在启动 Antigravity...");
 
-    let launch_path = match resolve_antigravity_launch_path() {
-        Ok(path) => Some(path),
-        Err(err) => {
-            #[cfg(target_os = "macos")]
-            {
-                let _ = err;
-            }
-            None
-        }
-    };
+    #[cfg(target_os = "macos")]
+    let launch_path = resolve_antigravity_launch_path().ok();
+    #[cfg(not(target_os = "macos"))]
+    let launch_path = resolve_antigravity_launch_path()?;
 
     #[cfg(target_os = "macos")]
     {
@@ -2165,6 +2162,7 @@ pub fn is_opencode_running() -> bool {
     system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
 
     let current_pid = std::process::id();
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
     let app_lower = OPENCODE_APP_NAME.to_lowercase();
 
     for (pid, process) in system.processes() {
@@ -2235,6 +2233,7 @@ fn get_opencode_pids() -> Vec<u32> {
 
     let mut pids = Vec::new();
     let current_pid = std::process::id();
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
     let app_lower = OPENCODE_APP_NAME.to_lowercase();
 
     for (pid, process) in system.processes() {

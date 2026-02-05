@@ -1,4 +1,5 @@
 use tauri::AppHandle;
+#[cfg(target_os = "macos")]
 use tauri::Emitter;
 use crate::models::codex::{CodexAccount, CodexQuota, CodexTokens};
 use crate::modules::{codex_account, codex_quota, codex_oauth, config, logger, opencode_auth, process};
