@@ -178,7 +178,18 @@ pub async fn switch_account(app: AppHandle, account_id: String) -> Result<models
     account.update_last_used();
     modules::save_account(&account)?;
     
-    // 8. 重启 Antigravity
+    // 8. 同步更新 Antigravity 默认实例的绑定账号（不同步到 Codex，因为账号体系不同）
+    if let Err(e) = modules::instance::update_default_settings(
+        Some(Some(account_id.clone())),
+        None,
+        Some(false),
+    ) {
+        modules::logger::log_warn(&format!("更新 Antigravity 默认实例绑定账号失败: {}", e));
+    } else {
+        modules::logger::log_info(&format!("已同步更新 Antigravity 默认实例绑定账号: {}", account_id));
+    }
+    
+    // 9. 重启 Antigravity
     modules::logger::log_info("正在重启 Antigravity...");
     match modules::process::start_antigravity() {
         Ok(pid) => {

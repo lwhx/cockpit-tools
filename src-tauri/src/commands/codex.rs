@@ -24,6 +24,17 @@ pub async fn switch_codex_account(app: AppHandle, account_id: String) -> Result<
     // 切换账号（写入 auth.json）
     let account = codex_account::switch_account(&account_id)?;
 
+    // 同步更新 Codex 默认实例的绑定账号（不同步到 Antigravity，因为账号体系不同）
+    if let Err(e) = crate::modules::codex_instance::update_default_settings(
+        Some(Some(account_id.clone())),
+        None,
+        Some(false),
+    ) {
+        logger::log_warn(&format!("更新 Codex 默认实例绑定账号失败: {}", e));
+    } else {
+        logger::log_info(&format!("已同步更新 Codex 默认实例绑定账号: {}", account_id));
+    }
+
     let mut opencode_updated = false;
     match opencode_auth::replace_openai_entry_from_codex(&account) {
         Ok(()) => {

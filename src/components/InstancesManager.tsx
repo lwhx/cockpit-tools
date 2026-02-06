@@ -525,6 +525,8 @@ export function InstancesManager<TAccount extends AccountLike>({
     disabled?: boolean;
     missing?: boolean;
     placeholder?: string;
+    instanceId?: string;
+    currentOpenId?: string | null;
   };
 
   const AccountSelect = ({
@@ -538,30 +540,36 @@ export function InstancesManager<TAccount extends AccountLike>({
     disabled = false,
     missing = false,
     placeholder,
+    instanceId,
+    currentOpenId,
   }: AccountSelectProps) => {
-    const [open, setOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement | null>(null);
+    
+    // 通过 currentOpenId 控制打开状态
+    const isOpen = instanceId ? currentOpenId === instanceId : false;
 
     useEffect(() => {
-      if (!open) return;
+      if (!isOpen) return;
       const handleClick = (event: MouseEvent) => {
         if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-          setOpen(false);
           onOpenChange?.(false);
         }
       };
-      document.addEventListener('mousedown', handleClick);
+      // 使用 setTimeout 延迟添加监听器，避免与打开菜单的点击事件冲突
+      const timer = setTimeout(() => {
+        document.addEventListener('click', handleClick);
+      }, 0);
       return () => {
-        document.removeEventListener('mousedown', handleClick);
+        clearTimeout(timer);
+        document.removeEventListener('click', handleClick);
       };
-    }, [open]);
+    }, [isOpen, onOpenChange]);
 
     useEffect(() => {
-      if (disabled && open) {
-        setOpen(false);
+      if (disabled && isOpen) {
         onOpenChange?.(false);
       }
-    }, [disabled, open]);
+    }, [disabled, isOpen, onOpenChange]);
 
     const selectedAccount = accounts.find((item) => item.id === value) || null;
     const basePlaceholder =
@@ -577,26 +585,28 @@ export function InstancesManager<TAccount extends AccountLike>({
       <div className={`account-select ${disabled ? 'disabled' : ''}`} ref={menuRef}>
         <button
           type="button"
-          className={`account-select-trigger ${open ? 'open' : ''}`}
+          className={`account-select-trigger ${isOpen ? 'open' : ''}`}
           onClick={() => {
             if (disabled) return;
-            setOpen((prev) => {
-              const next = !prev;
-              onOpenChange?.(next);
-              return next;
-            });
+            onOpenChange?.(!isOpen);
           }}
           disabled={disabled}
         >
-          <span className="account-select-label" title={selectedLabel}>
-            {selectedLabel}
+          <span className="account-select-content">
+            <span className="account-select-label" title={selectedLabel}>
+              {selectedLabel}
+            </span>
+            {selectedQuota && (
+              <span className="account-select-meta">
+                {selectedQuota}
+              </span>
+            )}
           </span>
-          <span className="account-select-meta">
-            {selectedQuota}
+          <span className="account-select-arrow">
             <ChevronDown size={14} />
           </span>
         </button>
-        {open && !disabled && (
+        {isOpen && !disabled && (
           <div className="account-select-menu">
             {allowFollowCurrent && (
               <button
@@ -608,7 +618,6 @@ export function InstancesManager<TAccount extends AccountLike>({
                   } else {
                     onChange(null);
                   }
-                  setOpen(false);
                   onOpenChange?.(false);
                 }}
               >
@@ -624,7 +633,6 @@ export function InstancesManager<TAccount extends AccountLike>({
                 className={`account-select-item ${!value && !isFollowingCurrent ? 'active' : ''}`}
                 onClick={() => {
                   onChange(null);
-                  setOpen(false);
                   onOpenChange?.(false);
                 }}
               >
@@ -640,7 +648,6 @@ export function InstancesManager<TAccount extends AccountLike>({
                 className={`account-select-item ${value === account.id && !isFollowingCurrent ? 'active' : ''}`}
                 onClick={() => {
                   onChange(account.id);
-                  setOpen(false);
                   onOpenChange?.(false);
                 }}
               >
@@ -849,6 +856,7 @@ export function InstancesManager<TAccount extends AccountLike>({
       ) : (
         <div className="instances-list">
           <div className="instances-list-header">
+            <div></div>
             <div>{t('instances.columns.instance', '实例')}</div>
             <div>{t('instances.columns.email', '账号')}</div>
             <div>PID</div>
@@ -861,6 +869,9 @@ export function InstancesManager<TAccount extends AccountLike>({
                 className={`instance-item ${openInlineMenuId === instance.id ? 'dropdown-open' : ''}`}
                 key={instance.id}
               >
+                <div className="instance-select">
+                  {/* Future: checkbox for bulk selection */}
+                </div>
                 <div className="instance-main-info">
                   <div className="instance-title-row">
                     <span className="instance-name">
@@ -895,8 +906,10 @@ export function InstancesManager<TAccount extends AccountLike>({
                     disabled={actionLoading === instance.id}
                     missing={accountMissing}
                     placeholder={t('instances.labels.unbound', '未绑定')}
+                    instanceId={instance.id}
+                    currentOpenId={openInlineMenuId}
                     onOpenChange={(open) => {
-                      setOpenInlineMenuId((prev) => (open ? instance.id : prev === instance.id ? null : prev));
+                      setOpenInlineMenuId(open ? instance.id : null);
                     }}
                   />
                 </div>

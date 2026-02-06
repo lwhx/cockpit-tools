@@ -16,100 +16,150 @@
   animation: spin 1s linear infinite;
 }
 
-/* List */
+/* ============================================
+   List - Table Style (Matching AccountsPage)
+   ============================================ */
 .instances-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: visible;
+  box-shadow: var(--shadow-sm);
 }
 
 .instances-list-header {
-  display: grid;
-  grid-template-columns: minmax(200px, 1.1fr) minmax(320px, 2.2fr) minmax(110px, 0.6fr) auto;
-  padding: 0 18px;
-  color: var(--text-muted);
+  display: flex;
+  justify-content: flex-start; /* 改为靠左 */
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+  gap: 12px; /* 基础间距，保证 Checkbox 和 实例 靠近 */
 }
 
+/* 表头各列固定宽度 */
+.instances-list-header > div:nth-child(1) { display: none; } /* checkbox - 隐藏 */
+.instances-list-header > div:nth-child(2) { width: 160px; flex-shrink: 0; margin-left: 0; } /* 实例 - 去除间距 */
+.instances-list-header > div:nth-child(3) { width: 320px; flex-shrink: 0; margin-left: auto; } /* 账号 - 自动左边距 */
+.instances-list-header > div:nth-child(4) { width: 80px; flex-shrink: 0; margin-left: auto; } /* PID - 自动左边距 */
+.instances-list-header > div:nth-child(5) { width: 120px; flex-shrink: 0; margin-left: auto; } /* 操作 - 自动左边距 */
+
+/* 表头各列对齐 - 统一左对齐 */
+.instances-list-header > div:nth-child(2) { text-align: left; } /* 实例 */
+.instances-list-header > div:nth-child(3) { text-align: left; } /* 账号 */
+.instances-list-header > div:nth-child(4) { text-align: left; } /* PID */
+.instances-list-header > div:nth-child(5) { text-align: left; } /* 操作 */
+
+/* 列分隔竖线 - 移除，改用间距分隔 */
+
 .instance-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px 18px;
-  display: grid;
-  grid-template-columns: minmax(200px, 1.1fr) minmax(320px, 2.2fr) minmax(110px, 0.6fr) auto;
+  display: flex;
+  justify-content: flex-start; /* 改为靠左 */
   align-items: center;
-  gap: 12px;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+  background: transparent;
+  transition: background 0.15s ease;
   position: relative;
   z-index: 0;
+  gap: 12px; /* 基础间距 */
+}
+
+/* 列表项各列固定宽度 */
+.instance-item > div:nth-child(1) { display: none; } /* checkbox - 隐藏 */
+.instance-item > div:nth-child(2) { width: 160px; flex-shrink: 0; margin-left: 0; } /* 实例 - 去除间距 */
+.instance-item > div:nth-child(3) { width: 320px; flex-shrink: 0; margin-left: auto; } /* 账号 - 自动左边距 */
+.instance-item > div:nth-child(4) { width: 80px; flex-shrink: 0; margin-left: auto; } /* PID - 自动左边距 */
+.instance-item > div:nth-child(5) { width: 120px; flex-shrink: 0; margin-left: auto; } /* 操作 - 自动左边距 */
+
+.instance-item:last-child {
+  border-bottom: none;
 }
 
 .instance-item:hover {
-  border-color: rgba(29, 78, 216, 0.35);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-  z-index: 1;
+  background: var(--bg-hover);
 }
 
 .instance-item.dropdown-open {
   z-index: 5;
 }
 
+/* Checkbox column */
+.instance-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.instance-select input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+/* Main info - Email style */
 .instance-main-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
 .instance-title-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .instance-name {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  font-family: var(--font-mono);
+  letter-spacing: -0.3px;
 }
 
 .instance-status {
   height: 20px;
-  padding: 0 10px;
+  padding: 0 8px;
   border-radius: var(--radius-full);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
   border: 1px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .instance-status.running {
-  background: rgba(34, 197, 94, 0.1);
+  background: rgba(34, 197, 94, 0.12);
   color: var(--success);
-  border-color: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.25);
 }
 
 .instance-status.restarting {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning);
+  border-color: rgba(245, 158, 11, 0.25);
 }
 
 .instance-status.stopped {
   background: var(--bg-tertiary);
-  color: var(--text-secondary);
+  color: var(--text-muted);
   border-color: var(--border);
 }
 
@@ -117,26 +167,26 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  font-size: 12px;
+  gap: 6px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
 .instance-sub-info .info-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  max-width: 100%;
-  padding: 4px 8px;
-  border-radius: 8px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.06);
   color: var(--text-secondary);
+  font-size: 10px;
 }
 
 .instance-sub-info .info-item.mono {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -144,37 +194,42 @@
   flex: 1 1 280px;
 }
 
-/* Account */
+/* Account column */
 .instance-account {
   min-width: 0;
 }
 
-/* PID */
+/* PID column */
 .instance-pid {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  text-align: center;
+  text-align: left;
   letter-spacing: 0.02em;
 }
 
 .instance-pid .pid-value {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 4px 10px;
   border-radius: var(--radius-full);
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   min-height: 22px;
+  min-width: 50px;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
 }
 
-/* Actions */
+/* Actions column */
 .instance-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
-  justify-content: flex-end;
-  min-width: 128px;
+  gap: 2px;
+  justify-content: flex-start;
+  min-width: 100px;
+  background: transparent;
+  padding: 0;
 }
 
 .instance-actions .icon-button {
@@ -183,24 +238,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .instance-actions .icon-button:hover:not(:disabled) {
-  background: var(--bg-tertiary);
-  border-color: var(--border);
-  color: var(--text-primary);
+  background: rgba(29, 78, 216, 0.12);
+  color: var(--primary);
 }
 
 .instance-actions .icon-button.danger:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.12);
   color: var(--danger);
+}
+
+.instance-actions .icon-button.success:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--success);
 }
 
 .instance-actions .icon-button:disabled {
@@ -343,18 +401,22 @@
   resize: vertical;
 }
 
-/* Account select */
+/* Account select - inline dropdown */
 .instances-page .account-select {
   position: relative;
-  width: 100%;
+  width: fit-content;
+  min-width: 345px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .instances-page .account-select-trigger {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--bg-secondary);
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--text-primary);
   display: flex;
   align-items: center;
@@ -362,36 +424,60 @@
   gap: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 13px;
 }
 
 .instances-page .account-select-trigger:disabled {
   cursor: default;
   opacity: 0.7;
-  background: var(--bg-tertiary);
 }
 
-.instances-page .account-select-trigger:hover {
-  border-color: rgba(29, 78, 216, 0.35);
+.instances-page .account-select-trigger:hover:not(:disabled) {
+  background: rgba(29, 78, 216, 0.06);
+  border-color: rgba(29, 78, 216, 0.15);
 }
 
 .instances-page .account-select-trigger.open {
   border-color: var(--primary);
+  background: rgba(29, 78, 216, 0.08);
   box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.instances-page .account-select-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .instances-page .account-select-label {
   min-width: 0;
+  max-width: 100%;
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--font-mono);
+  letter-spacing: -0.3px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .instances-page .account-select-meta {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.instances-page .account-select-arrow {
   flex-shrink: 0;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .instances-page .account-select-menu {
@@ -415,14 +501,14 @@
 
 .instances-page .account-select-item {
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid transparent;
   background: transparent;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
   cursor: pointer;
   text-align: left;
 }
@@ -445,10 +531,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: var(--font-mono);
 }
 
 .instances-page .account-select-email.muted {
   color: var(--text-muted);
+  font-family: inherit;
 }
 
 .instances-page .account-quota-preview {
@@ -508,6 +596,33 @@
   color: var(--text-secondary);
 }
 
+/* Dark Mode */
+[data-theme="dark"] .instances-list {
+  background: rgba(8, 11, 19, 0.98);
+  border-color: rgba(148, 163, 184, 0.18);
+  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.6);
+}
+
+[data-theme="dark"] .instances-list-header {
+  background: rgba(15, 23, 42, 0.98);
+  color: rgba(226, 232, 240, 0.9);
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+
+[data-theme="dark"] .instance-item {
+  background: rgba(15, 23, 42, 0.86);
+  border-bottom-color: rgba(148, 163, 184, 0.1);
+}
+
+[data-theme="dark"] .instance-item:nth-child(even) {
+  background: rgba(15, 23, 42, 0.92);
+}
+
+[data-theme="dark"] .instance-item:hover {
+  background: rgba(59, 130, 246, 0.18);
+}
+
+/* Responsive */
 @media (max-width: 720px) {
   .instances-page .page-header {
     flex-direction: column;
@@ -535,7 +650,12 @@
 
   .instance-item {
     grid-template-columns: 1fr;
-    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .instance-select {
+    display: none;
   }
 
   .instance-actions {

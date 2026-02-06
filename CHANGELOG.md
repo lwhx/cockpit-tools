@@ -7,6 +7,14 @@ All notable changes to Cockpit Tools will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
+## [0.5.2] - 2026-02-06
+
+### Changed
+- **Account switch binding sync**: When switching Antigravity account, default instance binding now updates automatically to the selected account.
+- **Codex account switch binding sync**: When switching Codex account, default Codex instance binding now updates automatically to the selected account.
+- **Instance account dropdown interaction**: Inline account dropdown now uses unified open-state control so only one instance dropdown is open at a time.
+- **Instances page UI polish**: Refined list/table layout, inline account selector readability, and dark mode/responsive presentation.
+
 ## [0.5.1] - 2026-02-05
 
 ### Added
