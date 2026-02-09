@@ -1480,7 +1480,7 @@ pub fn collect_vscode_process_entries() -> Vec<(u32, Option<String>)> {
         let is_helper = is_helper_command_line(&args_str) || args_str.contains("crashpad");
 
         #[cfg(target_os = "macos")]
-        let is_vscode = exe_path.contains("visual studio code.app");
+        let is_vscode = exe_path.contains("visual studio code.app/contents/macos/");
         #[cfg(target_os = "windows")]
         let is_vscode = name == "code.exe" || exe_path.ends_with("\\code.exe");
         #[cfg(target_os = "linux")]
@@ -1512,7 +1512,7 @@ pub fn collect_vscode_process_entries() -> Vec<(u32, Option<String>)> {
                     Err(_) => continue,
                 };
                 let lower = cmdline.to_lowercase();
-                if !lower.contains("visual studio code.app/contents/") {
+                if !lower.contains("visual studio code.app/contents/macos/") {
                     continue;
                 }
                 if lower.contains("crashpad_handler") || is_helper_command_line(&lower) {
@@ -1685,14 +1685,22 @@ fn is_vscode_pid_for_user_data_dir(pid: u32, target: &str) -> bool {
         .and_then(|p| p.to_str())
         .unwrap_or("")
         .to_lowercase();
+    let args_str = process
+        .cmd()
+        .iter()
+        .map(|arg| arg.to_string_lossy().to_lowercase())
+        .collect::<Vec<String>>()
+        .join(" ");
+    let is_helper = is_helper_command_line(&args_str) || args_str.contains("crashpad");
+
     #[cfg(target_os = "macos")]
-    let is_vscode = exe_path.contains("visual studio code.app");
+    let is_vscode = exe_path.contains("visual studio code.app/contents/macos/");
     #[cfg(target_os = "windows")]
     let is_vscode = name == "code.exe" || exe_path.ends_with("\\code.exe");
     #[cfg(target_os = "linux")]
     let is_vscode = name == "code" || exe_path.ends_with("/code");
 
-    if !is_vscode {
+    if !is_vscode || is_helper {
         return false;
     }
 
@@ -3868,23 +3876,27 @@ pub fn close_vscode(user_data_dirs: &[String], timeout_secs: u64) -> Result<(), 
     }
 
     let entries = collect_vscode_process_entries();
-    let mut pids: Vec<u32> = entries
-        .iter()
-        .filter_map(|(pid, dir)| {
-            if let Some(dir) = dir {
-                if target_dirs.contains(dir) {
-                    return Some(*pid);
-                }
-            } else {
-                for target in &target_dirs {
-                    if is_vscode_pid_for_user_data_dir(*pid, target) {
-                        return Some(*pid);
-                    }
-                }
+    let mut grouped: HashMap<String, Vec<u32>> = HashMap::new();
+    for (pid, dir) in &entries {
+        if let Some(dir) = dir {
+            if target_dirs.contains(dir) {
+                grouped.entry(dir.clone()).or_default().push(*pid);
             }
-            None
-        })
-        .collect();
+            continue;
+        }
+        for target in &target_dirs {
+            if is_vscode_pid_for_user_data_dir(*pid, target) {
+                grouped.entry(target.clone()).or_default().push(*pid);
+                break;
+            }
+        }
+    }
+    let mut pids: Vec<u32> = Vec::new();
+    for (_, group) in grouped {
+        if let Some(pid) = pick_preferred_pid(group) {
+            pids.push(pid);
+        }
+    }
     pids.sort();
     pids.dedup();
     if pids.is_empty() {
@@ -3896,6 +3908,14 @@ pub fn close_vscode(user_data_dirs: &[String], timeout_secs: u64) -> Result<(), 
         "准备关闭 {} 个 VS Code 主进程...",
         pids.len()
     ));
+
+    for pid in &pids {
+        request_vscode_graceful_close(*pid);
+    }
+    if wait_pids_exit(&pids, 2) {
+        return Ok(());
+    }
+
     let _ = close_pids(&pids, timeout_secs);
 
     let still_running = collect_vscode_process_entries().into_iter().any(|(pid, dir)| {
@@ -3911,4 +3931,47 @@ pub fn close_vscode(user_data_dirs: &[String], timeout_secs: u64) -> Result<(), 
         return Err("无法关闭受管 VS Code 实例进程，请手动关闭后重试".to_string());
     }
     Ok(())
+}
+
+fn request_vscode_graceful_close(pid: u32) {
+    if pid == 0 || !is_pid_running(pid) {
+        return;
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        let script = format!(
+            "tell application \"System Events\" to set frontmost of (first process whose unix id is {}) to true\n\
+tell application \"System Events\" to keystroke \"q\" using command down",
+            pid
+        );
+        match Command::new("osascript").args(["-e", &script]).output() {
+            Ok(output) => {
+                if output.status.success() {
+                    crate::modules::logger::log_info(&format!(
+                        "[VSCode Close] 已发送优雅退出请求 pid={}",
+                        pid
+                    ));
+                } else {
+                    let stderr = String::from_utf8_lossy(&output.stderr);
+                    crate::modules::logger::log_warn(&format!(
+                        "[VSCode Close] 优雅退出失败 pid={} err={}",
+                        pid,
+                        stderr.trim()
+                    ));
+                }
+            }
+            Err(e) => {
+                crate::modules::logger::log_warn(&format!(
+                    "[VSCode Close] 调用 osascript 失败 pid={} err={}",
+                    pid, e
+                ));
+            }
+        }
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = pid;
+    }
 }
