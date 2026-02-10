@@ -27,10 +27,43 @@ const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 fn powershell_output(args: &[&str]) -> std::io::Result<std::process::Output> {
     use std::os::windows::process::CommandExt;
 
+    let mut final_args: Vec<String> = vec![
+        "-WindowStyle".to_string(),
+        "Hidden".to_string(),
+        "-NonInteractive".to_string(),
+        "-NoProfile".to_string(),
+    ];
+    let mut index = 0;
+    while index < args.len() {
+        let arg = args[index];
+        if arg.eq_ignore_ascii_case("-NoProfile")
+            || arg.eq_ignore_ascii_case("-NonInteractive")
+        {
+            index += 1;
+            continue;
+        }
+        if arg.eq_ignore_ascii_case("-WindowStyle") {
+            index += if index + 1 < args.len() { 2 } else { 1 };
+            continue;
+        }
+        if arg.eq_ignore_ascii_case("-Command") {
+            let script = args.get(index + 1).copied().unwrap_or("");
+            let wrapped = format!(
+                "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; $OutputEncoding=[System.Text.Encoding]::UTF8; {}",
+                script
+            );
+            final_args.push("-Command".to_string());
+            final_args.push(wrapped);
+            index += if index + 1 < args.len() { 2 } else { 1 };
+            continue;
+        }
+        final_args.push(arg.to_string());
+        index += 1;
+    }
+
     Command::new("powershell")
         .creation_flags(CREATE_NO_WINDOW)
-        .args(["-WindowStyle", "Hidden", "-NonInteractive", "-NoProfile"])
-        .args(args)
+        .args(final_args)
         .output()
 }
 
@@ -1000,6 +1033,10 @@ fn is_helper_command_line(cmdline_lower: &str) -> bool {
         || cmdline_lower.contains("utility")
         || cmdline_lower.contains("audio")
         || cmdline_lower.contains("sandbox")
+        || cmdline_lower.contains("--node-ipc")
+        || cmdline_lower.contains("--clientprocessid=")
+        || cmdline_lower.contains("\\resources\\app\\extensions\\")
+        || cmdline_lower.contains("/resources/app/extensions/")
 }
 
 #[cfg(target_os = "macos")]
