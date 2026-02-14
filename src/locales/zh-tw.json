@@ -630,7 +630,8 @@
     "title": "分組管理",
     "group_list": "分組列表",
     "group_name_placeholder": "分組名稱",
-    "save": "保存分組"
+    "save": "保存分組",
+    "other_group": "其他模型"
   },
   "codex": {
     "title": "Codex 帳號管理",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "關 {{level}}",
     "historyDurationShort": "時長 {{duration}}",
     "historyReasonGameOver": "本局結束",
-    "historyReasonManualExit": "手動退出"
+    "historyReasonManualExit": "手動退出",
+    "serveHint": "按空白鍵開始發球",
+    "ranking": "歷史記錄",
+    "rankingShort": "歷史",
+    "rankingEmpty": "暫無歷史記錄",
+    "rankingClear": "清空",
+    "rankingRankShort": "#{{rank}}"
   }
 }

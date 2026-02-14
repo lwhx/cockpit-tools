@@ -40,9 +40,15 @@
     "gameOverRank": "Current Rank #{{rank}}",
     "startGame": "Start Game",
     "startHint": "Click start or press Space",
+    "serveHint": "Press Space to launch the ball",
     "rankTitle": "Leaderboard",
     "rankCurrent": "Current",
     "rankNoData": "--",
+    "ranking": "Leaderboard",
+    "rankingShort": "Rank",
+    "rankingEmpty": "No ranking data yet",
+    "rankingClear": "Clear Ranking",
+    "rankingRankShort": "#{{rank}}",
     "restart": "Restart",
     "pause": "Pause",
     "resume": "Resume",
@@ -839,7 +845,8 @@
     "title": "Group Management",
     "group_list": "Group List",
     "group_name_placeholder": "Group Name",
-    "save": "Save Groups"
+    "save": "Save Groups",
+    "other_group": "Other Models"
   },
   "codex": {
     "title": "Codex Account Management",

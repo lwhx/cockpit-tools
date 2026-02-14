@@ -630,7 +630,8 @@
     "title": "グループ管理",
     "group_list": "グループ一覧",
     "group_name_placeholder": "グループ名",
-    "save": "グループを保存"
+    "save": "グループを保存",
+    "other_group": "その他のモデル"
   },
   "codex": {
     "title": "Codex アカウント管理",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Lv {{level}}",
     "historyDurationShort": "時間 {{duration}}",
     "historyReasonGameOver": "ゲームオーバー",
-    "historyReasonManualExit": "手動終了"
+    "historyReasonManualExit": "手動終了",
+    "serveHint": "スペースキーでボールを発射",
+    "ranking": "履歴",
+    "rankingShort": "履歴",
+    "rankingEmpty": "履歴はまだありません",
+    "rankingClear": "クリア",
+    "rankingRankShort": "#{{rank}}"
   }
 }

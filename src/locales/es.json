@@ -630,7 +630,8 @@
     "title": "Gestión de grupos",
     "group_list": "Lista de grupos",
     "group_name_placeholder": "Nombre del grupo",
-    "save": "Guardar grupos"
+    "save": "Guardar grupos",
+    "other_group": "Otros modelos"
   },
   "codex": {
     "title": "Gestión de cuentas de Codex",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Nv {{level}}",
     "historyDurationShort": "Tiempo {{duration}}",
     "historyReasonGameOver": "Juego terminado",
-    "historyReasonManualExit": "Salida manual"
+    "historyReasonManualExit": "Salida manual",
+    "serveHint": "Pulsa Espacio para lanzar la bola",
+    "ranking": "Historial",
+    "rankingShort": "Historial",
+    "rankingEmpty": "Sin registros todavía",
+    "rankingClear": "Limpiar",
+    "rankingRankShort": "#{{rank}}"
   }
 }

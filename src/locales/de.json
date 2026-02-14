@@ -630,7 +630,8 @@
     "title": "Gruppenverwaltung",
     "group_list": "Gruppenliste",
     "group_name_placeholder": "Gruppenname",
-    "save": "Gruppen speichern"
+    "save": "Gruppen speichern",
+    "other_group": "Andere Modelle"
   },
   "codex": {
     "title": "Codex-Konten verwalten",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Lv {{level}}",
     "historyDurationShort": "Zeit {{duration}}",
     "historyReasonGameOver": "Spiel vorbei",
-    "historyReasonManualExit": "Manuell beendet"
+    "historyReasonManualExit": "Manuell beendet",
+    "serveHint": "Drücke die Leertaste, um den Ball zu starten",
+    "ranking": "Verlauf",
+    "rankingShort": "Verlauf",
+    "rankingEmpty": "Noch keine Einträge",
+    "rankingClear": "Leeren",
+    "rankingRankShort": "#{{rank}}"
   }
 }

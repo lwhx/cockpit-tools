@@ -630,7 +630,8 @@
     "title": "إدارة المجموعات",
     "group_list": "قائمة المجموعات",
     "group_name_placeholder": "اسم المجموعة",
-    "save": "حفظ المجموعات"
+    "save": "حفظ المجموعات",
+    "other_group": "نماذج أخرى"
   },
   "codex": {
     "title": "إدارة حسابات Codex",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "م {{level}}",
     "historyDurationShort": "الوقت {{duration}}",
     "historyReasonGameOver": "انتهت اللعبة",
-    "historyReasonManualExit": "خروج يدوي"
+    "historyReasonManualExit": "خروج يدوي",
+    "serveHint": "اضغط على مفتاح المسافة لإطلاق الكرة",
+    "ranking": "السجل",
+    "rankingShort": "سجل",
+    "rankingEmpty": "لا توجد سجلات بعد",
+    "rankingClear": "مسح",
+    "rankingRankShort": "#{{rank}}"
   }
 }

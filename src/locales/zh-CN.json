@@ -40,9 +40,15 @@
     "gameOverRank": "当前历史排名 #{{rank}}",
     "startGame": "开始游戏",
     "startHint": "点击开始按钮或按空格",
+    "serveHint": "按空格开始发球",
     "rankTitle": "历史排名",
     "rankCurrent": "当前",
     "rankNoData": "--",
+    "ranking": "历史排名",
+    "rankingShort": "排名",
+    "rankingEmpty": "暂无排名数据",
+    "rankingClear": "清空排名",
+    "rankingRankShort": "#{{rank}}",
     "restart": "重新开始",
     "pause": "暂停",
     "resume": "继续",
@@ -839,7 +845,8 @@
     "title": "分组管理",
     "group_list": "分组列表",
     "group_name_placeholder": "分组名称",
-    "save": "保存分组"
+    "save": "保存分组",
+    "other_group": "其他模型"
   },
   "codex": {
     "title": "Codex 账号管理",

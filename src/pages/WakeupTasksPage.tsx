@@ -48,6 +48,7 @@ const BLOCKED_DISPLAY_NAMES = new Set([
 ]);
 const RECOMMENDED_LABELS = [
   'Claude Opus 4.5 (Thinking)',
+  'Claude Opus 4.6 (Thinking)',
   'Claude Sonnet 4.5',
   'Claude Sonnet 4.5 (Thinking)',
   'Gemini 3 Flash',
@@ -58,6 +59,7 @@ const RECOMMENDED_LABELS = [
 ];
 const RECOMMENDED_MODEL_IDS = [
   'MODEL_PLACEHOLDER_M12',
+  'MODEL_PLACEHOLDER_M26',
   'MODEL_CLAUDE_4_5_SONNET',
   'MODEL_CLAUDE_4_5_SONNET_THINKING',
   'MODEL_PLACEHOLDER_M18',
@@ -72,6 +74,7 @@ const RECOMMENDED_MODEL_IDS = [
   'claude-sonnet-4-5',
   'claude-sonnet-4-5-thinking',
   'claude-opus-4-5-thinking',
+  'claude-opus-4-6-thinking',
   'gpt-oss-120b-medium',
 ];
 const RECOMMENDED_LABEL_BY_ID: Record<string, string> = {
@@ -82,6 +85,9 @@ const RECOMMENDED_LABEL_BY_ID: Record<string, string> = {
   'claude-sonnet-4-5': 'Claude Sonnet 4.5',
   'claude-sonnet-4-5-thinking': 'Claude Sonnet 4.5 (Thinking)',
   'claude-opus-4-5-thinking': 'Claude Opus 4.5 (Thinking)',
+  'claude-opus-4-6-thinking': 'Claude Opus 4.6 (Thinking)',
+  'MODEL_PLACEHOLDER_M12': 'Claude Opus 4.5 (Thinking)',
+  'MODEL_PLACEHOLDER_M26': 'Claude Opus 4.6 (Thinking)',
   'gpt-oss-120b-medium': 'GPT-OSS 120B (Medium)',
 };
 const getReadableModelLabel = (id: string) => RECOMMENDED_LABEL_BY_ID[id] || getModelShortName(id);

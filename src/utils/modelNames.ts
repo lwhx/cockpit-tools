@@ -9,6 +9,7 @@
 const MODEL_DISPLAY_NAMES: Record<string, string> = {
   // 桌面端格式（小写）
   'claude-opus-4-5-thinking': 'Claude Opus 4.5 (Thinking)',
+  'claude-opus-4-6-thinking': 'Claude Opus 4.6 (Thinking)',
   'claude-sonnet-4-5': 'Claude Sonnet 4.5',
   'claude-sonnet-4-5-thinking': 'Claude Sonnet 4.5 (Thinking)',
   'gemini-3-flash': 'Gemini 3 Flash',
@@ -24,6 +25,7 @@ const MODEL_DISPLAY_NAMES: Record<string, string> = {
   
   // 插件端格式（大写）
   'MODEL_PLACEHOLDER_M12': 'Claude Opus 4.5 (Thinking)',
+  'MODEL_PLACEHOLDER_M26': 'Claude Opus 4.6 (Thinking)',
   'MODEL_CLAUDE_4_5_SONNET': 'Claude Sonnet 4.5',
   'MODEL_CLAUDE_4_5_SONNET_THINKING': 'Claude Sonnet 4.5 (Thinking)',
   'MODEL_PLACEHOLDER_M18': 'Gemini 3 Flash',
@@ -32,6 +34,43 @@ const MODEL_DISPLAY_NAMES: Record<string, string> = {
   'MODEL_PLACEHOLDER_M9': 'Gemini 3 Pro Image',
   'MODEL_OPENAI_GPT_OSS_120B_MEDIUM': 'GPT-OSS 120B (Medium)',
 };
+
+/**
+ * 与 AntigravityCockpit 对齐的授权模式黑名单。
+ * 同时兼容常量 ID 和桌面端常见的小写模型 ID。
+ */
+const AUTH_MODEL_BLACKLIST_IDS = [
+  'MODEL_CHAT_20706',
+  'MODEL_CHAT_23310',
+  'MODEL_GOOGLE_GEMINI_2_5_FLASH',
+  'MODEL_GOOGLE_GEMINI_2_5_FLASH_THINKING',
+  'MODEL_GOOGLE_GEMINI_2_5_FLASH_LITE',
+  'MODEL_GOOGLE_GEMINI_2_5_PRO',
+  'MODEL_PLACEHOLDER_M19',
+  'chat_20706',
+  'chat_23310',
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-thinking',
+  'gemini-2.5-flash-lite',
+  'gemini-2.5-pro',
+];
+
+const AUTH_MODEL_BLACKLIST_DISPLAY_NAMES = [
+  'Gemini 2.5 Flash',
+  'Gemini 2.5 Flash (Thinking)',
+  'Gemini 2.5 Flash Lite',
+  'Gemini 2.5 Pro',
+  'chat_20706',
+  'chat_23310',
+];
+
+const AUTH_MODEL_BLACKLIST_ID_SET = new Set(
+  AUTH_MODEL_BLACKLIST_IDS.map((id) => id.toLowerCase()),
+);
+
+const AUTH_MODEL_BLACKLIST_NAME_SET = new Set(
+  AUTH_MODEL_BLACKLIST_DISPLAY_NAMES.map((name) => name.toLowerCase()),
+);
 
 /**
  * 获取模型的友好显示名称
@@ -50,6 +89,23 @@ export function getModelDisplayName(modelId: string): string {
     .join(' ');
 }
 
+/**
+ * 是否命中授权模式黑名单
+ */
+export function isBlacklistedModel(modelId: string, displayName?: string): boolean {
+  const normalizedId = modelId.trim().toLowerCase();
+  if (!normalizedId) {
+    return false;
+  }
+  if (AUTH_MODEL_BLACKLIST_ID_SET.has(normalizedId)) {
+    return true;
+  }
+  const normalizedDisplayName = displayName?.trim().toLowerCase();
+  return Boolean(
+    normalizedDisplayName && AUTH_MODEL_BLACKLIST_NAME_SET.has(normalizedDisplayName),
+  );
+}
+
 /** 默认分组配置 */
 export interface DefaultGroup {
   id: string;
@@ -66,12 +122,14 @@ export function getDefaultGroups(): DefaultGroup[] {
       name: 'Claude 4.5',
       desktopModels: [
         'claude-opus-4-5-thinking',
+        'claude-opus-4-6-thinking',
         'claude-sonnet-4-5',
         'claude-sonnet-4-5-thinking',
         'gpt-oss-120b-medium',
       ],
       pluginModels: [
         'MODEL_PLACEHOLDER_M12',
+        'MODEL_PLACEHOLDER_M26',
         'MODEL_CLAUDE_4_5_SONNET',
         'MODEL_CLAUDE_4_5_SONNET_THINKING',
         'MODEL_OPENAI_GPT_OSS_120B_MEDIUM',
@@ -154,6 +212,7 @@ export function autoGroupModels(modelIds: string[]): { id: string; name: string;
 export const RECOMMENDED_MODELS = [
   // 桌面端格式
   'claude-opus-4-5-thinking',
+  'claude-opus-4-6-thinking',
   'claude-sonnet-4-5',
   'claude-sonnet-4-5-thinking',
   'gemini-3-flash',
@@ -163,6 +222,7 @@ export const RECOMMENDED_MODELS = [
   'gpt-oss-120b-medium',
   // 插件端格式
   'MODEL_PLACEHOLDER_M12',
+  'MODEL_PLACEHOLDER_M26',
   'MODEL_CLAUDE_4_5_SONNET',
   'MODEL_CLAUDE_4_5_SONNET_THINKING',
   'MODEL_PLACEHOLDER_M18',

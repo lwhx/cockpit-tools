@@ -814,7 +814,8 @@
     "title": "Group Management",
     "group_list": "Group List",
     "group_name_placeholder": "Group Name",
-    "save": "Save Groups"
+    "save": "Save Groups",
+    "other_group": "Other Models"
   },
   "codex": {
     "title": "Codex Account Management",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Lv {{level}}",
     "historyDurationShort": "Time {{duration}}",
     "historyReasonGameOver": "Game Over",
-    "historyReasonManualExit": "Manual Exit"
+    "historyReasonManualExit": "Manual Exit",
+    "serveHint": "Press Space to launch the ball",
+    "ranking": "History",
+    "rankingShort": "Log",
+    "rankingEmpty": "No records yet",
+    "rankingClear": "Clear",
+    "rankingRankShort": "#{{rank}}"
   }
 }

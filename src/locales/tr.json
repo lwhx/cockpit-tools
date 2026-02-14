@@ -630,7 +630,8 @@
     "title": "Grup yönetimi",
     "group_list": "Grup listesi",
     "group_name_placeholder": "Grup adı",
-    "save": "Grupları kaydet"
+    "save": "Grupları kaydet",
+    "other_group": "Diğer modeller"
   },
   "codex": {
     "title": "Codex Hesap Yönetimi",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Sv {{level}}",
     "historyDurationShort": "Süre {{duration}}",
     "historyReasonGameOver": "Oyun bitti",
-    "historyReasonManualExit": "Manuel çıkış"
+    "historyReasonManualExit": "Manuel çıkış",
+    "serveHint": "Topu fırlatmak için Boşluk tuşuna basın",
+    "ranking": "Geçmiş",
+    "rankingShort": "Geçmiş",
+    "rankingEmpty": "Henüz kayıt yok",
+    "rankingClear": "Temizle",
+    "rankingRankShort": "#{{rank}}"
   }
 }

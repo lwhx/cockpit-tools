@@ -630,7 +630,8 @@
     "title": "Quản lý nhóm",
     "group_list": "Danh sách nhóm",
     "group_name_placeholder": "Tên nhóm",
-    "save": "Lưu nhóm"
+    "save": "Lưu nhóm",
+    "other_group": "Mô hình khác"
   },
   "codex": {
     "title": "Quản lý tài khoản Codex",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Lv {{level}}",
     "historyDurationShort": "Thời gian {{duration}}",
     "historyReasonGameOver": "Kết thúc game",
-    "historyReasonManualExit": "Thoát thủ công"
+    "historyReasonManualExit": "Thoát thủ công",
+    "serveHint": "Nhấn phím cách để phóng bóng",
+    "ranking": "Lịch sử",
+    "rankingShort": "Lịch sử",
+    "rankingEmpty": "Chưa có bản ghi",
+    "rankingClear": "Xóa",
+    "rankingRankShort": "#{{rank}}"
   }
 }

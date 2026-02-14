@@ -69,6 +69,7 @@ interface GameState {
   level: number;
   paddleX: number;
   paddleWidth: number;
+  isBallLaunched: boolean;
   expandUntil: number;
   walls: WallRect[];
   balls: Ball[];
@@ -109,6 +110,7 @@ const PADDLE_SPEED = 10.5;
 const MAX_BALLS = 300;
 const MAX_DROPS = 60;
 const BALL_RADIUS = 3;
+const BALL_READY_Y = PADDLE_Y - BALL_RADIUS;
 const OVERLAY_GUTTER = 36;
 const MODAL_INNER_PADDING = 52;
 const MODAL_EXTRA_HEIGHT = 32;
@@ -120,7 +122,7 @@ const BALL_STEP_DISTANCE = 3.5;
 const BALL_COLLISION_CELL_SIZE = 18;
 const BALL_COLLISION_RESTITUTION = 0.96;
 const WALL_LAYER_COUNT = 3;
-const WALL_LAYER_GAP = 8;
+const WALL_LAYER_STEP_CELLS = 1;
 const LEVEL_LAYOUT_STYLES = ['bandsHorizontal', 'bandsVertical', 'rings', 'triangles', 'diamonds', 'mixed'] as const;
 const MIN_BRICK_COUNT = 2400;
 const MIN_SEPARATOR_Y = 668;
@@ -129,14 +131,16 @@ const BREAKOUT_HISTORY_STORAGE_KEY = 'agtools.breakout.history';
 const BREAKOUT_HISTORY_LIMIT = 200;
 
 const DROP_ICON_MAP: Record<DropType, PlatformId> = {
-  split: 'codex',
-  triple: 'windsurf',
+  split: 'windsurf',
+  triple: 'codex',
   expand: 'antigravity',
   shield: 'github-copilot',
 };
 
 const DROP_SPEED = 2.45;
 const DROP_CHANCE = 0.18;
+const SPLIT_SHOT_SIDE_DELTA_VX = 2.6;
+const SPLIT_SHOT_UP_SPEED = 6.3;
 const TRIPLE_SHOT_SIDE_DELTA_VX = 2.2;
 const TRIPLE_SHOT_MIN_UP_SPEED = 5.8;
 
@@ -194,7 +198,7 @@ function createLevelRng(runSeed: number, level: number): () => number {
 
 function createFrameSpec(rng: () => number, level: number): FrameSpec {
   const left = alignToBrickGrid(randomInt(rng, 56, 92));
-  const right = alignToBrickGrid(randomInt(rng, 666, 700));
+  const right = BOARD_WIDTH - left;
   const top = alignToBrickGrid(randomInt(rng, 78, 118));
   const separatorY = alignToBrickGrid(randomInt(rng, MIN_SEPARATOR_Y, MAX_SEPARATOR_Y));
   const roll = rng();
@@ -288,6 +292,8 @@ function createBottomSegments(frame: FrameSpec, rng: () => number): WallRect[] {
 function createPerimeterWalls(frame: FrameSpec, rng: () => number): WallRect[] {
   const baseWalls: WallRect[] = [
     { x: 0, y: frame.top - BRICK_CELL_SIZE, w: BOARD_WIDTH, h: 6 },
+    { x: 0, y: frame.top, w: frame.left, h: frame.separatorY - frame.top },
+    { x: frame.right, y: frame.top, w: BOARD_WIDTH - frame.right, h: frame.separatorY - frame.top },
     { x: frame.left, y: frame.top, w: 6, h: frame.separatorY - frame.top },
     { x: frame.right - 6, y: frame.top, w: 6, h: frame.separatorY - frame.top },
   ];
@@ -410,24 +416,99 @@ function createStyleWalls(style: LayoutStyle, area: BrickArea, rng: () => number
   }
 }
 
-function layerWalls(baseWalls: WallRect[]): WallRect[] {
-  const layeredWalls: WallRect[] = [];
-  for (const wall of baseWalls) {
-    const horizontal = wall.w >= wall.h;
-    const shiftX = horizontal ? 0 : wall.x <= BOARD_WIDTH / 2 ? -WALL_LAYER_GAP : WALL_LAYER_GAP;
-    const shiftY = horizontal ? (wall.y <= BOARD_HEIGHT / 2 ? -WALL_LAYER_GAP : WALL_LAYER_GAP) : 0;
+function createBoardGrid(): PatternGrid {
+  const cols = Math.max(1, Math.ceil(BOARD_WIDTH / BRICK_CELL_SIZE));
+  const rows = Math.max(1, Math.ceil(BOARD_HEIGHT / BRICK_CELL_SIZE));
+  return {
+    cols,
+    rows,
+    cells: new Uint8Array(cols * rows),
+  };
+}
 
-    for (let layer = 0; layer < WALL_LAYER_COUNT; layer += 1) {
-      layeredWalls.push({
-        x: wall.x + shiftX * layer,
-        y: wall.y + shiftY * layer,
+function stampWallRectToGrid(grid: PatternGrid, wall: WallRect) {
+  const minCol = clamp(Math.floor((wall.x - BRICK_WIDTH) / BRICK_CELL_SIZE), 0, grid.cols - 1);
+  const maxCol = clamp(Math.floor((wall.x + wall.w - 1) / BRICK_CELL_SIZE), 0, grid.cols - 1);
+  const minRow = clamp(Math.floor((wall.y - BRICK_HEIGHT) / BRICK_CELL_SIZE), 0, grid.rows - 1);
+  const maxRow = clamp(Math.floor((wall.y + wall.h - 1) / BRICK_CELL_SIZE), 0, grid.rows - 1);
+
+  for (let row = minRow; row <= maxRow; row += 1) {
+    for (let col = minCol; col <= maxCol; col += 1) {
+      const cellRect = {
+        x: col * BRICK_CELL_SIZE,
+        y: row * BRICK_CELL_SIZE,
+        w: BRICK_WIDTH,
+        h: BRICK_HEIGHT,
+      };
+      if (isRectOverlap(cellRect, wall)) {
+        setGridCell(grid, col, row, 1);
+      }
+    }
+  }
+}
+
+function wallGridToRects(grid: PatternGrid): WallRect[] {
+  const zones = convertGridToZones(grid, {
+    left: 0,
+    right: BOARD_WIDTH,
+    top: 0,
+    bottom: BOARD_HEIGHT,
+  });
+  const walls: WallRect[] = [];
+
+  for (const zone of zones) {
+    if (zone.x >= BOARD_WIDTH || zone.y >= BOARD_HEIGHT) continue;
+    const width = Math.min(zone.cols * BRICK_CELL_SIZE, BOARD_WIDTH - zone.x);
+    const height = Math.min(zone.rows * BRICK_CELL_SIZE, BOARD_HEIGHT - zone.y);
+    if (width <= 0 || height <= 0) continue;
+    walls.push({
+      x: zone.x,
+      y: zone.y,
+      w: width,
+      h: height,
+    });
+  }
+
+  return walls;
+}
+
+function layerWalls(baseWalls: WallRect[]): WallRect[] {
+  const wallGrid = createBoardGrid();
+
+  for (const wall of baseWalls) {
+    const isSolidBlock = wall.w > BRICK_WIDTH && wall.h > BRICK_HEIGHT;
+    const layerCount = isSolidBlock ? 1 : WALL_LAYER_COUNT;
+    const horizontal = wall.w >= wall.h;
+    let shiftXCells = 0;
+    let shiftYCells = 0;
+
+    if (!isSolidBlock) {
+      if (horizontal) {
+        shiftYCells = wall.y <= BOARD_HEIGHT / 2 ? -WALL_LAYER_STEP_CELLS : WALL_LAYER_STEP_CELLS;
+      } else {
+        const isLeftPerimeter = wall.x < BOARD_WIDTH * 0.25;
+        const isRightPerimeter = wall.x > BOARD_WIDTH * 0.75;
+        if (isLeftPerimeter) {
+          shiftXCells = WALL_LAYER_STEP_CELLS;
+        } else if (isRightPerimeter) {
+          shiftXCells = -WALL_LAYER_STEP_CELLS;
+        } else {
+          shiftXCells = wall.x <= BOARD_WIDTH / 2 ? -WALL_LAYER_STEP_CELLS : WALL_LAYER_STEP_CELLS;
+        }
+      }
+    }
+
+    for (let layer = 0; layer < layerCount; layer += 1) {
+      stampWallRectToGrid(wallGrid, {
+        x: wall.x + shiftXCells * layer * BRICK_CELL_SIZE,
+        y: wall.y + shiftYCells * layer * BRICK_CELL_SIZE,
         w: wall.w,
         h: wall.h,
       });
     }
   }
 
-  return layeredWalls;
+  return wallGridToRects(wallGrid);
 }
 
 function pushZone(zones: BrickZone[], x: number, y: number, cols: number, rows: number) {
@@ -1020,9 +1101,20 @@ function createBall(id: number, paddleX: number, paddleWidth: number): Ball {
   return {
     id,
     x: paddleX + paddleWidth / 2,
-    y: PADDLE_Y - 18,
+    y: BALL_READY_Y,
     vx: 4.2 * dir,
     vy: -5.2,
+    r: BALL_RADIUS,
+  };
+}
+
+function createReadyBall(id: number, paddleX: number, paddleWidth: number): Ball {
+  return {
+    id,
+    x: paddleX + paddleWidth / 2,
+    y: BALL_READY_Y,
+    vx: 0,
+    vy: 0,
     r: BALL_RADIUS,
   };
 }
@@ -1035,9 +1127,10 @@ function createInitialState(runSeed: number = generateRunSeed()): GameState {
     level: 1,
     paddleX,
     paddleWidth: PADDLE_BASE_WIDTH,
+    isBallLaunched: false,
     expandUntil: 0,
     walls: layout.walls,
-    balls: [createBall(1, paddleX, PADDLE_BASE_WIDTH)],
+    balls: [createReadyBall(1, paddleX, PADDLE_BASE_WIDTH)],
     bricks: layout.bricks,
     brickLookup: layout.brickLookup,
     drops: [],
@@ -1188,26 +1281,19 @@ function randomDropType(): DropType {
 function drawPixelWall(ctx: CanvasRenderingContext2D, wall: WallRect) {
   ctx.fillStyle = '#b5c2d5';
   ctx.beginPath();
-  const dotR = 2.5;
+  const dotR = BRICK_WIDTH / 2;
+  const dotInset = dotR;
+  const dotStep = BRICK_CELL_SIZE;
+  const colCount = Math.max(1, Math.floor((wall.w - BRICK_WIDTH) / dotStep) + 1);
+  const rowCount = Math.max(1, Math.floor((wall.h - BRICK_HEIGHT) / dotStep) + 1);
 
-  if (wall.w >= wall.h) {
-    const endX = wall.x + wall.w - 6;
-    for (let x = wall.x; x <= endX; x += 8) {
-      const cx = x + 3;
-      const cy = wall.y + 3;
-      ctx.moveTo(cx + dotR, cy);
-      ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
+  for (let row = 0; row < rowCount; row += 1) {
+    const y = wall.y + dotInset + row * dotStep;
+    for (let col = 0; col < colCount; col += 1) {
+      const x = wall.x + dotInset + col * dotStep;
+      ctx.moveTo(x + dotR, y);
+      ctx.arc(x, y, dotR, 0, Math.PI * 2);
     }
-    ctx.fill();
-    return;
-  }
-
-  const endY = wall.y + wall.h - 6;
-  for (let y = wall.y; y <= endY; y += 8) {
-    const cx = wall.x + 3;
-    const cy = y + 3;
-    ctx.moveTo(cx + dotR, cy);
-    ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
   }
   ctx.fill();
 }
@@ -1332,6 +1418,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
   const [isLevelCleared, setIsLevelCleared] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
+  const [isBallLaunched, setIsBallLaunched] = useState(false);
   const [historyRecords, setHistoryRecords] = useState<GameHistoryRecord[]>(() =>
     loadBreakoutHistoryRecords(),
   );
@@ -1347,10 +1434,21 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
   const dropScale = Math.min(stageScaleX, stageScaleY);
   const dropSize = Math.round(clamp(28 * dropScale, 16, 28));
   const dropIconSize = Math.round(clamp(14 * dropScale, 10, 14));
-  const visibleHistoryRecords = historyRecords.slice(0, 20);
   const sortedRankRecords = [...historyRecords].sort(compareHistoryRecord);
   const topThreeRankRecords = sortedRankRecords.slice(0, 3);
   const latestRecord = historyRecords[0] ?? null;
+  const rankingLabel = t('breakout.ranking', {
+    defaultValue: t('breakout.history', '历史记录'),
+  });
+  const rankingShortLabel = t('breakout.rankingShort', {
+    defaultValue: t('breakout.historyShort', '历史'),
+  });
+  const rankingEmptyLabel = t('breakout.rankingEmpty', {
+    defaultValue: t('breakout.historyEmpty', '暂无历史记录'),
+  });
+  const rankingClearLabel = t('breakout.rankingClear', {
+    defaultValue: t('breakout.historyClear', '清空'),
+  });
   const latestRecordRank = latestRecord
     ? (() => {
       const index = sortedRankRecords.findIndex((record) => record.id === latestRecord.id);
@@ -1453,9 +1551,10 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
     state.level = levelNumber;
     state.paddleX = paddleX;
     state.paddleWidth = PADDLE_BASE_WIDTH;
+    state.isBallLaunched = false;
     state.expandUntil = 0;
     state.walls = layout.walls;
-    state.balls = [createBall(state.nextBallId++, paddleX, PADDLE_BASE_WIDTH)];
+    state.balls = [createReadyBall(state.nextBallId++, paddleX, PADDLE_BASE_WIDTH)];
     state.bricks = layout.bricks;
     state.brickLookup = layout.brickLookup;
     state.drops = [];
@@ -1472,6 +1571,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
     setIsLevelCleared(false);
     setIsPaused(false);
     setIsStarted(true);
+    setIsBallLaunched(false);
     isStartedRef.current = true;
     isGameOverRef.current = false;
     isLevelClearedRef.current = false;
@@ -1496,6 +1596,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
     setIsLevelCleared(false);
     setIsPaused(false);
     setIsStarted(true);
+    setIsBallLaunched(false);
     isStartedRef.current = true;
     isLevelClearedRef.current = false;
     isPausedRef.current = false;
@@ -1509,12 +1610,37 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
     if (isStartedRef.current) return;
     isStartedRef.current = true;
     setIsStarted(true);
+    setIsBallLaunched(false);
     setHistoryOpen(false);
     setIsPaused(false);
     isPausedRef.current = false;
     keysRef.current.left = false;
     keysRef.current.right = false;
     sessionStartedAtRef.current = Date.now();
+    lastFrameRef.current = 0;
+  }, []);
+
+  const handleLaunchBall = useCallback(() => {
+    if (!isStartedRef.current || isGameOverRef.current || isLevelClearedRef.current || isPausedRef.current) return;
+    const state = stateRef.current;
+    if (state.isBallLaunched) return;
+
+    if (state.balls.length === 0) {
+      state.balls.push(createReadyBall(state.nextBallId++, state.paddleX, state.paddleWidth));
+    }
+
+    const ball = state.balls[0];
+    if (!ball) return;
+    ball.x = state.paddleX + state.paddleWidth / 2;
+    ball.y = BALL_READY_Y;
+    const moving = createBall(0, state.paddleX, state.paddleWidth);
+    ball.vx = moving.vx;
+    ball.vy = moving.vy;
+
+    state.isBallLaunched = true;
+    setIsBallLaunched(true);
+    keysRef.current.left = false;
+    keysRef.current.right = false;
     lastFrameRef.current = 0;
   }, []);
 
@@ -1532,6 +1658,17 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
     if (now > state.expandUntil && state.paddleWidth !== PADDLE_BASE_WIDTH) {
       state.paddleWidth = PADDLE_BASE_WIDTH;
       state.paddleX = clamp(state.paddleX, 0, BOARD_WIDTH - state.paddleWidth);
+    }
+
+    if (!state.isBallLaunched) {
+      const readyBall = state.balls[0];
+      if (readyBall) {
+        readyBall.x = state.paddleX + state.paddleWidth / 2;
+        readyBall.y = BALL_READY_Y;
+        readyBall.vx = 0;
+        readyBall.vy = 0;
+      }
+      return 'running';
     }
 
     if (keysRef.current.left && !keysRef.current.right) {
@@ -1628,25 +1765,42 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
 
       if (hitPaddle) {
         if (drop.type === 'split') {
-          if (state.balls.length > 0) {
-            const availableSlots = Math.max(0, MAX_BALLS - state.balls.length);
-            const splitBalls: Ball[] = state.balls.slice(0, availableSlots).map((source, index) => {
-              const mirroredVx =
-                source.vx === 0 ? (index % 2 === 0 ? 4.2 : -4.2) : -source.vx;
-              return {
-                id: state.nextBallId++,
-                x: source.x + (Math.random() > 0.5 ? 3 : -3),
-                y: source.y - 3,
-                vx: mirroredVx,
-                vy: source.vy,
-                r: source.r,
-              };
-            });
-            if (splitBalls.length > 0) {
-              state.balls.push(...splitBalls);
+          const freeSlots = Math.max(0, MAX_BALLS - state.balls.length);
+          const spawnCount = Math.min(3, freeSlots);
+          if (spawnCount > 0) {
+            const paddleCenterX = state.paddleX + state.paddleWidth / 2;
+            const spawnY = BALL_READY_Y;
+            const spread = 8;
+            let shotConfigs: Array<{ offsetX: number; vx: number }> = [];
+            if (spawnCount === 1) {
+              shotConfigs = [{ offsetX: 0, vx: 0 }];
+            } else if (spawnCount === 2) {
+              shotConfigs = [
+                { offsetX: -spread, vx: -SPLIT_SHOT_SIDE_DELTA_VX },
+                { offsetX: spread, vx: SPLIT_SHOT_SIDE_DELTA_VX },
+              ];
+            } else {
+              shotConfigs = [
+                { offsetX: -spread, vx: -SPLIT_SHOT_SIDE_DELTA_VX },
+                { offsetX: 0, vx: 0 },
+                { offsetX: spread, vx: SPLIT_SHOT_SIDE_DELTA_VX },
+              ];
             }
-          } else {
-            state.balls.push(createBall(state.nextBallId++, state.paddleX, state.paddleWidth));
+
+            const spawnedBalls = shotConfigs.map((config) => ({
+              id: state.nextBallId++,
+              x: clamp(
+                paddleCenterX + config.offsetX,
+                BALL_RADIUS + 0.5,
+                BOARD_WIDTH - BALL_RADIUS - 0.5,
+              ),
+              y: spawnY,
+              vx: config.vx,
+              vy: -SPLIT_SHOT_UP_SPEED,
+              r: BALL_RADIUS,
+            }));
+            state.balls.push(...spawnedBalls);
+            state.isBallLaunched = true;
           }
         } else if (drop.type === 'triple') {
           if (state.balls.length === 0) {
@@ -1705,6 +1859,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
       if (state.shields > 0) {
         state.shields -= 1;
         state.balls.push(createBall(state.nextBallId++, state.paddleX, state.paddleWidth));
+        state.isBallLaunched = true;
       } else {
         return 'gameOver';
       }
@@ -1788,13 +1943,31 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
         return;
       }
 
-      if ((key === 'p' || key === ' ') && isStartedRef.current && !isGameOverRef.current && !isLevelClearedRef.current) {
+      if (key === ' ' && isStartedRef.current && !isGameOverRef.current && !isLevelClearedRef.current) {
+        event.preventDefault();
+        if (isPausedRef.current) {
+          handlePauseToggle();
+          return;
+        }
+        if (!stateRef.current.isBallLaunched) {
+          handleLaunchBall();
+          return;
+        }
+        handlePauseToggle();
+        return;
+      }
+
+      if (key === 'p' && isStartedRef.current && !isGameOverRef.current && !isLevelClearedRef.current) {
         event.preventDefault();
         handlePauseToggle();
         return;
       }
 
       if (!isStartedRef.current || isGameOverRef.current || isPausedRef.current || isLevelClearedRef.current) {
+        return;
+      }
+
+      if (!stateRef.current.isBallLaunched) {
         return;
       }
 
@@ -1824,7 +1997,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [handleClose, handleNextLevel, handlePauseToggle, handleRestart, handleStartGame]);
+  }, [handleClose, handleLaunchBall, handleNextLevel, handlePauseToggle, handleRestart, handleStartGame]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1861,6 +2034,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
         setLevel(state.level);
         setScore(state.score);
         setShields(state.shields);
+        setIsBallLaunched(state.isBallLaunched);
         lastUiSyncRef.current = timestamp;
       }
 
@@ -1929,10 +2103,10 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
                 type="button"
                 className="breakout-history-btn"
                 onClick={() => setHistoryOpen((open) => !open)}
-                title={t('breakout.history', '历史记录')}
-                aria-label={t('breakout.history', '历史记录')}
+                title={rankingLabel}
+                aria-label={rankingLabel}
               >
-                {t('breakout.historyShort', '历史')}
+                {rankingShortLabel}
               </button>
               <button
                 type="button"
@@ -1955,7 +2129,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
             <div className="breakout-history-panel">
               <div className="breakout-history-header">
                 <div className="breakout-history-title">
-                  {t('breakout.history', '历史记录')}
+                  {rankingLabel}
                 </div>
                 <div className="breakout-history-header-actions">
                   <button
@@ -1963,7 +2137,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
                     className="breakout-history-clear"
                     onClick={handleClearHistory}
                   >
-                    {t('breakout.historyClear', '清空')}
+                    {rankingClearLabel}
                   </button>
                   <button
                     type="button"
@@ -1977,17 +2151,24 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
                 </div>
               </div>
 
-              {visibleHistoryRecords.length === 0 ? (
-                <div className="breakout-history-empty">{t('breakout.historyEmpty', '暂无历史记录')}</div>
+              {sortedRankRecords.length === 0 ? (
+                <div className="breakout-history-empty">{rankingEmptyLabel}</div>
               ) : (
                 <div className="breakout-history-list">
-                  {visibleHistoryRecords.map((record) => (
+                  {sortedRankRecords.map((record, index) => (
                     <div key={record.id} className="breakout-history-item">
-                      <div className="breakout-history-item-time">
-                        {formatHistoryTime(record.createdAt)}
+                      <div className="breakout-history-item-head">
+                        <span className={`breakout-history-rank${index < 3 ? ' is-top' : ''}`}>
+                          {t('breakout.rankingRankShort', {
+                            rank: index + 1,
+                            defaultValue: `#${index + 1}`,
+                          })}
+                        </span>
+                        <span className="breakout-history-score">
+                          {t('breakout.historyScoreShort', { score: record.score, defaultValue: `分 ${record.score}` })}
+                        </span>
                       </div>
                       <div className="breakout-history-item-meta">
-                        <span>{t('breakout.historyScoreShort', { score: record.score, defaultValue: `分 ${record.score}` })}</span>
                         <span>{t('breakout.historyLevelShort', { level: record.level, defaultValue: `关 ${record.level}` })}</span>
                         <span>{t('breakout.historyDurationShort', { duration: formatHistoryDuration(record.durationMs), defaultValue: `时长 ${formatHistoryDuration(record.durationMs)}` })}</span>
                         <span>
@@ -1995,6 +2176,7 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
                             ? t('breakout.historyReasonGameOver', '本局结束')
                             : t('breakout.historyReasonManualExit', '手动退出')}
                         </span>
+                        <span>{formatHistoryTime(record.createdAt)}</span>
                       </div>
                     </div>
                   ))}
@@ -2047,9 +2229,15 @@ export function BreakoutModal({ onClose }: BreakoutModalProps) {
                   className="breakout-history-btn breakout-start-history-btn"
                   onClick={() => setHistoryOpen((open) => !open)}
                 >
-                  {t('breakout.history', '历史记录')}
+                  {rankingLabel}
                 </button>
               </div>
+            </div>
+          )}
+
+          {isStarted && !isBallLaunched && !isGameOver && !isLevelCleared && !isPaused && (
+            <div className="breakout-serve-hint">
+              {t('breakout.serveHint', '按空格开始发球')}
             </div>
           )}
 

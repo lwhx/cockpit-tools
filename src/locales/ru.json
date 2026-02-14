@@ -630,7 +630,8 @@
     "title": "Управление группами",
     "group_list": "Список групп",
     "group_name_placeholder": "Название группы",
-    "save": "Сохранить группы"
+    "save": "Сохранить группы",
+    "other_group": "Другие модели"
   },
   "codex": {
     "title": "Управление аккаунтами Codex",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Ур {{level}}",
     "historyDurationShort": "Время {{duration}}",
     "historyReasonGameOver": "Игра окончена",
-    "historyReasonManualExit": "Ручной выход"
+    "historyReasonManualExit": "Ручной выход",
+    "serveHint": "Нажмите пробел, чтобы запустить мяч",
+    "ranking": "История",
+    "rankingShort": "История",
+    "rankingEmpty": "Записей пока нет",
+    "rankingClear": "Очистить",
+    "rankingRankShort": "#{{rank}}"
   }
 }

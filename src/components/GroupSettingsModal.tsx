@@ -1,21 +1,29 @@
 /**
  * 分组管理弹窗组件
- * 只允许修改固定4个分组的名称
+ * 固定分组 + 其他分组（显示黑名单外全部模型）
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Package } from 'lucide-react';
 import {
   getGroupSettings,
   saveGroupSettings,
 } from '../services/groupService';
-import { getModelDisplayName, getDefaultGroups } from '../utils/modelNames';
+import {
+  getModelDisplayName,
+  getDefaultGroups,
+  isBlacklistedModel,
+} from '../utils/modelNames';
 import './GroupSettingsModal.css';
 
 interface GroupSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  availableModels?: Array<{
+    id: string;
+    displayName?: string;
+  }>;
 }
 
 interface GroupData {
@@ -27,43 +35,98 @@ interface GroupData {
 export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
   isOpen,
   onClose,
+  availableModels = [],
 }) => {
   const { t } = useTranslation();
   const [groups, setGroups] = useState<GroupData[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 获取固定的默认分组配置
-  const getFixedGroups = useCallback((): GroupData[] => {
-    const defaultGroups = getDefaultGroups();
-    return defaultGroups.map(group => ({
-      id: group.id,
-      name: group.name,
-      models: group.desktopModels, // 使用桌面端模型 ID
+  const visibleModels = useMemo(() => {
+    const modelMap = new Map<string, string | undefined>();
+    for (const model of availableModels) {
+      const modelId = model.id?.trim();
+      if (!modelId) {
+        continue;
+      }
+      const displayName = model.displayName?.trim() || undefined;
+      if (isBlacklistedModel(modelId, displayName)) {
+        continue;
+      }
+      const existing = modelMap.get(modelId);
+      if (!existing && displayName) {
+        modelMap.set(modelId, displayName);
+      } else if (!modelMap.has(modelId)) {
+        modelMap.set(modelId, undefined);
+      }
+    }
+    return Array.from(modelMap.entries()).map(([id, displayName]) => ({
+      id,
+      displayName,
     }));
-  }, []);
+  }, [availableModels]);
+
+  const modelDisplayNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const model of visibleModels) {
+      if (model.displayName) {
+        map.set(model.id, model.displayName);
+      }
+    }
+    return map;
+  }, [visibleModels]);
+
+  const buildGroups = useCallback((savedGroupNames?: Record<string, string>): GroupData[] => {
+    const visibleModelSet = new Set(visibleModels.map(model => model.id));
+    const defaultGroups = getDefaultGroups().map(group => {
+      const mergedIds = [...group.desktopModels, ...group.pluginModels];
+      const dedupedIds = Array.from(new Set(mergedIds));
+      const availableGroupModels = dedupedIds.filter(modelId => visibleModelSet.has(modelId));
+      return {
+        id: group.id,
+        name: group.name,
+        models: availableGroupModels,
+      };
+    });
+
+    const fixedModelSet = new Set(defaultGroups.flatMap(group => group.models));
+    const otherModels = visibleModels
+      .filter(model => !fixedModelSet.has(model.id))
+      .sort((a, b) =>
+        (a.displayName || a.id).localeCompare(b.displayName || b.id, undefined, {
+          sensitivity: 'base',
+        }),
+      )
+      .map(model => model.id);
+
+    const groupsWithOther = [...defaultGroups];
+    if (otherModels.length > 0) {
+      groupsWithOther.push({
+        id: 'other',
+        name: t('group_settings.other_group', '其他模型'),
+        models: otherModels,
+      });
+    }
+
+    return groupsWithOther.map(group => ({
+      ...group,
+      name: savedGroupNames?.[group.id] || group.name,
+    }));
+  }, [t, visibleModels]);
 
   // 加载分组配置（合并已保存的名称）
   const loadSettings = useCallback(async () => {
     try {
       const data = await getGroupSettings();
-      const fixedGroups = getFixedGroups();
-      
-      // 使用保存的分组名（如果有的话）
-      const loadedGroups = fixedGroups.map(group => ({
-        ...group,
-        name: data.groupNames[group.id] || group.name,
-      }));
-      
-      setGroups(loadedGroups);
+      setGroups(buildGroups(data.groupNames));
       setError(null);
     } catch (err) {
       console.error('Failed to load group settings:', err);
       // 加载失败时使用默认配置
-      setGroups(getFixedGroups());
+      setGroups(buildGroups());
       setError(null);
     }
-  }, [getFixedGroups]);
+  }, [buildGroups]);
 
   useEffect(() => {
     if (isOpen) {
@@ -158,7 +221,7 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                   <div className="group-models">
                     {group.models.map(modelId => (
                       <span key={modelId} className="model-tag readonly" title={modelId}>
-                        {getModelDisplayName(modelId)}
+                        {modelDisplayNameMap.get(modelId) || getModelDisplayName(modelId)}
                       </span>
                     ))}
                   </div>

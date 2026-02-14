@@ -630,7 +630,8 @@
     "title": "그룹 관리",
     "group_list": "그룹 목록",
     "group_name_placeholder": "그룹 이름",
-    "save": "그룹 저장"
+    "save": "그룹 저장",
+    "other_group": "기타 모델"
   },
   "codex": {
     "title": "Codex 계정 관리",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Lv {{level}}",
     "historyDurationShort": "시간 {{duration}}",
     "historyReasonGameOver": "게임 종료",
-    "historyReasonManualExit": "수동 종료"
+    "historyReasonManualExit": "수동 종료",
+    "serveHint": "스페이스바로 공을 발사",
+    "ranking": "기록",
+    "rankingShort": "기록",
+    "rankingEmpty": "기록이 없습니다",
+    "rankingClear": "지우기",
+    "rankingRankShort": "#{{rank}}"
   }
 }

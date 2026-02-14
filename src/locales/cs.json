@@ -630,7 +630,8 @@
     "title": "Správa skupin",
     "group_list": "Seznam skupin",
     "group_name_placeholder": "Název skupiny",
-    "save": "Uložit skupiny"
+    "save": "Uložit skupiny",
+    "other_group": "Ostatní modely"
   },
   "codex": {
     "title": "Správa účtů Codex",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Lv {{level}}",
     "historyDurationShort": "Čas {{duration}}",
     "historyReasonGameOver": "Konec hry",
-    "historyReasonManualExit": "Ruční ukončení"
+    "historyReasonManualExit": "Ruční ukončení",
+    "serveHint": "Stiskněte mezerník pro vystřelení míčku",
+    "ranking": "Historie",
+    "rankingShort": "Historie",
+    "rankingEmpty": "Zatím bez záznamů",
+    "rankingClear": "Vymazat",
+    "rankingRankShort": "#{{rank}}"
   }
 }

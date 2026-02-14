@@ -213,6 +213,8 @@
 }
 
 .breakout-history-panel {
+  --breakout-history-visible-count: 8;
+  --breakout-history-item-height: 64px;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -292,17 +294,51 @@
 }
 
 .breakout-history-list {
-  max-height: min(580px, calc(100% - 40px));
+  height: min(
+    calc(var(--breakout-history-visible-count) * var(--breakout-history-item-height)),
+    calc(100% - 40px)
+  );
+  max-height: min(
+    calc(var(--breakout-history-visible-count) * var(--breakout-history-item-height)),
+    calc(100% - 40px)
+  );
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .breakout-history-item {
   padding: 8px 10px;
+  min-height: var(--breakout-history-item-height);
   border-bottom: 1px solid rgba(148, 163, 184, 0.16);
 }
 
 .breakout-history-item:last-child {
   border-bottom: 0;
+}
+
+.breakout-history-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.breakout-history-rank {
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.breakout-history-rank.is-top {
+  color: #facc15;
+}
+
+.breakout-history-score {
+  color: #dbeafe;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .breakout-history-item-time {
@@ -312,7 +348,7 @@
 }
 
 .breakout-history-item-meta {
-  margin-top: 4px;
+  margin-top: 6px;
   display: flex;
   flex-wrap: wrap;
   gap: 4px 10px;
@@ -392,6 +428,25 @@
   padding: 0 18px;
   font-size: 13px;
   font-weight: 700;
+}
+
+.breakout-serve-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  z-index: 5;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.4);
+  background: rgba(15, 23, 42, 0.64);
+  color: #dbeafe;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .breakout-rank-summary {
@@ -489,5 +544,9 @@
 @media (max-width: 900px) {
   .breakout-modal {
     padding: 14px;
+  }
+
+  .breakout-history-panel {
+    --breakout-history-visible-count: 6;
   }
 }

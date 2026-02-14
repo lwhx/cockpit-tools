@@ -247,6 +247,29 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
     return quotas
   }
 
+  const groupModalModels = useMemo(() => {
+    const modelMap = new Map<string, string | undefined>()
+    for (const account of accounts) {
+      for (const model of account.quota?.models || []) {
+        const modelId = model.name?.trim()
+        if (!modelId) {
+          continue
+        }
+        const displayName = model.display_name?.trim() || undefined
+        const existing = modelMap.get(modelId)
+        if (!existing && displayName) {
+          modelMap.set(modelId, displayName)
+        } else if (!modelMap.has(modelId)) {
+          modelMap.set(modelId, undefined)
+        }
+      }
+    }
+    return Array.from(modelMap.entries()).map(([id, displayName]) => ({
+      id,
+      displayName,
+    }))
+  }, [accounts])
+
   const getGroupResetTimestamp = (
     account: Account,
     group: DisplayGroup
@@ -2952,6 +2975,7 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
       {/* 分组管理弹窗 */}
       <GroupSettingsModal
         isOpen={showGroupModal}
+        availableModels={groupModalModels}
         onClose={() => {
           setShowGroupModal(false)
           loadDisplayGroups()

@@ -630,7 +630,8 @@
     "title": "Gestione gruppi",
     "group_list": "Elenco gruppi",
     "group_name_placeholder": "Nome del gruppo",
-    "save": "Salva gruppi"
+    "save": "Salva gruppi",
+    "other_group": "Altri modelli"
   },
   "codex": {
     "title": "Gestione account Codex",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Lv {{level}}",
     "historyDurationShort": "Tempo {{duration}}",
     "historyReasonGameOver": "Partita finita",
-    "historyReasonManualExit": "Uscita manuale"
+    "historyReasonManualExit": "Uscita manuale",
+    "serveHint": "Premi Spazio per lanciare la palla",
+    "ranking": "Cronologia",
+    "rankingShort": "Cronologia",
+    "rankingEmpty": "Nessun record",
+    "rankingClear": "Cancella",
+    "rankingRankShort": "#{{rank}}"
   }
 }

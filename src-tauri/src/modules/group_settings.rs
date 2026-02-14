@@ -70,6 +70,10 @@ impl Default for GroupSettings {
             "claude-opus-4-5-thinking".to_string(),
             "claude_45".to_string(),
         );
+        group_mappings.insert(
+            "claude-opus-4-6-thinking".to_string(),
+            "claude_45".to_string(),
+        );
         group_mappings.insert("claude-sonnet-4-5".to_string(), "claude_45".to_string());
         group_mappings.insert(
             "claude-sonnet-4-5-thinking".to_string(),
@@ -215,13 +219,28 @@ pub fn load_group_settings() -> GroupSettings {
                 default_settings.clone()
             });
 
-            // 如果配置文件中的分组为空，使用默认分组
+            // 兼容增量升级：补齐缺失的默认映射/名称/排序，保留用户自定义配置
+            for (model_id, group_id) in &default_settings.group_mappings {
+                settings
+                    .group_mappings
+                    .entry(model_id.clone())
+                    .or_insert_with(|| group_id.clone());
+            }
+
+            for (group_id, group_name) in &default_settings.group_names {
+                settings
+                    .group_names
+                    .entry(group_id.clone())
+                    .or_insert_with(|| group_name.clone());
+            }
+
             if settings.group_order.is_empty() {
-                settings.group_mappings = default_settings.group_mappings;
-                settings.group_order = default_settings.group_order;
-                // 合并分组名称（保留用户可能自定义的名称，补充缺失的默认名称）
-                for (id, name) in default_settings.group_names {
-                    settings.group_names.entry(id).or_insert(name);
+                settings.group_order = default_settings.group_order.clone();
+            } else {
+                for group_id in &default_settings.group_order {
+                    if !settings.group_order.contains(group_id) {
+                        settings.group_order.push(group_id.clone());
+                    }
                 }
             }
 

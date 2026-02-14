@@ -7,6 +7,22 @@ All notable changes to Cockpit Tools will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
+## [0.7.2] - 2026-02-14
+
+### Added
+- **Group management "Other Models" bucket**: Added an auto-collected `Other Models` group that lists non-default models discovered from account quotas.
+- **Auth-mode model blacklist filtering**: Added blacklist filtering by model ID/display name in group management to exclude blocked Gemini 2.5/chat variants.
+- **Claude Opus 4.6 mapping coverage**: Added `claude-opus-4-6-thinking` and `MODEL_PLACEHOLDER_M26` to default/recommended model mappings and wakeup recommendations.
+
+### Changed
+- **Group settings migration behavior**: Loading group settings now incrementally backfills missing default mappings/names/order while preserving user custom configuration.
+- **Group modal data source**: Accounts page now passes live model IDs/display names into group management, improving model label display and "other model" classification accuracy.
+- **Model display order alignment**: Account quota display order was aligned to include Claude Opus 4.6 under the Claude group.
+
+### Fixed
+- **Locale completeness for group settings**: Synchronized `group_settings.other_group` across all supported locales to avoid missing-key fallbacks.
+
+---
 ## [0.7.1] - 2026-02-14
 
 ### Added

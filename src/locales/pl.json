@@ -630,7 +630,8 @@
     "title": "Zarządzanie grupami",
     "group_list": "Lista grup",
     "group_name_placeholder": "Nazwa grupy",
-    "save": "Zapisz grupy"
+    "save": "Zapisz grupy",
+    "other_group": "Inne modele"
   },
   "codex": {
     "title": "Zarządzanie kontami Codex",
@@ -1397,6 +1398,12 @@
     "historyLevelShort": "Lv {{level}}",
     "historyDurationShort": "Czas {{duration}}",
     "historyReasonGameOver": "Koniec gry",
-    "historyReasonManualExit": "Ręczne wyjście"
+    "historyReasonManualExit": "Ręczne wyjście",
+    "serveHint": "Naciśnij spację, aby wystrzelić piłkę",
+    "ranking": "Historia",
+    "rankingShort": "Historia",
+    "rankingEmpty": "Brak zapisów",
+    "rankingClear": "Wyczyść",
+    "rankingRankShort": "#{{rank}}"
   }
 }
