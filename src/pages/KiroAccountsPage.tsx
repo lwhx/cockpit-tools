@@ -415,16 +415,6 @@ export function KiroAccountsPage() {
     return imported.length;
   };
 
-  const isJsonObjectOrArrayText = (content: string): boolean => {
-    try {
-      const parsed = JSON.parse(content);
-      if (parsed === null) return false;
-      return Array.isArray(parsed) || typeof parsed === 'object';
-    } catch {
-      return false;
-    }
-  };
-
   const handleImportJsonFile = async (file: File) => {
     setImporting(true);
     setAddStatus('loading');
