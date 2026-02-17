@@ -891,7 +891,8 @@
     "status": {
       "running": "Đang chạy",
       "stopped": "Đã dừng",
-      "restarting": "Đang khởi động lại"
+      "restarting": "Đang khởi động lại",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Thư mục",

@@ -118,7 +118,8 @@
     "status": {
       "running": "Running",
       "stopped": "Stopped",
-      "restarting": "Restarting"
+      "restarting": "Restarting",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Directory",

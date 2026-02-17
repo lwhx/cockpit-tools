@@ -891,7 +891,8 @@
     "status": {
       "running": "Laufend",
       "stopped": "Gestoppt",
-      "restarting": "Neu startend"
+      "restarting": "Neu startend",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Verzeichnis",

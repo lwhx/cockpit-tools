@@ -891,7 +891,8 @@
     "status": {
       "running": "실행 중",
       "stopped": "정지됨",
-      "restarting": "재시작 중"
+      "restarting": "재시작 중",
+      "starting": "Starting"
     },
     "labels": {
       "path": "디렉토리",

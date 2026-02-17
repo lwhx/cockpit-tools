@@ -7,7 +7,7 @@ export type InstanceStoreState = {
   loading: boolean;
   error: string | null;
   fetchInstances: () => Promise<void>;
-  refreshInstances: () => Promise<void>;
+  refreshInstances: () => Promise<InstanceProfile[]>;
   fetchDefaults: () => Promise<void>;
   createInstance: (payload: {
     name: string;
@@ -99,8 +99,10 @@ export function createInstanceStore(service: InstanceService, cacheKey: string) 
         const instances = await service.listInstances();
         set({ instances });
         persistInstancesCache(instances);
+        return instances;
       } catch (e) {
         set({ error: String(e) });
+        return get().instances;
       }
     },
 

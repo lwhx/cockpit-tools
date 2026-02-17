@@ -118,7 +118,8 @@
     "status": {
       "running": "运行中",
       "stopped": "未运行",
-      "restarting": "重启中"
+      "restarting": "重启中",
+      "starting": "启动中"
     },
     "labels": {
       "path": "目录",

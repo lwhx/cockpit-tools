@@ -891,7 +891,8 @@
     "status": {
       "running": "Работает",
       "stopped": "Остановлен",
-      "restarting": "Перезапуск"
+      "restarting": "Перезапуск",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Директория",

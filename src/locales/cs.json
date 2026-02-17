@@ -891,7 +891,8 @@
     "status": {
       "running": "Běží",
       "stopped": "Zastaveno",
-      "restarting": "Restartování"
+      "restarting": "Restartování",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Adresář",

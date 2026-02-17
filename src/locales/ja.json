@@ -891,7 +891,8 @@
     "status": {
       "running": "実行中",
       "stopped": "停止",
-      "restarting": "再起動中"
+      "restarting": "再起動中",
+      "starting": "Starting"
     },
     "labels": {
       "path": "ディレクトリ",

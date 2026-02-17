@@ -1019,7 +1019,8 @@
     "status": {
       "running": "Executando",
       "stopped": "Parado",
-      "restarting": "Reiniciando"
+      "restarting": "Reiniciando",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Diretório",

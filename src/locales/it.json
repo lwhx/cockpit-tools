@@ -891,7 +891,8 @@
     "status": {
       "running": "In esecuzione",
       "stopped": "Fermato",
-      "restarting": "Riavvio in corso"
+      "restarting": "Riavvio in corso",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Directory",

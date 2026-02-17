@@ -891,7 +891,8 @@
     "status": {
       "running": "Uruchomiona",
       "stopped": "Zatrzymana",
-      "restarting": "Restartowanie"
+      "restarting": "Restartowanie",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Katalog",

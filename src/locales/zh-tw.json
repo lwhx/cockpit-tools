@@ -891,7 +891,8 @@
     "status": {
       "running": "運行中",
       "stopped": "已停止",
-      "restarting": "正在重啟"
+      "restarting": "正在重啟",
+      "starting": "啟動中"
     },
     "labels": {
       "path": "數據目錄",

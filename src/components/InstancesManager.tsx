@@ -32,6 +32,7 @@ type MessageState = { text: string; tone?: 'error' };
 type AccountLike = { id: string; email: string };
 type InstanceSortField = 'createdAt' | 'lastLaunchedAt';
 type SortDirection = 'asc' | 'desc';
+type StartInstanceOutcome = 'started' | 'already-running' | 'missing-path' | 'failed';
 
 interface InstancesManagerProps<TAccount extends AccountLike> {
   instanceStore: InstanceStoreState;
@@ -106,10 +107,25 @@ export function InstancesManager<TAccount extends AccountLike>({
   const [formErrorTick, setFormErrorTick] = useState(0);
   const [pathAuto, setPathAuto] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [startingInstanceIds, setStartingInstanceIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<InstanceSortField>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [privacyModeEnabled, setPrivacyModeEnabled] = useState<boolean>(() => isPrivacyModeEnabledByDefault());
+
+  const startingInstanceIdSet = useMemo(() => new Set(startingInstanceIds), [startingInstanceIds]);
+
+  const markInstanceStarting = useCallback((instanceId: string) => {
+    setStartingInstanceIds((prev) => (prev.includes(instanceId) ? prev : [...prev, instanceId]));
+  }, []);
+
+  const unmarkInstanceStarting = useCallback((instanceId: string) => {
+    setStartingInstanceIds((prev) => prev.filter((id) => id !== instanceId));
+  }, []);
+
+  const replaceStartingInstances = useCallback((instanceIds: string[]) => {
+    setStartingInstanceIds(Array.from(new Set(instanceIds)));
+  }, []);
 
   const togglePrivacyMode = useCallback(() => {
     setPrivacyModeEnabled((prev) => {
@@ -422,24 +438,57 @@ export function InstancesManager<TAccount extends AccountLike>({
     }, 2000);
   };
 
-  const handleStart = async (instance: InstanceProfile) => {
-    if (instance.running) {
-      setRunningNoticeInstance(instance);
-      return;
-    }
-    setActionLoading(instance.id);
-    try {
-      await startInstance(instance.id);
-      triggerDelayedRefreshAfterStart();
-      setMessage({ text: t('instances.messages.started', '实例已启动') });
-    } catch (e) {
-      if (handleMissingPathError(e, instance.id)) {
-        return;
+  const startStoppedInstance = useCallback(
+    async (
+      instance: InstanceProfile,
+      options?: {
+        showRunningNotice?: boolean;
+        showSuccessMessage?: boolean;
+        preMarkedStarting?: boolean;
+      },
+    ): Promise<StartInstanceOutcome> => {
+      const showRunningNotice = options?.showRunningNotice ?? false;
+      const showSuccessMessage = options?.showSuccessMessage ?? true;
+      const preMarkedStarting = options?.preMarkedStarting ?? false;
+
+      if (instance.running) {
+        if (showRunningNotice) {
+          setRunningNoticeInstance(instance);
+        }
+        return 'already-running';
       }
-      setMessage({ text: String(e), tone: 'error' });
-    } finally {
-      setActionLoading(null);
-    }
+
+      if (!preMarkedStarting) {
+        markInstanceStarting(instance.id);
+      }
+
+      try {
+        await startInstance(instance.id);
+        triggerDelayedRefreshAfterStart();
+        if (showSuccessMessage) {
+          setMessage({ text: t('instances.messages.started', '实例已启动') });
+        }
+        return 'started';
+      } catch (e) {
+        if (handleMissingPathError(e, instance.id)) {
+          return 'missing-path';
+        }
+        setMessage({ text: String(e), tone: 'error' });
+        return 'failed';
+      } finally {
+        if (!preMarkedStarting) {
+          unmarkInstanceStarting(instance.id);
+        }
+      }
+    },
+    [handleMissingPathError, markInstanceStarting, startInstance, t, triggerDelayedRefreshAfterStart, unmarkInstanceStarting],
+  );
+
+  const handleStart = async (instance: InstanceProfile) => {
+    await startStoppedInstance(instance, {
+      showRunningNotice: true,
+      showSuccessMessage: true,
+    });
   };
 
   const handleStop = async (instance: InstanceProfile) => {
@@ -499,9 +548,12 @@ export function InstancesManager<TAccount extends AccountLike>({
     setActionLoading(target.id);
     try {
       await stopInstance(target.id);
-      await startInstance(target.id);
-      triggerDelayedRefreshAfterStart();
-      setMessage({ text: t('instances.messages.started', '实例已启动') });
+      const latest = await refreshInstances();
+      const refreshedTarget =
+        latest.find((item) => item.id === target.id) || { ...target, running: false };
+      await startStoppedInstance(refreshedTarget, {
+        showSuccessMessage: true,
+      });
     } catch (e) {
       if (handleMissingPathError(e, target.id)) {
         return;
@@ -533,22 +585,51 @@ export function InstancesManager<TAccount extends AccountLike>({
     if (!confirmed) return;
     setBulkActionLoading(true);
     try {
-      await refreshInstances();
-      const stoppedIds = instances.filter((item) => !item.running).map((item) => item.id);
+      const latest = await refreshInstances();
+      const stoppedIds = latest.filter((item) => !item.running).map((item) => item.id);
       if (stoppedIds.length === 0) {
         setMessage({ text: t('instances.messages.allAlreadyRunning', '所有实例已在运行') });
         return;
       }
+      replaceStartingInstances(stoppedIds);
+
+      let startedCount = 0;
       for (const id of stoppedIds) {
-        await startInstance(id);
+        const current = await refreshInstances();
+        const target = current.find((item) => item.id === id);
+        if (!target || target.running) {
+          unmarkInstanceStarting(id);
+          continue;
+        }
+
+        const outcome = await startStoppedInstance(target, {
+          showSuccessMessage: false,
+          preMarkedStarting: true,
+        });
+        unmarkInstanceStarting(id);
+
+        if (outcome === 'started') {
+          startedCount += 1;
+          continue;
+        }
+        if (outcome === 'already-running') {
+          continue;
+        }
+        return;
       }
-      setMessage({ text: t('instances.messages.startedAll', '已启动所有未运行实例') });
+
+      if (startedCount > 0) {
+        setMessage({ text: t('instances.messages.startedAll', '已启动所有未运行实例') });
+      } else {
+        setMessage({ text: t('instances.messages.allAlreadyRunning', '所有实例已在运行') });
+      }
     } catch (e) {
       if (handleMissingPathError(e)) {
         return;
       }
       setMessage({ text: String(e), tone: 'error' });
     } finally {
+      replaceStartingInstances([]);
       setBulkActionLoading(false);
     }
   };
@@ -999,16 +1080,14 @@ export function InstancesManager<TAccount extends AccountLike>({
     const target = initGuideInstance;
     setActionLoading(target.id);
     try {
-      await startInstance(target.id);
-      triggerDelayedRefreshAfterStart();
-      setInitGuideInstance(null);
-      setOpenInlineMenuId(target.id);
-      setMessage({ text: t('instances.messages.started', '实例已启动') });
-    } catch (e) {
-      if (handleMissingPathError(e, target.id)) {
+      const outcome = await startStoppedInstance(target, {
+        showSuccessMessage: true,
+      });
+      if (outcome !== 'started') {
         return;
       }
-      setMessage({ text: String(e), tone: 'error' });
+      setInitGuideInstance(null);
+      setOpenInlineMenuId(target.id);
     } finally {
       setActionLoading(null);
     }
@@ -1156,6 +1235,8 @@ export function InstancesManager<TAccount extends AccountLike>({
           {filteredInstances.map((instance) => {
             const { missing: accountMissing } = resolveAccount(instance);
             const accountDisabledByInit = !instance.isDefault && instance.initialized === false;
+            const isInstanceStarting = startingInstanceIdSet.has(instance.id);
+            const isInstanceBusy = actionLoading === instance.id || isInstanceStarting;
             return (
               <div
                 className={`instance-item ${openInlineMenuId === instance.id ? 'dropdown-open' : ''}`}
@@ -1183,12 +1264,14 @@ export function InstancesManager<TAccount extends AccountLike>({
                 <div className="instance-status-cell">
                   <span
                     className={`instance-status ${
-                      restartingAll ? 'restarting' : instance.running ? 'running' : 'stopped'
+                      restartingAll ? 'restarting' : isInstanceStarting ? 'starting' : instance.running ? 'running' : 'stopped'
                     }`}
                   >
                     {restartingAll
                       ? t('instances.status.restarting', '重启中')
-                      : instance.running
+                      : isInstanceStarting
+                        ? t('instances.status.starting', '启动中')
+                        : instance.running
                         ? t('instances.status.running', '运行中')
                         : t('instances.status.stopped', '未运行')}
                   </span>
@@ -1207,7 +1290,7 @@ export function InstancesManager<TAccount extends AccountLike>({
                     <InlineAccountSelect
                       value={instance.bindAccountId || null}
                       onChange={(nextId) => handleInlineBindChange(instance, nextId)}
-                      disabled={actionLoading === instance.id}
+                      disabled={isInstanceBusy}
                       missing={accountMissing}
                       placeholder={t('instances.labels.unbound', '未绑定')}
                       instanceId={instance.id}
@@ -1228,7 +1311,7 @@ export function InstancesManager<TAccount extends AccountLike>({
                     className="icon-button"
                     title={t('instances.actions.start', '启动')}
                     onClick={() => handleStart(instance)}
-                    disabled={actionLoading === instance.id || restartingAll || bulkActionLoading}
+                    disabled={isInstanceBusy || restartingAll || bulkActionLoading}
                   >
                     <Play size={16} />
                   </button>
@@ -1236,7 +1319,7 @@ export function InstancesManager<TAccount extends AccountLike>({
                     className="icon-button"
                     title={t('instances.actions.openWindow', '定位窗口')}
                     onClick={() => handleLocateInstance(instance)}
-                    disabled={!instance.running || actionLoading === instance.id || restartingAll || bulkActionLoading}
+                    disabled={!instance.running || isInstanceBusy || restartingAll || bulkActionLoading}
                   >
                     <ExternalLink size={16} />
                   </button>
@@ -1244,7 +1327,7 @@ export function InstancesManager<TAccount extends AccountLike>({
                     className="icon-button danger"
                     title={t('instances.actions.stop', '停止')}
                     onClick={() => handleStop(instance)}
-                    disabled={!instance.running || actionLoading === instance.id || restartingAll || bulkActionLoading}
+                    disabled={!instance.running || isInstanceBusy || restartingAll || bulkActionLoading}
                   >
                     <Square size={16} />
                   </button>
@@ -1252,7 +1335,7 @@ export function InstancesManager<TAccount extends AccountLike>({
                     className="icon-button"
                     title={t('instances.actions.edit', '编辑')}
                     onClick={() => openEditModal(instance)}
-                    disabled={actionLoading === instance.id || restartingAll || bulkActionLoading}
+                    disabled={isInstanceBusy || restartingAll || bulkActionLoading}
                   >
                     <Pencil size={16} />
                   </button>
@@ -1260,7 +1343,7 @@ export function InstancesManager<TAccount extends AccountLike>({
                     className="icon-button danger"
                     title={t('common.delete', '删除')}
                     onClick={() => handleDelete(instance)}
-                    disabled={instance.isDefault || actionLoading === instance.id || restartingAll || bulkActionLoading}
+                    disabled={instance.isDefault || isInstanceBusy || restartingAll || bulkActionLoading}
                   >
                     <Trash2 size={16} />
                   </button>
@@ -1309,7 +1392,7 @@ export function InstancesManager<TAccount extends AccountLike>({
               <button
                 className="btn btn-primary"
                 onClick={handleInitGuideStart}
-                disabled={actionLoading === initGuideInstance.id}
+                disabled={actionLoading === initGuideInstance.id || startingInstanceIdSet.has(initGuideInstance.id)}
               >
                 {t('instances.initGuide.startNow', '立即启动')}
               </button>

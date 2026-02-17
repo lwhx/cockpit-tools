@@ -891,7 +891,8 @@
     "status": {
       "running": "Çalışıyor",
       "stopped": "Durduruldu",
-      "restarting": "Yeniden başlatılıyor"
+      "restarting": "Yeniden başlatılıyor",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Dizin",

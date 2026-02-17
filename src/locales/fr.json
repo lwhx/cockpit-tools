@@ -891,7 +891,8 @@
     "status": {
       "running": "En cours",
       "stopped": "Arrêté",
-      "restarting": "Redémarrage"
+      "restarting": "Redémarrage",
+      "starting": "Starting"
     },
     "labels": {
       "path": "Répertoire",
