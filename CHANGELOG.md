@@ -7,6 +7,15 @@ All notable changes to Cockpit Tools will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
+## [0.9.4] - 2026-02-27
+
+### Fixed
+- **Linux `.deb` blank/white window rendering on some environments**: Disabled transparent window by default (`transparent: false`) and added Linux WebKitGTK fallback (`WEBKIT_DISABLE_DMABUF_RENDERER=1` when unset) to improve render stability.
+- **Windows account-switch flow could hang while probing Antigravity processes**: Added a 5-second timeout for PowerShell process probing and automatic fallback to `sysinfo` scanning to avoid blocking the switch path.
+- **Switch-success but launch-failure now becomes user-visible**: If account data is switched but launching Antigravity fails, backend now returns an explicit error message so frontend can show a visible failure notice.
+- **Official LS resolution now follows configured Antigravity app path on all desktop OSes**: Wakeup/verification now derive LS from `antigravity_app_path` on Windows/macOS/Linux (with platform-specific extension/bin path and filename priority), and return unified `APP_PATH_NOT_FOUND:antigravity` when missing so existing path-setup guidance is triggered before execution.
+
+---
 ## [0.9.3] - 2026-02-27
 
 ### Fixed

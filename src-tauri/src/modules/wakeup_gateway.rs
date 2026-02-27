@@ -502,67 +502,115 @@ fn official_ls_sessions(
     SESSIONS.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
-#[cfg(target_os = "windows")]
 const APP_PATH_NOT_FOUND_PREFIX: &str = "APP_PATH_NOT_FOUND:";
 
-#[cfg(target_os = "windows")]
 fn app_path_missing_error(app: &str) -> String {
     format!("{}{}", APP_PATH_NOT_FOUND_PREFIX, app)
 }
 
-#[cfg(target_os = "windows")]
-fn resolve_windows_antigravity_root(path_str: &str) -> Option<std::path::PathBuf> {
+#[cfg(target_os = "macos")]
+fn normalize_macos_app_root(path: &std::path::Path) -> Option<std::path::PathBuf> {
+    let path_str = path.to_string_lossy();
+    let app_idx = path_str.find(".app")?;
+    let root = &path_str[..app_idx + 4];
+    let root_path = std::path::PathBuf::from(root);
+    if root_path.exists() {
+        Some(root_path)
+    } else {
+        None
+    }
+}
+
+fn resolve_configured_antigravity_root(path_str: &str) -> Option<std::path::PathBuf> {
     let raw = path_str.trim();
     if raw.is_empty() {
         return None;
     }
-    let path = std::path::PathBuf::from(raw);
-    if !path.exists() {
+
+    let original_path = std::path::PathBuf::from(raw);
+    let resolved_path = std::fs::canonicalize(&original_path).unwrap_or_else(|_| original_path.clone());
+
+    #[cfg(target_os = "macos")]
+    {
+        if let Some(root) = normalize_macos_app_root(&original_path)
+            .or_else(|| normalize_macos_app_root(&resolved_path))
+        {
+            return Some(root);
+        }
+    }
+
+    if !resolved_path.exists() {
         return None;
     }
-    if path.is_file() {
-        return path.parent().map(std::path::Path::to_path_buf);
+    if resolved_path.is_file() {
+        return resolved_path.parent().map(std::path::Path::to_path_buf);
     }
-    if path.is_dir() {
-        return Some(path);
+    if resolved_path.is_dir() {
+        return Some(resolved_path);
     }
     None
 }
 
-#[cfg(target_os = "windows")]
-fn find_windows_official_ls_binary_under(root: &std::path::Path) -> Option<String> {
+fn antigravity_extension_dir(root: &std::path::Path) -> std::path::PathBuf {
+    #[cfg(target_os = "macos")]
+    {
+        return root
+            .join("Contents")
+            .join("Resources")
+            .join("app")
+            .join("extensions")
+            .join("antigravity");
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        return root
+            .join("resources")
+            .join("app")
+            .join("extensions")
+            .join("antigravity");
+    }
+}
+
+fn antigravity_extension_bin_dir(root: &std::path::Path) -> std::path::PathBuf {
+    antigravity_extension_dir(root).join("bin")
+}
+
+fn find_official_ls_binary_under(root: &std::path::Path) -> Option<String> {
+    let bin_dir = antigravity_extension_bin_dir(root);
+
+    #[cfg(target_os = "windows")]
     let preferred = [
-        root.join("resources")
-            .join("app")
-            .join("extensions")
-            .join("antigravity")
-            .join("bin")
-            .join("language_server_windows_x64.exe"),
-        root.join("resources")
-            .join("app")
-            .join("extensions")
-            .join("antigravity")
-            .join("bin")
-            .join("language_server_windows_arm64.exe"),
-        root.join("resources")
-            .join("app")
-            .join("extensions")
-            .join("antigravity")
-            .join("bin")
-            .join("language_server_windows.exe"),
+        "language_server_windows_x64.exe",
+        "language_server_windows_arm64.exe",
+        "language_server_windows.exe",
     ];
-    for candidate in preferred {
+    #[cfg(target_os = "macos")]
+    let preferred = [
+        "language_server_macos_arm",
+        "language_server_macos_x64",
+        "language_server_macos",
+        "language_server_darwin_arm64",
+        "language_server_darwin_x64",
+        "language_server_darwin",
+        "language_server",
+    ];
+    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    let preferred = [
+        "language_server_linux_x64",
+        "language_server_linux_arm64",
+        "language_server_linux",
+        "language_server",
+    ];
+
+    for name in preferred {
+        let candidate = bin_dir.join(name);
         if candidate.is_file() {
             return Some(candidate.to_string_lossy().to_string());
         }
     }
 
-    let bin_dir = root
-        .join("resources")
-        .join("app")
-        .join("extensions")
-        .join("antigravity")
-        .join("bin");
+    let mut dynamic_candidates: Vec<std::path::PathBuf> = Vec::new();
+    let bin_dir = antigravity_extension_bin_dir(root);
     let entries = std::fs::read_dir(bin_dir).ok()?;
     for entry in entries.flatten() {
         let path = entry.path();
@@ -573,21 +621,29 @@ fn find_windows_official_ls_binary_under(root: &std::path::Path) -> Option<Strin
             continue;
         };
         let lower = name.to_ascii_lowercase();
-        if lower.starts_with("language_server") && lower.ends_with(".exe") {
-            return Some(path.to_string_lossy().to_string());
+        if !lower.starts_with("language_server") {
+            continue;
         }
+        #[cfg(target_os = "windows")]
+        if !lower.ends_with(".exe") {
+            continue;
+        }
+        dynamic_candidates.push(path);
     }
 
-    None
+    dynamic_candidates.sort_by(|a, b| a.file_name().cmp(&b.file_name()));
+    dynamic_candidates
+        .into_iter()
+        .next()
+        .map(|path| path.to_string_lossy().to_string())
 }
 
-#[cfg(target_os = "windows")]
-fn resolve_windows_official_ls_binary_from_config() -> Result<String, String> {
+fn resolve_official_ls_binary_from_config() -> Result<String, String> {
     let user_config = crate::modules::config::get_user_config();
     let antigravity_path = user_config.antigravity_app_path.trim();
-    let root = resolve_windows_antigravity_root(antigravity_path)
+    let root = resolve_configured_antigravity_root(antigravity_path)
         .ok_or_else(|| app_path_missing_error("antigravity"))?;
-    find_windows_official_ls_binary_under(&root).ok_or_else(|| app_path_missing_error("antigravity"))
+    find_official_ls_binary_under(&root).ok_or_else(|| app_path_missing_error("antigravity"))
 }
 
 fn official_ls_binary_path() -> Result<String, String> {
@@ -598,20 +654,7 @@ fn official_ls_binary_path() -> Result<String, String> {
         }
     }
 
-    #[cfg(target_os = "macos")]
-    {
-        let path = "/Applications/Antigravity.app/Contents/Resources/app/extensions/antigravity/bin/language_server_macos_arm";
-        if std::path::Path::new(path).exists() {
-            return Ok(path.to_string());
-        }
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-        return resolve_windows_official_ls_binary_from_config();
-    }
-
-    Err("未找到官方 Language Server 二进制（可通过 AG_WAKEUP_OFFICIAL_LS_BINARY_PATH 指定）".to_string())
+    resolve_official_ls_binary_from_config()
 }
 
 pub fn ensure_official_ls_binary_ready() -> Result<String, String> {
@@ -631,12 +674,20 @@ fn official_antigravity_info_plist_path() -> &'static str {
 }
 
 fn official_antigravity_extension_path() -> String {
+    let user_config = crate::modules::config::get_user_config();
+    if let Some(root) = resolve_configured_antigravity_root(user_config.antigravity_app_path.trim()) {
+        let ext_path = antigravity_extension_dir(&root);
+        if ext_path.exists() {
+            return ext_path.to_string_lossy().to_string();
+        }
+        return root.to_string_lossy().to_string();
+    }
+
     let default_path = "/Applications/Antigravity.app/Contents/Resources/app/extensions/antigravity";
     if std::path::Path::new(default_path).exists() {
-        default_path.to_string()
-    } else {
-        "/Applications/Antigravity.app".to_string()
+        return default_path.to_string();
     }
+    "/Applications/Antigravity.app".to_string()
 }
 
 fn official_antigravity_app_version() -> String {

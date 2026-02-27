@@ -22,9 +22,11 @@ const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
 const DETACHED_PROCESS: u32 = 0x0000_0008;
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+#[cfg(target_os = "windows")]
+const WINDOWS_PROCESS_PROBE_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[cfg(target_os = "windows")]
-fn powershell_output(args: &[&str]) -> std::io::Result<std::process::Output> {
+fn build_powershell_command(args: &[&str]) -> Command {
     use std::os::windows::process::CommandExt;
 
     let mut final_args: Vec<String> = vec![
@@ -59,10 +61,61 @@ fn powershell_output(args: &[&str]) -> std::io::Result<std::process::Output> {
         index += 1;
     }
 
-    Command::new("powershell")
-        .creation_flags(CREATE_NO_WINDOW)
-        .args(final_args)
-        .output()
+    let mut command = Command::new("powershell");
+    command.creation_flags(CREATE_NO_WINDOW).args(final_args);
+    command
+}
+
+#[cfg(target_os = "windows")]
+fn powershell_output(args: &[&str]) -> std::io::Result<std::process::Output> {
+    build_powershell_command(args).output()
+}
+
+#[cfg(target_os = "windows")]
+fn powershell_output_with_timeout(
+    args: &[&str],
+    timeout: Duration,
+) -> std::io::Result<std::process::Output> {
+    use std::io::{Error, ErrorKind, Read};
+
+    let mut child = build_powershell_command(args)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+    let start = Instant::now();
+
+    loop {
+        if let Some(status) = child.try_wait()? {
+            let mut stdout = Vec::new();
+            let mut stderr = Vec::new();
+            if let Some(mut out) = child.stdout.take() {
+                let _ = out.read_to_end(&mut stdout);
+            }
+            if let Some(mut err) = child.stderr.take() {
+                let _ = err.read_to_end(&mut stderr);
+            }
+            return Ok(std::process::Output {
+                status,
+                stdout,
+                stderr,
+            });
+        }
+
+        if start.elapsed() >= timeout {
+            let _ = child.kill();
+            let _ = child.wait();
+            return Err(Error::new(
+                ErrorKind::TimedOut,
+                format!(
+                    "PowerShell 进程探测超时（{}ms）",
+                    timeout.as_millis()
+                ),
+            ));
+        }
+
+        thread::sleep(Duration::from_millis(100));
+    }
 }
 
 #[cfg(target_os = "windows")]
@@ -1673,15 +1726,39 @@ fn collect_antigravity_process_entries_from_ps() -> Vec<(u32, Option<String>)> {
 #[cfg(target_os = "windows")]
 fn collect_antigravity_process_entries_from_powershell() -> Vec<(u32, Option<String>)> {
     let mut result = Vec::new();
-    let output = powershell_output(&[
+    let output = powershell_output_with_timeout(
+        &[
         "-NoProfile",
         "-Command",
         "Get-CimInstance Win32_Process -Filter \"Name='Antigravity.exe'\" | ForEach-Object { \"$($_.ProcessId)|$($_.CommandLine)\" }",
-    ]);
+        ],
+        WINDOWS_PROCESS_PROBE_TIMEOUT,
+    );
     let output = match output {
         Ok(value) => value,
-        Err(_) => return result,
+        Err(err) => {
+            if err.kind() == std::io::ErrorKind::TimedOut {
+                crate::modules::logger::log_warn(
+                    "[AG Probe] PowerShell 进程探测超时（5s），回退到 sysinfo 进程扫描",
+                );
+            } else {
+                crate::modules::logger::log_warn(&format!(
+                    "[AG Probe] PowerShell 进程探测失败，回退到 sysinfo: {}",
+                    err
+                ));
+            }
+            return result;
+        }
     };
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        crate::modules::logger::log_warn(&format!(
+            "[AG Probe] PowerShell 进程探测返回非 0 状态: {}, stderr={}",
+            output.status,
+            stderr.trim()
+        ));
+        return result;
+    }
     let stdout = String::from_utf8_lossy(&output.stdout);
     for line in stdout.lines() {
         let line = line.trim();

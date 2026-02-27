@@ -214,11 +214,12 @@ pub async fn switch_account(app: AppHandle, account_id: String) -> Result<models
 
     // 7. 启动 Antigravity（启动失败不阻断切号，保持原行为）
     modules::logger::log_info("正在启动 Antigravity 默认实例...");
-    match modules::process::start_antigravity() {
+    let launch_error = match modules::process::start_antigravity() {
         Ok(pid) => {
             if let Err(e) = modules::instance::update_default_pid(Some(pid)) {
                 modules::logger::log_warn(&format!("更新默认实例 PID 失败: {}", e));
             }
+            None
         }
         Err(e) => {
             modules::logger::log_warn(&format!("Antigravity 启动失败: {}", e));
@@ -228,8 +229,14 @@ pub async fn switch_account(app: AppHandle, account_id: String) -> Result<models
                     serde_json::json!({ "app": "antigravity", "retry": { "kind": "default" } }),
                 );
             }
-            // 不中断流程，允许用户手动启动
+            Some(e)
         }
+    };
+
+    if let Some(err) = launch_error {
+        // 账号状态已经切换成功，仍广播账号切换事件，确保前端状态与本地落盘一致
+        modules::websocket::broadcast_account_switched(&account.id, &account.email);
+        return Err(format!("账号已切换，但启动 Antigravity 失败: {}", err));
     }
 
     modules::logger::log_info(&format!("账号切换完成: {}", account.email));

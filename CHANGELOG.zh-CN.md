@@ -7,6 +7,15 @@
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
 ---
+## [0.9.4] - 2026-02-27
+
+### 修复
+- **Linux `.deb` 在部分环境下出现白屏/空白窗口**：默认关闭透明窗口（`transparent: false`），并在 Linux 侧补充 WebKitGTK 运行时兜底（未设置时自动注入 `WEBKIT_DISABLE_DMABUF_RENDERER=1`），提升渲染稳定性。
+- **Windows 切号流程在探测 Antigravity 进程时可能卡住**：为 PowerShell 进程探测增加 5 秒超时，并在超时/失败后自动回退到 `sysinfo` 扫描，避免阻塞切号链路。
+- **“切号成功但启动失败”现在可前端可见**：当账号落盘切换完成但启动 Antigravity 失败时，后端会返回明确错误信息，前端可直接提示失败原因。
+- **全平台官方 LS 解析统一改为基于已配置 Antigravity 启动路径**：唤醒/验证在 Windows/macOS/Linux 均从 `antigravity_app_path` 推导 LS（按平台扩展目录与文件名优先级匹配）；若缺失则统一返回 `APP_PATH_NOT_FOUND:antigravity`，在执行前触发现有路径设置引导。
+
+---
 ## [0.9.3] - 2026-02-27
 
 ### 修复
