@@ -131,7 +131,8 @@
         "periodRange": "Zyklus: {{start}} - {{end}}",
         "planEndsIn": "Zyklus wird in {{days}} Tagen zurückgesetzt",
         "planEndsUnknown": "Zykluszeit nicht verfügbar",
-        "usedLine": "{{used}} / {{total}} verwendet"
+        "usedLine": "{{used}} / {{total}} verwendet",
+        "planEndsInHours": "Wird in {{hours}}h zurückgesetzt"
       },
       "flowNotice": {
         "alternative": "Alternative: Multi-Instanz-Isolierung verwenden (unterschiedliche --user-data-dir). Pro Instanz einmal anmelden und danach instanzweise starten, um schnell in die Zielkontoumgebung zu wechseln."

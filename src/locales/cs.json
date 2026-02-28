@@ -131,7 +131,8 @@
         "periodRange": "Cyklus: {{start}} - {{end}}",
         "planEndsIn": "Cyklus se resetuje za {{days}} dní",
         "planEndsUnknown": "Časování cyklu není k dispozici",
-        "usedLine": "Použito {{used}} / {{total}}"
+        "usedLine": "Použito {{used}} / {{total}}",
+        "planEndsInHours": "Resetuje se za {{hours}}h"
       },
       "flowNotice": {
         "alternative": "Alternativa: použijte izolaci více instancí (odlišné --user-data-dir). V každé instanci se přihlaste jednou a poté spouštějte podle instance pro rychlé přepnutí na cílové prostředí účtu."

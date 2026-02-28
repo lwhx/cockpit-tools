@@ -8,7 +8,7 @@ use std::sync::Mutex;
 use chrono::Utc;
 use rusqlite::{Connection, OptionalExtension};
 use serde_json::{json, Value};
-use sysinfo::System;
+use sysinfo::{ProcessRefreshKind, System, UpdateKind};
 use uuid::Uuid;
 
 use crate::models::kiro::KiroAccount;
@@ -493,7 +493,7 @@ fn is_helper_process(name: &str, args_line: &str) -> bool {
 pub fn collect_kiro_process_entries() -> Vec<(u32, Option<String>)> {
     let mut entries: HashMap<u32, Option<String>> = HashMap::new();
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
     let current_pid = std::process::id();
 
     for (pid, process) in system.processes() {
@@ -754,7 +754,7 @@ fn resolve_macos_exec_path(path_str: &str) -> Option<PathBuf> {
 fn detect_kiro_exec_path() -> Option<PathBuf> {
     for (pid, _) in collect_kiro_process_entries() {
         let mut system = System::new();
-        system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+        system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet));
         if let Some(process) = system.process(sysinfo::Pid::from(pid as usize)) {
             if let Some(path) = process.exe() {
                 return Some(path.to_path_buf());

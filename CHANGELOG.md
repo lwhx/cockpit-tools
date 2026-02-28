@@ -7,7 +7,19 @@ All notable changes to Cockpit Tools will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
+## [0.9.7] - 2026-02-28
+
+### Fixed
+- **macOS repeated privacy permission prompts suppressed**: Replaced broad `sysinfo` process refresh (which fetched `cwd`/`environ`/`root` for all processes) with targeted `ProcessRefreshKind` requests that only retrieve `exe` and `cmd`. This prevents sysinfo from touching protected directories on other processes and eliminates the repeated Music/Photos/Documents permission dialogs on macOS.
+
+### Changed
+- **Kiro/Windsurf quota cycle reset time now shows relative + absolute format**: `formatKiroResetTime` rewritten to output `Xd Xh (MM/DD HH:mm)` style, consistent with other platform reset time displays. Sub-day granularity now shows hours/minutes instead of rounding to days.
+- **Kiro/Windsurf cycle remaining time shows hours when under 24 hours**: Quota cycle remaining text now switches to `Resets in Xh` when less than one day remains, instead of showing `0 days`.
+- **Kiro dashboard card quota display simplified**: Removed redundant used/total and left lines from the Kiro mini-card in Dashboard; now shows `resetText` or `cycleText` directly, consistent with Windsurf card layout.
+
+---
 ## [0.9.6] - 2026-02-28
+
 
 ### Changed
 - **Unified account presentation pipeline across five platforms and multiple entry pages**: Added a shared presentation layer for display name, plan label (raw value), quota metrics, reset text, and usage summaries, and reused it in Dashboard, Accounts, and Instances pages (Antigravity / Codex / GitHub Copilot / Windsurf / Kiro) to avoid multi-place divergence.

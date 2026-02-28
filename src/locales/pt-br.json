@@ -131,7 +131,8 @@
         "periodRange": "Ciclo: {{start}} - {{end}}",
         "planEndsIn": "O ciclo reinicia em {{days}} dias",
         "planEndsUnknown": "Período do ciclo indisponível",
-        "usedLine": "{{used}} / {{total}} usados"
+        "usedLine": "{{used}} / {{total}} usados",
+        "planEndsInHours": "Reinicia em {{hours}}h"
       },
       "flowNotice": {
         "alternative": "Alternativa: usar isolamento por multi-instância (diferente --user-data-dir). Faça login uma vez por instância e depois inicie por instância para alternar rapidamente para o ambiente da conta desejada."

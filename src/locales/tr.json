@@ -131,7 +131,8 @@
         "periodRange": "Döngü: {{start}} - {{end}}",
         "planEndsIn": "Döngü {{days}} gün içinde sıfırlanır",
         "planEndsUnknown": "Döngü zamanı kullanılamıyor",
-        "usedLine": "{{used}} / {{total}} kullanıldı"
+        "usedLine": "{{used}} / {{total}} kullanıldı",
+        "planEndsInHours": "{{hours}}h içinde sıfırlanır"
       },
       "flowNotice": {
         "alternative": "Alternatif: çoklu örnek izolasyonunu kullanın (farklı --user-data-dir). Her örnek için bir kez giriş yapın, ardından hedef hesap ortamına hızlı geçiş için örnek bazında başlatın."

@@ -131,7 +131,8 @@
         "periodRange": "Chu kỳ: {{start}} - {{end}}",
         "planEndsIn": "Chu kỳ đặt lại sau {{days}} ngày",
         "planEndsUnknown": "Không có thông tin chu kỳ",
-        "usedLine": "Đã dùng {{used}} / {{total}}"
+        "usedLine": "Đã dùng {{used}} / {{total}}",
+        "planEndsInHours": "Đặt lại sau {{hours}}h"
       },
       "flowNotice": {
         "alternative": "Giải pháp thay thế: dùng cô lập đa phiên bản (khác --user-data-dir). Đăng nhập một lần cho mỗi phiên bản, sau đó khởi chạy theo phiên bản để chuyển nhanh sang môi trường tài khoản mục tiêu."

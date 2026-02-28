@@ -131,7 +131,8 @@
         "periodRange": "Cycle: {{start}} - {{end}}",
         "planEndsIn": "Cycle resets in {{days}} days",
         "planEndsUnknown": "Cycle timing unavailable",
-        "usedLine": "{{used}} / {{total}} used"
+        "usedLine": "{{used}} / {{total}} used",
+        "planEndsInHours": "Resets in {{hours}}h"
       },
       "flowNotice": {
         "alternative": "Multi-instance isolation: use different --user-data-dir profiles and log in once per instance to switch account environments quickly."

@@ -712,11 +712,16 @@ export function WindsurfAccountsPage() {
 
       const now = Math.floor(Date.now() / 1000);
       const secondsLeft = end - now;
-      const days = secondsLeft <= 0 ? 0 : Math.floor(secondsLeft / 86400);
-      const summary = t('common.shared.credits.planEndsIn', {
-        days,
-        defaultValue: '配额周期剩余 {{days}} 天',
-      });
+      const summary =
+        secondsLeft > 0 && secondsLeft < 86400
+          ? t('common.shared.credits.planEndsInHours', {
+              hours: Math.max(1, Math.floor(secondsLeft / 3600)),
+              defaultValue: '配额周期剩余 {{hours}} 小时',
+            })
+          : t('common.shared.credits.planEndsIn', {
+              days: secondsLeft <= 0 ? 0 : Math.floor(secondsLeft / 86400),
+              defaultValue: '配额周期剩余 {{days}} 天',
+            });
 
       const startText = formatCycleDate(start);
       const endText = formatCycleDate(end);

@@ -131,7 +131,8 @@
         "periodRange": "주기: {{start}} - {{end}}",
         "planEndsIn": "{{days}}일 후 주기가 재설정됩니다",
         "planEndsUnknown": "주기 정보를 사용할 수 없습니다",
-        "usedLine": "{{used}} / {{total}} 사용됨"
+        "usedLine": "{{used}} / {{total}} 사용됨",
+        "planEndsInHours": "{{hours}}h 후에 재설정됩니다."
       },
       "flowNotice": {
         "alternative": "대안: 멀티 인스턴스 격리(서로 다른 --user-data-dir)를 사용하세요. 인스턴스별로 한 번만 로그인하면 이후에는 인스턴스 단위 실행으로 원하는 계정 환경으로 빠르게 전환할 수 있습니다."

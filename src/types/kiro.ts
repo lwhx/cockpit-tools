@@ -779,27 +779,61 @@ export function formatKiroResetTime(resetAt: number | null | undefined, t: Trans
   const now = Math.floor(Date.now() / 1000);
   const diff = ts - now;
   if (diff <= 0) {
-    return t('kiro.credits.resetNow', {
-      defaultValue: '即将重置',
+    return t('common.shared.quota.resetDone', {
+      defaultValue: '已重置',
     });
   }
-  const days = Math.floor(diff / 86400);
-  if (days > 0) {
-    return t('common.shared.credits.planEndsIn', {
+
+  const totalMinutes = Math.floor(diff / 60);
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  let relative = t('common.shared.time.lessThanMinute', { defaultValue: '<1m' });
+  if (days > 0 && hours > 0) {
+    relative = t('common.shared.time.relativeDaysHours', {
       days,
-      defaultValue: '配额周期剩余 {{days}} 天',
-    });
-  }
-  const hours = Math.floor(diff / 3600);
-  if (hours > 0) {
-    return t('kiro.credits.resetInHours', {
       hours,
-      defaultValue: '{{hours}} 小时后重置',
+      defaultValue: '{{days}}d {{hours}}h',
+    });
+  } else if (days > 0) {
+    relative = t('common.shared.time.relativeDays', {
+      days,
+      defaultValue: '{{days}}d',
+    });
+  } else if (hours > 0 && minutes > 0) {
+    relative = t('common.shared.time.relativeHoursMinutes', {
+      hours,
+      minutes,
+      defaultValue: '{{hours}}h {{minutes}}m',
+    });
+  } else if (hours > 0) {
+    relative = t('common.shared.time.relativeHours', {
+      hours,
+      defaultValue: '{{hours}}h',
+    });
+  } else if (minutes > 0) {
+    relative = t('common.shared.time.relativeMinutes', {
+      minutes,
+      defaultValue: '{{minutes}}m',
     });
   }
-  const minutes = Math.max(1, Math.floor(diff / 60));
-  return t('kiro.credits.resetInMinutes', {
-    minutes,
-    defaultValue: '{{minutes}} 分钟后重置',
+
+  const absolute = formatKiroResetTimeAbsolute(ts);
+  return t('common.shared.time.relativeWithAbsolute', {
+    relative,
+    absolute,
+    defaultValue: '{{relative}} ({{absolute}})',
   });
+}
+
+function formatKiroResetTimeAbsolute(resetTime: number): string {
+  const date = new Date(resetTime * 1000);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (value: number) => String(value).padStart(2, '0');
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  return `${month}/${day} ${hours}:${minutes}`;
 }

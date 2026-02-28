@@ -6,7 +6,7 @@ use std::process::Child;
 use std::process::{Command, Stdio};
 use std::thread;
 use std::time::{Duration, Instant};
-use sysinfo::{Pid, System};
+use sysinfo::{Pid, ProcessRefreshKind, System, UpdateKind};
 
 const OPENCODE_APP_NAME: &str = "OpenCode";
 #[cfg(target_os = "macos")]
@@ -852,7 +852,7 @@ fn spawn_open_app(app_root: &str, args: &[String]) -> Result<u32, String> {
 
 fn find_antigravity_process_exe() -> Option<std::path::PathBuf> {
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
 
@@ -909,7 +909,7 @@ fn find_antigravity_process_exe() -> Option<std::path::PathBuf> {
 
 fn find_vscode_process_exe() -> Option<std::path::PathBuf> {
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
 
@@ -962,7 +962,7 @@ fn find_vscode_process_exe() -> Option<std::path::PathBuf> {
 #[cfg(target_os = "macos")]
 fn find_codex_process_exe() -> Option<std::path::PathBuf> {
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
 
@@ -1351,7 +1351,7 @@ pub fn detect_and_save_app_path(app: &str, force: bool) -> Option<String> {
 #[allow(dead_code)]
 pub fn is_antigravity_running() -> bool {
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
 
@@ -1420,7 +1420,7 @@ pub fn is_pid_running(pid: u32) -> bool {
         return false;
     }
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
     system.process(Pid::from(pid as usize)).is_some()
 }
 
@@ -1859,7 +1859,7 @@ pub fn collect_antigravity_process_entries() -> Vec<(u32, Option<String>)> {
 
     let mut result = Vec::new();
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
 
@@ -2271,7 +2271,7 @@ pub fn collect_vscode_process_entries() -> Vec<(u32, Option<String>)> {
 
     let mut entries = Vec::new();
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
 
@@ -2658,7 +2658,7 @@ fn collect_antigravity_pids_by_user_data_dir(user_data_dir: &str) -> Vec<u32> {
 
     let mut result = Vec::new();
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
 
@@ -2906,7 +2906,7 @@ pub fn parse_extra_args(raw: &str) -> Vec<String> {
 #[allow(dead_code)]
 pub fn list_antigravity_user_data_dirs() -> Vec<String> {
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
     let mut result = Vec::new();
@@ -2997,7 +2997,7 @@ pub fn list_antigravity_user_data_dirs() -> Vec<String> {
 #[allow(dead_code)]
 fn get_antigravity_pids() -> Vec<u32> {
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let mut pids = Vec::new();
     let current_pid = std::process::id();
@@ -4162,7 +4162,7 @@ pub fn close_codex_instance(codex_home: &str, timeout_secs: u64) -> Result<(), S
 /// 检查 OpenCode（桌面端）是否在运行
 pub fn is_opencode_running() -> bool {
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
     #[cfg(any(target_os = "macos", target_os = "windows"))]
@@ -4232,7 +4232,7 @@ pub fn is_opencode_running() -> bool {
 
 fn get_opencode_pids() -> Vec<u32> {
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let mut pids = Vec::new();
     let current_pid = std::process::id();
@@ -4535,7 +4535,7 @@ pub fn kill_port_processes(port: u16) -> Result<usize, String> {
 fn get_vscode_pids() -> Vec<u32> {
     let mut result = Vec::new();
     let mut system = System::new();
-    system.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    system.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet).with_cmd(UpdateKind::OnlyIfNotSet));
 
     let current_pid = std::process::id();
 

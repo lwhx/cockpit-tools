@@ -131,7 +131,8 @@
         "periodRange": "周期：{{start}} - {{end}}",
         "planEndsIn": "配额周期剩余 {{days}} 天",
         "planEndsUnknown": "配额周期时间未知",
-        "usedLine": "{{used}} / {{total}} used"
+        "usedLine": "{{used}} / {{total}} used",
+        "planEndsInHours": "{{hours}} 小时后重置"
       },
       "flowNotice": {
         "alternative": "多开实例隔离：使用不同 --user-data-dir 做账号隔离；每个实例登录一次，后续按实例启动即可快速切换到对应账号环境。"

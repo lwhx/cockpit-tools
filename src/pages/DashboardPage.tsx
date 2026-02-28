@@ -52,11 +52,6 @@ function toFiniteNumber(value: number | null | undefined): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
-function formatDecimal(value: number | null | undefined): string {
-  const safe = toFiniteNumber(value);
-  return (safe ?? 0).toFixed(2);
-}
-
 export function DashboardPage({ onNavigate, onOpenPlatformLayout, onEasterEggTriggerClick }: DashboardPageProps) {
   const { t } = useTranslation();
   const { orderedPlatformIds, hiddenPlatformIds } = usePlatformLayoutStore();
@@ -880,17 +875,7 @@ export function DashboardPage({ onNavigate, onOpenPlatformLayout, onEasterEggTri
               />
             </div>
             <div className="mini-reset-time">
-              {t('common.shared.credits.usedLine', {
-                used: formatDecimal(promptMetric?.used),
-                total: formatDecimal(promptMetric?.total),
-                defaultValue: '{{used}} / {{total}} used',
-              })}
-            </div>
-            <div className="mini-reset-time">
-              {t('common.shared.credits.leftInline', {
-                left: formatDecimal(promptMetric?.left),
-                defaultValue: '{{left}} left',
-              })}
+              {promptMetric?.resetText || presentation.cycleText || t('common.shared.credits.planEndsUnknown', '配额周期时间未知')}
             </div>
           </div>
 
@@ -910,22 +895,8 @@ export function DashboardPage({ onNavigate, onOpenPlatformLayout, onEasterEggTri
               />
             </div>
             <div className="mini-reset-time">
-              {t('common.shared.credits.usedLine', {
-                used: formatDecimal(addOnMetric?.used),
-                total: formatDecimal(addOnMetric?.total),
-                defaultValue: '{{used}} / {{total}} used',
-              })}
+              {addOnMetric?.resetText || presentation.cycleText || t('common.shared.credits.planEndsUnknown', '配额周期时间未知')}
             </div>
-            <div className="mini-reset-time">
-              {t('common.shared.credits.leftInline', {
-                left: formatDecimal(addOnMetric?.left),
-                defaultValue: '{{left}} left',
-              })}
-            </div>
-          </div>
-
-          <div className="mini-cycle-time">
-            {presentation.cycleText || t('common.shared.credits.planEndsUnknown', '配额周期时间未知')}
           </div>
         </div>
 
@@ -989,17 +960,7 @@ export function DashboardPage({ onNavigate, onOpenPlatformLayout, onEasterEggTri
               />
             </div>
             <div className="mini-reset-time">
-              {t('common.shared.credits.usedLine', {
-                used: formatDecimal(promptMetric?.used),
-                total: formatDecimal(promptMetric?.total),
-                defaultValue: '{{used}} / {{total}} used',
-              })}
-            </div>
-            <div className="mini-reset-time">
-              {t('common.shared.credits.leftInline', {
-                left: formatDecimal(promptMetric?.left),
-                defaultValue: '{{left}} left',
-              })}
+              {promptMetric?.resetText || presentation.cycleText || t('common.shared.credits.planEndsUnknown', '配额周期时间未知')}
             </div>
           </div>
 
@@ -1020,27 +981,12 @@ export function DashboardPage({ onNavigate, onOpenPlatformLayout, onEasterEggTri
                 />
               </div>
               <div className="mini-reset-time">
-                {t('common.shared.credits.usedLine', {
-                  used: formatDecimal(addOnMetric?.used),
-                  total: formatDecimal(addOnMetric?.total),
-                  defaultValue: '{{used}} / {{total}} used',
-                })}
-              </div>
-              <div className="mini-reset-time">
-                {t('common.shared.credits.leftInline', {
-                  left: formatDecimal(addOnMetric?.left),
-                  defaultValue: '{{left}} left',
-                })}
-              </div>
-              <div className="mini-reset-time">
-                {t('kiro.columns.expiry', 'Expiry')}: {presentation.addOnExpiryText}
+                {addOnMetric?.resetText ||
+                  presentation.cycleText ||
+                  t('common.shared.credits.planEndsUnknown', '配额周期时间未知')}
               </div>
             </div>
           )}
-
-          <div className="mini-cycle-time">
-            {presentation.cycleText || t('common.shared.credits.planEndsUnknown', '配额周期时间未知')}
-          </div>
         </div>
 
         <div className="account-mini-actions icon-only-row">

@@ -131,7 +131,8 @@
         "periodRange": "週期：{{start}} - {{end}}",
         "planEndsIn": "配額週期剩餘 {{days}} 天",
         "planEndsUnknown": "配額週期時間未知",
-        "usedLine": "已使用 {{used}} / {{total}}"
+        "usedLine": "已使用 {{used}} / {{total}}",
+        "planEndsInHours": "在 {{hours}}h 中重置"
       },
       "flowNotice": {
         "alternative": "替代方案：使用多開隔離（不同 --user-data-dir）。每個實例登入一次，之後按實例啟動即可快速切換到目標帳號環境。"

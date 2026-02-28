@@ -131,7 +131,8 @@
         "periodRange": "サイクル: {{start}} - {{end}}",
         "planEndsIn": "{{days}} 日後にサイクルがリセットされます",
         "planEndsUnknown": "サイクル時刻は利用できません",
-        "usedLine": "{{used}} / {{total}} 使用済み"
+        "usedLine": "{{used}} / {{total}} 使用済み",
+        "planEndsInHours": "{{hours}}h でリセット"
       },
       "flowNotice": {
         "alternative": "代替案: マルチインスタンス分離（異なる --user-data-dir）を利用します。インスタンスごとに一度ログインすれば、以後はインスタンス単位で起動して目的のアカウント環境へ素早く切り替えられます。"

@@ -7,7 +7,19 @@
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
 ---
+## [0.9.7] - 2026-02-28
+
+### 修复
+- **修复 macOS 反复弹出隐私权限请求的问题**：将 `sysinfo` 进程扫描由"读取全字段（含 `cwd`/`environ`/`root`）"改为仅按需读取 `exe` 和 `cmd`，避免遍历其他进程的受保护目录，从根源消除 macOS 上反复弹出"访问音乐/照片/文稿"权限提示的问题。
+
+### 变更
+- **Kiro/Windsurf 配额周期重置时间改为"相对 + 绝对"格式**：重写 `formatKiroResetTime`，改为输出 `Xd Xh (MM/DD HH:mm)` 风格，与其他平台重置时间展示保持一致；不足一天时改为显示小时/分钟，不再向下取整到天。
+- **Kiro/Windsurf 配额周期剩余时间不足 1 天时改为显示小时**：剩余时间不足 24 小时时，展示文案切换为"{{hours}} 小时后重置"，不再出现"剩余 0 天"。
+- **Kiro 仪表盘卡片配额展示精简**：移除 Dashboard 中 Kiro mini 卡片内多余的 used/total 与 left 行，改为直接展示 `resetText` 或 `cycleText`，与 Windsurf 卡片风格保持一致。
+
+---
 ## [0.9.6] - 2026-02-28
+
 
 ### 变更
 - **五平台账号展示口径在多入口统一**：新增公共展示层，统一计算显示名、套餐标签（保留原始值）、配额指标、重置文案与用量摘要，并在仪表盘、账号列表、实例列表复用（Antigravity / Codex / GitHub Copilot / Windsurf / Kiro），减少多处改动导致的不一致。

@@ -131,7 +131,8 @@
         "periodRange": "Cykl: {{start}} - {{end}}",
         "planEndsIn": "Cykl resetuje się za {{days}} dni",
         "planEndsUnknown": "Brak informacji o cyklu",
-        "usedLine": "Użyto {{used}} / {{total}}"
+        "usedLine": "Użyto {{used}} / {{total}}",
+        "planEndsInHours": "Resetuje się za {{hours}}h"
       },
       "flowNotice": {
         "alternative": "Alternatywa: użyj izolacji wielu instancji (różne --user-data-dir). Zaloguj się raz na instancję, a potem uruchamiaj po instancji, aby szybko przełączać się do środowiska docelowego konta."
