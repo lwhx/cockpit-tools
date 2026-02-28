@@ -7,6 +7,18 @@ All notable changes to Cockpit Tools will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
+## [0.9.5] - 2026-02-28
+
+### Fixed
+- **Windows wakeup no longer pops black terminal windows**: Added hidden-process flags for official Language Server startup and Windows CLI probes (`netstat`, `where.exe`) used by wakeup-related flows.
+- **Local wakeup gateway intermittent transport failures now self-recover once**: Added local health-check preflight, transport error classification, and one-time gateway cache rebuild retry for recoverable local connection/TLS/timeout failures.
+- **Local gateway requests now bypass system proxy and use a canonical loopback address**: Gateway/official-LS local clients now enforce `no_proxy`, and loopback base URLs are normalized to `127.0.0.1` to reduce proxy/interception-related failures.
+
+### Changed
+- **Verification copy and action labels switched from “Verify” to “Detect” across all locales**: Added/used `wakeup.verification.actions.runCheckNow`, updated run-hint wording, and aligned the verification-page primary CTA/title.
+- **GitHub Copilot instances quota row now includes Premium requests**: Instance account quota summary now shows Inline, Chat, and Premium usage percentages together.
+
+---
 ## [0.9.4] - 2026-02-27
 
 ### Fixed
