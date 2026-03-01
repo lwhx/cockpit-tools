@@ -1,6 +1,8 @@
 @import './styles/base.css';
 @import './styles/layout.css';
 @import './styles/components.css';
+@import './components/QuickSettingsPopover.css';
+@import './styles/settings-shared.css';
 @import './styles/pages.css';
 
 .quota-alert-modal-content {
@@ -39,4 +41,28 @@
 
 .quota-alert-modal-row--stack strong {
   text-align: left;
+}
+
+.app-path-missing-modal {
+  max-width: 560px;
+}
+
+.app-path-missing-desc {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.app-path-missing-error {
+  margin: 8px 0 0;
+  color: var(--danger);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .app-path-missing-modal {
+    max-width: 92vw;
+  }
 }

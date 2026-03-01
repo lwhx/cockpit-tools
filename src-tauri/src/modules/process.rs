@@ -79,6 +79,11 @@ fn format_command_preview(command: &Command) -> String {
 }
 
 #[cfg(target_os = "windows")]
+fn escape_powershell_single_quoted(value: &str) -> String {
+    value.replace('\'', "''")
+}
+
+#[cfg(target_os = "windows")]
 fn truncate_for_trace(text: &str, max_chars: usize) -> String {
     let mut iter = text.chars();
     let mut current = String::new();
@@ -2060,14 +2065,16 @@ fn collect_antigravity_process_entries_from_ps() -> Vec<(u32, Option<String>)> {
 }
 
 #[cfg(target_os = "windows")]
-fn collect_antigravity_process_entries_from_powershell() -> Vec<(u32, Option<String>)> {
+fn collect_antigravity_process_entries_from_powershell(
+    expected_exe_path: &str,
+) -> Vec<(u32, Option<String>)> {
     let mut result = Vec::new();
+    let expected = escape_powershell_single_quoted(expected_exe_path);
+    let script = format!(
+        "$expected='{expected}'; Get-CimInstance Win32_Process -Filter \"Name='Antigravity.exe'\" | Where-Object {{ if (-not $_.ExecutablePath) {{ $false }} else {{ try {{ ([System.IO.Path]::GetFullPath($_.ExecutablePath).ToLower() -eq $expected) }} catch {{ $false }} }} }} | ForEach-Object {{ \"$($_.ProcessId)|$($_.CommandLine)\" }}",
+    );
     let output = powershell_output_with_timeout(
-        &[
-        "-NoProfile",
-        "-Command",
-        "Get-CimInstance Win32_Process -Filter \"Name='Antigravity.exe'\" | ForEach-Object { \"$($_.ProcessId)|$($_.CommandLine)\" }",
-        ],
+        &["-NoProfile", "-Command", &script],
         WINDOWS_PROCESS_PROBE_TIMEOUT,
     );
     let output = match output {
@@ -2192,14 +2199,10 @@ pub fn collect_antigravity_process_entries() -> Vec<(u32, Option<String>)> {
 
     #[cfg(target_os = "windows")]
     {
-        let entries = collect_antigravity_process_entries_from_powershell();
-        if !entries.is_empty() || strict_process_detect_enabled() {
-            return filter_entries_by_expected_launch_path(
-                "AG",
-                entries,
-                expected_launch.clone(),
-            );
-        }
+        let expected = expected_launch
+            .as_deref()
+            .expect("expected launch path must exist");
+        return collect_antigravity_process_entries_from_powershell(expected);
     }
 
     #[cfg(target_os = "linux")]
@@ -2602,12 +2605,15 @@ pub fn focus_codex_instance(
 }
 
 #[cfg(target_os = "windows")]
-fn collect_vscode_process_entries_from_powershell() -> Vec<(u32, Option<String>)> {
+fn collect_vscode_process_entries_from_powershell(
+    expected_exe_path: &str,
+) -> Vec<(u32, Option<String>)> {
     let mut entries: Vec<(u32, Option<String>)> = Vec::new();
-    let output = powershell_output(&[
-        "-Command",
-        "Get-CimInstance Win32_Process -Filter \"Name='Code.exe'\" | ForEach-Object { \"$($_.ProcessId)|$($_.CommandLine)\" }",
-    ]);
+    let expected = escape_powershell_single_quoted(expected_exe_path);
+    let script = format!(
+        "$expected='{expected}'; Get-CimInstance Win32_Process -Filter \"Name='Code.exe'\" | Where-Object {{ if (-not $_.ExecutablePath) {{ $false }} else {{ try {{ ([System.IO.Path]::GetFullPath($_.ExecutablePath).ToLower() -eq $expected) }} catch {{ $false }} }} }} | ForEach-Object {{ \"$($_.ProcessId)|$($_.CommandLine)\" }}",
+    );
+    let output = powershell_output(&["-Command", &script]);
     let output = match output {
         Ok(value) => value,
         Err(_) => return entries,
@@ -2652,14 +2658,10 @@ pub fn collect_vscode_process_entries() -> Vec<(u32, Option<String>)> {
 
     #[cfg(target_os = "windows")]
     {
-        let entries = collect_vscode_process_entries_from_powershell();
-        if !entries.is_empty() {
-            return filter_entries_by_expected_launch_path(
-                "VSCode",
-                entries,
-                expected_launch.clone(),
-            );
-        }
+        let expected = expected_launch
+            .as_deref()
+            .expect("expected launch path must exist");
+        return collect_vscode_process_entries_from_powershell(expected);
     }
 
     let mut entries = Vec::new();
