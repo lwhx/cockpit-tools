@@ -4,6 +4,20 @@ use tauri::{AppHandle, Emitter};
 use crate::models::windsurf::{WindsurfAccount, WindsurfOAuthStartResponse};
 use crate::modules::{logger, windsurf_account, windsurf_oauth};
 
+async fn refresh_windsurf_account_after_login(account: WindsurfAccount) -> WindsurfAccount {
+    let account_id = account.id.clone();
+    match windsurf_account::refresh_account_token(&account_id).await {
+        Ok(refreshed) => refreshed,
+        Err(e) => {
+            logger::log_warn(&format!(
+                "[Windsurf OAuth] 登录后自动刷新失败: account_id={}, error={}",
+                account_id, e
+            ));
+            account
+        }
+    }
+}
+
 #[tauri::command]
 pub fn list_windsurf_accounts() -> Result<Vec<WindsurfAccount>, String> {
     Ok(windsurf_account::list_accounts())
@@ -134,6 +148,7 @@ pub async fn windsurf_oauth_login_complete(
     ));
     let payload = windsurf_oauth::complete_login(&login_id).await?;
     let account = windsurf_account::upsert_account(payload)?;
+    let account = refresh_windsurf_account_after_login(account).await;
     logger::log_info(&format!(
         "Windsurf OAuth complete 成功: account_id={}, login={}",
         account.id, account.github_login

@@ -1368,7 +1368,6 @@ pub fn is_antigravity_running() -> bool {
             .unwrap_or("")
             .to_lowercase();
 
-        // 通用的辅助进程排除逻辑
         let args = process.cmd();
         let args_str = args
             .iter()
@@ -1376,39 +1375,8 @@ pub fn is_antigravity_running() -> bool {
             .collect::<Vec<String>>()
             .join(" ");
 
-        let is_helper = args_str.contains("--type=")
-            || name.contains("helper")
-            || name.contains("plugin")
-            || name.contains("renderer")
-            || name.contains("gpu")
-            || name.contains("crashpad")
-            || name.contains("utility")
-            || name.contains("audio")
-            || name.contains("sandbox")
-            || exe_path.contains("crashpad");
-
-        #[cfg(target_os = "macos")]
-        {
-            if exe_path.contains("antigravity.app") && !is_helper {
-                return true;
-            }
-        }
-
-        #[cfg(target_os = "windows")]
-        {
-            if name == "antigravity.exe" && !is_helper {
-                return true;
-            }
-        }
-
-        #[cfg(target_os = "linux")]
-        {
-            if (name.contains("antigravity") || exe_path.contains("/antigravity"))
-                && !name.contains("tools")
-                && !is_helper
-            {
-                return true;
-            }
+        if is_antigravity_main_process(&name, &exe_path, Some(&args_str)) {
+            return true;
         }
     }
 
@@ -1686,6 +1654,48 @@ fn is_helper_command_line(cmdline_lower: &str) -> bool {
         || cmdline_lower.contains("/resources/app/extensions/")
 }
 
+fn is_antigravity_main_process(
+    name: &str,
+    exe_path: &str,
+    command_line_lower: Option<&str>,
+) -> bool {
+    let cmdline = command_line_lower.unwrap_or("");
+    if cmdline.contains("antigravity tools") || cmdline.contains("antigravity tools.app/contents/")
+    {
+        return false;
+    }
+    if !cmdline.is_empty() && is_helper_command_line(cmdline) {
+        return false;
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        let _ = name;
+        return exe_path.contains("antigravity.app")
+            && !exe_path.contains("antigravity tools.app")
+            && !exe_path.contains("crashpad");
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        return (name == "antigravity.exe" || exe_path.ends_with("\\antigravity.exe"))
+            && !exe_path.contains("crashpad");
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        return (name.contains("antigravity") || exe_path.contains("/antigravity"))
+            && !name.contains("tools")
+            && !exe_path.contains("tools");
+    }
+
+    #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
+    {
+        let _ = (name, exe_path);
+        false
+    }
+}
+
 #[cfg(target_os = "macos")]
 fn collect_antigravity_process_entries_from_ps() -> Vec<(u32, Option<String>)> {
     let mut result = Vec::new();
@@ -1773,7 +1783,7 @@ fn collect_antigravity_process_entries_from_powershell() -> Vec<(u32, Option<Str
             Err(_) => continue,
         };
         let lower = cmdline.to_lowercase();
-        if lower.contains("antigravity tools") || is_helper_command_line(&lower) {
+        if !is_antigravity_main_process("antigravity.exe", "", Some(&lower)) {
             continue;
         }
         let dir = extract_user_data_dir_from_command_line(cmdline);
@@ -1869,31 +1879,23 @@ pub fn collect_antigravity_process_entries() -> Vec<(u32, Option<String>)> {
             continue;
         }
 
-        #[cfg(target_os = "macos")]
-        let _name = process.name().to_string_lossy().to_lowercase();
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
         let name = process.name().to_string_lossy().to_lowercase();
         let exe_path = process
             .exe()
             .and_then(|p| p.to_str())
             .unwrap_or("")
             .to_lowercase();
+        let args = process.cmd();
+        let args_str = args
+            .iter()
+            .map(|arg| arg.to_string_lossy().to_lowercase())
+            .collect::<Vec<String>>()
+            .join(" ");
 
-        #[cfg(target_os = "macos")]
-        let is_antigravity =
-            exe_path.contains("antigravity.app") && !exe_path.contains("antigravity tools.app");
-        #[cfg(target_os = "windows")]
-        let is_antigravity = name == "antigravity.exe" || exe_path.ends_with("\\antigravity.exe");
-        #[cfg(target_os = "linux")]
-        let is_antigravity = (name.contains("antigravity") || exe_path.contains("/antigravity"))
-            && !name.contains("tools")
-            && !exe_path.contains("tools");
-
-        if !is_antigravity {
+        if !is_antigravity_main_process(&name, &exe_path, Some(&args_str)) {
             continue;
         }
 
-        let args = process.cmd();
         let dir = extract_user_data_dir(&args);
         result.push((pid_u32, dir));
     }
@@ -2012,7 +2014,21 @@ pub fn resolve_antigravity_pid_from_entries(
     entries: &[(u32, Option<String>)],
 ) -> Option<u32> {
     let (target, allow_none_for_target) = resolve_antigravity_target_and_fallback(user_data_dir)?;
-    resolve_pid_from_entries_by_user_data_dir(last_pid, &target, allow_none_for_target, entries)
+    let matches = collect_matching_pids_by_user_data_dir(entries, &target, allow_none_for_target);
+
+    if let Some(pid) = last_pid {
+        if is_pid_running(pid) && matches.contains(&pid) {
+            return Some(pid);
+        }
+        if is_pid_running(pid) {
+            crate::modules::logger::log_warn(&format!(
+                "[AG Resolve] 忽略不匹配的 last_pid={}，target={}，matched_pids={:?}",
+                pid, target, matches
+            ));
+        }
+    }
+
+    pick_preferred_pid(matches)
 }
 
 pub fn resolve_antigravity_pid(last_pid: Option<u32>, user_data_dir: Option<&str>) -> Option<u32> {
@@ -2668,31 +2684,23 @@ fn collect_antigravity_pids_by_user_data_dir(user_data_dir: &str) -> Vec<u32> {
             continue;
         }
 
-        #[cfg(target_os = "macos")]
-        let _name = process.name().to_string_lossy().to_lowercase();
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
         let name = process.name().to_string_lossy().to_lowercase();
         let exe_path = process
             .exe()
             .and_then(|p| p.to_str())
             .unwrap_or("")
             .to_lowercase();
+        let args = process.cmd();
+        let args_str = args
+            .iter()
+            .map(|arg| arg.to_string_lossy().to_lowercase())
+            .collect::<Vec<String>>()
+            .join(" ");
 
-        #[cfg(target_os = "macos")]
-        let is_antigravity =
-            exe_path.contains("antigravity.app") && !exe_path.contains("antigravity tools.app");
-        #[cfg(target_os = "windows")]
-        let is_antigravity = name == "antigravity.exe" || exe_path.ends_with("\\antigravity.exe");
-        #[cfg(target_os = "linux")]
-        let is_antigravity = (name.contains("antigravity") || exe_path.contains("/antigravity"))
-            && !name.contains("tools")
-            && !exe_path.contains("tools");
-
-        if !is_antigravity {
+        if !is_antigravity_main_process(&name, &exe_path, Some(&args_str)) {
             continue;
         }
 
-        let args = process.cmd();
         if let Some(dir) = extract_user_data_dir(&args) {
             let normalized = normalize_path_for_compare(&dir);
             if normalized == target {
@@ -2768,6 +2776,10 @@ fn collect_antigravity_pids_by_user_data_dir(user_data_dir: &str) -> Vec<u32> {
                     Ok(value) => value,
                     Err(_) => continue,
                 };
+                let lower = cmdline.to_lowercase();
+                if !is_antigravity_main_process("antigravity.exe", "", Some(&lower)) {
+                    continue;
+                }
                 if let Some(dir) = extract_user_data_dir_from_command_line(cmdline) {
                     let normalized = normalize_path_for_compare(&dir);
                     if normalized == target {

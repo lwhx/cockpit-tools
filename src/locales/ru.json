@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "Локальный импорт",
-        "oauth": "Вход OAuth",
+        "oauth": "OAuth авторизация",
         "token": "Импорт JSON"
       },
       "overview": {
@@ -365,7 +365,7 @@
       "selectFingerprint": "Выбрать отпечаток"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "OAuth авторизация",
       "token": "Токен обновления",
       "import": "Импорт"
     },
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "Добавить аккаунт Codex",
-      "oauth": "Вход OAuth",
+      "oauth": "OAuth авторизация",
       "token": "Импорт JSON",
       "local": "Локальный импорт"
     },

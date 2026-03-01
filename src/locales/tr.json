@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "Yerel içe aktar",
-        "oauth": "OAuth girişi",
+        "oauth": "OAuth Yetkilendirme",
         "token": "JSON içe aktar"
       },
       "overview": {
@@ -365,7 +365,7 @@
       "selectFingerprint": "Parmak izi seç"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "OAuth Yetkilendirme",
       "token": "Jetonu Yenile",
       "import": "İçe Aktar"
     },
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "Codex hesabı ekle",
-      "oauth": "OAuth girişi",
+      "oauth": "OAuth Yetkilendirme",
       "token": "JSON içe aktar",
       "local": "Yerel içe aktar"
     },

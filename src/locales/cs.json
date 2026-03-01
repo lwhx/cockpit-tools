@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "Lokální import",
-        "oauth": "OAuth přihlášení",
+        "oauth": "OAuth autorizace",
         "token": "Import JSON"
       },
       "overview": {
@@ -365,7 +365,7 @@
       "selectFingerprint": "Vybrat otisk"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "OAuth autorizace",
       "token": "Obnovit token",
       "import": "Importovat"
     },
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "Přidat účet Codex",
-      "oauth": "OAuth přihlášení",
+      "oauth": "OAuth autorizace",
       "token": "Import JSON",
       "local": "Lokální import"
     },

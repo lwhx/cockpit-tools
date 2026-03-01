@@ -4,6 +4,20 @@ use tauri::{AppHandle, Emitter};
 use crate::models::kiro::{KiroAccount, KiroOAuthStartResponse};
 use crate::modules::{kiro_account, kiro_oauth, logger};
 
+async fn refresh_kiro_account_after_login(account: KiroAccount) -> KiroAccount {
+    let account_id = account.id.clone();
+    match kiro_account::refresh_account_token(&account_id).await {
+        Ok(refreshed) => refreshed,
+        Err(e) => {
+            logger::log_warn(&format!(
+                "[Kiro OAuth] 登录后自动刷新失败: account_id={}, error={}",
+                account_id, e
+            ));
+            account
+        }
+    }
+}
+
 #[tauri::command]
 pub fn list_kiro_accounts() -> Result<Vec<KiroAccount>, String> {
     Ok(kiro_account::list_accounts())
@@ -114,6 +128,7 @@ pub async fn kiro_oauth_login_complete(
     ));
     let payload = kiro_oauth::complete_login(&login_id).await?;
     let account = kiro_account::upsert_account(payload)?;
+    let account = refresh_kiro_account_after_login(account).await;
     logger::log_info(&format!(
         "Kiro OAuth complete 成功: account_id={}, email={}",
         account.id, account.email

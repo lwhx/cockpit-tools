@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "Local Import",
-        "oauth": "OAuth",
+        "oauth": "OAuth Authorization",
         "token": "Token / JSON"
       },
       "overview": {
@@ -578,7 +578,7 @@
       "selectFingerprint": "Select fingerprint"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "OAuth Authorization",
       "token": "Refresh Token",
       "import": "Import"
     },
@@ -709,7 +709,7 @@
     "addAccount": {
       "title": "Add Account",
       "desc": "Add your Antigravity account via Google OAuth",
-      "loginBtn": "Google OAuth Login",
+      "loginBtn": "Google OAuth Authorization",
       "waiting": "Waiting..."
     },
     "import": {
@@ -1035,7 +1035,7 @@
     },
     "addModal": {
       "title": "Add Codex Account",
-      "oauth": "OAuth Login",
+      "oauth": "OAuth Authorization",
       "token": "JSON Import",
       "local": "Local Import"
     },

@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "ローカルインポート",
-        "oauth": "OAuth ログイン",
+        "oauth": "OAuth 認証",
         "token": "JSON インポート"
       },
       "overview": {
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "Codex アカウントを追加",
-      "oauth": "OAuth ログイン",
+      "oauth": "OAuth 認証",
       "token": "JSON インポート",
       "local": "ローカルインポート"
     },

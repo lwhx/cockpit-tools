@@ -934,7 +934,7 @@ export function GitHubCopilotAccountsPage() {
                 onClick={() => openAddModal('oauth')}
               >
                 <Globe size={14} />
-                {t('common.shared.addModal.oauth', 'OAuth')}
+                {t('common.shared.addModal.oauth', 'OAuth Authorization')}
               </button>
               <button
                 className={`modal-tab ${addTab === 'token' ? 'active' : ''}`}
@@ -956,7 +956,7 @@ export function GitHubCopilotAccountsPage() {
               {addTab === 'oauth' && (
                 <div className="add-section">
                   <p className="section-desc">
-                    {t('githubCopilot.oauth.desc', '点击下方按钮，在浏览器中完成 GitHub Copilot 授权登录。')}
+                    {t('githubCopilot.oauth.desc', '点击下方按钮，在浏览器中完成 GitHub Copilot OAuth 授权。')}
                   </p>
 
                   {oauthPrepareError ? (

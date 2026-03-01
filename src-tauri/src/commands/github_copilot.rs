@@ -3,6 +3,22 @@ use tauri::{AppHandle, Emitter};
 use crate::models::github_copilot::{GitHubCopilotAccount, GitHubCopilotOAuthStartResponse};
 use crate::modules::{github_copilot_account, github_copilot_oauth, logger};
 
+async fn refresh_github_copilot_account_after_login(
+    account: GitHubCopilotAccount,
+) -> GitHubCopilotAccount {
+    let account_id = account.id.clone();
+    match github_copilot_account::refresh_account_token(&account_id).await {
+        Ok(refreshed) => refreshed,
+        Err(e) => {
+            logger::log_warn(&format!(
+                "[GitHub Copilot OAuth] 登录后自动刷新失败: account_id={}, error={}",
+                account_id, e
+            ));
+            account
+        }
+    }
+}
+
 /// 列出所有 GitHub Copilot 账号
 #[tauri::command]
 pub fn list_github_copilot_accounts() -> Result<Vec<GitHubCopilotAccount>, String> {
@@ -92,6 +108,7 @@ pub async fn github_copilot_oauth_login_complete(
     ));
     let payload = github_copilot_oauth::complete_login(&login_id).await?;
     let account = github_copilot_account::upsert_account(payload)?;
+    let account = refresh_github_copilot_account_after_login(account).await;
     logger::log_info(&format!(
         "GitHub Copilot OAuth complete 成功: account_id={}, login={}",
         account.id, account.github_login

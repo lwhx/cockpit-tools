@@ -595,10 +595,10 @@ export function WindsurfAccountsPage() {
       )}
 
       {showAddModal && (
-        <div className="modal-overlay" onClick={closeAddModal}><div className="modal-content ghcp-add-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={closeAddModal}><div className="modal-content ghcp-add-modal windsurf-add-modal" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header"><h2>{t('windsurf.addModal.title', '添加 Windsurf 账号')}</h2><button className="modal-close" onClick={closeAddModal} aria-label={t('common.close', '关闭')}><X /></button></div>
           <div className="modal-tabs">
-            <button className={`modal-tab ${addTab === 'oauth' ? 'active' : ''}`} onClick={() => openAddModal('oauth')}><Globe size={14} />{t('common.shared.addModal.oauth', 'OAuth')}</button>
+            <button className={`modal-tab ${addTab === 'oauth' ? 'active' : ''}`} onClick={() => openAddModal('oauth')}><Globe size={14} />{t('common.shared.addModal.oauth', 'OAuth Authorization')}</button>
             <button className={`modal-tab ${addTab === 'token' ? 'active' : ''}`} onClick={() => openAddModal('token')}><KeyRound size={14} />Token / JSON</button>
             <button className={`modal-tab ${addTab === 'import' ? 'active' : ''}`} onClick={() => openAddModal('import')}><Database size={14} />{t('common.shared.addModal.import', '本地导入')}</button>
             <button className={`modal-tab ${addTab === 'password' ? 'active' : ''}`} onClick={() => openAddModal('password')}><Mail size={14} />{t('windsurf.addModal.password', '邮箱密码')}</button>
@@ -606,7 +606,7 @@ export function WindsurfAccountsPage() {
           <div className="modal-body">
             {addTab === 'oauth' && (
               <div className="add-section">
-                <p className="section-desc">{t('windsurf.oauth.desc', '点击下方按钮，在浏览器中完成 Windsurf 授权登录。')}</p>
+                <p className="section-desc">{t('windsurf.oauth.desc', '点击下方按钮，在浏览器中完成 Windsurf OAuth 授权。')}</p>
                 {oauthPrepareError ? (
                   <div className="add-status error"><CircleAlert size={16} /><span>{oauthPrepareError}</span>
                     <button className="btn btn-sm btn-outline" onClick={handleRetryOauth}>{t('common.shared.oauth.retry', '重新生成授权信息')}</button></div>

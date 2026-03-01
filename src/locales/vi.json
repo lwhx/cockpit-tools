@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "Nhập từ máy",
-        "oauth": "Đăng nhập OAuth",
+        "oauth": "Ủy quyền OAuth",
         "token": "Nhập JSON"
       },
       "overview": {
@@ -365,7 +365,7 @@
       "selectFingerprint": "Chọn vân tay"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "Ủy quyền OAuth",
       "token": "Làm mới mã thông báo",
       "import": "Nhập"
     },
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "Thêm tài khoản Codex",
-      "oauth": "Đăng nhập OAuth",
+      "oauth": "Ủy quyền OAuth",
       "token": "Nhập JSON",
       "local": "Nhập từ máy"
     },

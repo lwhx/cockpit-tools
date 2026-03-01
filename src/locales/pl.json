@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "Import lokalny",
-        "oauth": "Logowanie OAuth",
+        "oauth": "Autoryzacja OAuth",
         "token": "Import JSON"
       },
       "overview": {
@@ -365,7 +365,7 @@
       "selectFingerprint": "Wybierz odcisk"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "Autoryzacja OAuth",
       "token": "Token odświeżania",
       "import": "Import"
     },
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "Dodaj konto Codex",
-      "oauth": "Logowanie OAuth",
+      "oauth": "Autoryzacja OAuth",
       "token": "Import JSON",
       "local": "Import lokalny"
     },

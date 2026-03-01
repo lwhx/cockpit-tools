@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "Lokaler Import",
-        "oauth": "OAuth-Anmeldung",
+        "oauth": "OAuth-Autorisierung",
         "token": "JSON-Import"
       },
       "overview": {
@@ -365,7 +365,7 @@
       "selectFingerprint": "Fingerabdruck auswählen"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "OAuth-Autorisierung",
       "token": "Aktualisierungstoken",
       "import": "Importieren"
     },
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "Codex-Konto hinzufügen",
-      "oauth": "OAuth-Anmeldung",
+      "oauth": "OAuth-Autorisierung",
       "token": "JSON-Import",
       "local": "Lokaler Import"
     },

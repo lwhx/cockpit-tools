@@ -818,30 +818,39 @@
   width: 100%;
 }
 
+.codex-add-modal .modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .codex-add-modal .modal-tabs {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   padding: 4px;
   background: var(--bg-tertiary);
-  border-radius: var(--radius-md);
-  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 20px 28px 0;
 }
 
 .codex-add-modal .modal-tab {
   flex: 1;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 6px;
+  height: 32px;
+  padding: 0 8px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .codex-add-modal .modal-tab:hover {
@@ -850,8 +859,8 @@
 }
 
 .codex-add-modal .modal-tab.active {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: var(--gradient-primary);
+  color: #fff;
   box-shadow: var(--shadow-sm);
 }
 

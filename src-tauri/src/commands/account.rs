@@ -202,14 +202,11 @@ pub async fn switch_account(app: AppHandle, account_id: String) -> Result<models
         ));
     }
 
-    // 6. 对齐默认实例启动逻辑：按 PID 精准关闭旧进程，再将账号注入默认实例目录
-    let default_settings = modules::instance::load_default_settings()?;
-    if let Some(pid) = modules::process::resolve_antigravity_pid(default_settings.last_pid, None) {
-        modules::logger::log_info(&format!("命中默认实例运行 PID: {}，准备关闭", pid));
-        modules::process::close_pid(pid, 20)?;
-        let _ = modules::instance::update_default_pid(None);
-    }
+    // 6. 对齐默认实例启动逻辑：按默认实例目录关闭受管进程，再将账号注入默认实例目录
     let default_dir = modules::instance::get_default_user_data_dir()?;
+    let default_dir_str = default_dir.to_string_lossy().to_string();
+    modules::process::close_antigravity_instances(&[default_dir_str], 20)?;
+    let _ = modules::instance::update_default_pid(None);
     modules::instance::inject_account_to_profile(&default_dir, &account_id)?;
 
     // 7. 启动 Antigravity（启动失败不阻断切号，保持原行为）

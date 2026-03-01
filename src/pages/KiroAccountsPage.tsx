@@ -879,7 +879,7 @@ export function KiroAccountsPage() {
             </div>
 
             <div className="modal-tabs">
-              <button className={`modal-tab ${addTab === 'oauth' ? 'active' : ''}`} onClick={() => openAddModal('oauth')}><Globe size={14} />{t('common.shared.addModal.oauth', 'OAuth')}</button>
+              <button className={`modal-tab ${addTab === 'oauth' ? 'active' : ''}`} onClick={() => openAddModal('oauth')}><Globe size={14} />{t('common.shared.addModal.oauth', 'OAuth Authorization')}</button>
               <button className={`modal-tab ${addTab === 'token' ? 'active' : ''}`} onClick={() => openAddModal('token')}><KeyRound size={14} />Token / JSON</button>
               <button className={`modal-tab ${addTab === 'import' ? 'active' : ''}`} onClick={() => openAddModal('import')}><Database size={14} />{t('common.shared.addModal.import', '本地导入')}</button>
             </div>
@@ -887,7 +887,7 @@ export function KiroAccountsPage() {
             <div className="modal-body">
               {addTab === 'oauth' && (
                 <div className="add-section">
-                  <p className="section-desc">{t('kiro.oauth.desc', '点击下方按钮，在浏览器中完成 Kiro 授权登录。')}</p>
+                  <p className="section-desc">{t('kiro.oauth.desc', '点击下方按钮，在浏览器中完成 Kiro OAuth 授权。')}</p>
 
                   {oauthPrepareError ? (
                     <div className="add-status error">

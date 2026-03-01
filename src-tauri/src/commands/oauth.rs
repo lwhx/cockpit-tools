@@ -2,6 +2,41 @@ use crate::models;
 use crate::modules;
 use tauri::AppHandle;
 
+async fn refresh_account_quota_after_login(account: models::Account) -> models::Account {
+    let mut refreshing_account = account;
+    let account_id = refreshing_account.id.clone();
+
+    match modules::fetch_quota_with_retry(&mut refreshing_account, true).await {
+        Ok(quota) => {
+            if let Err(e) = modules::update_account_quota(&account_id, quota) {
+                modules::logger::log_warn(&format!(
+                    "OAuth 登录后自动刷新配额写回失败: account_id={}, error={}",
+                    account_id, e
+                ));
+                return refreshing_account;
+            }
+
+            match modules::load_account(&account_id) {
+                Ok(updated) => updated,
+                Err(e) => {
+                    modules::logger::log_warn(&format!(
+                        "OAuth 登录后自动刷新配额后读取账号失败: account_id={}, error={}",
+                        account_id, e
+                    ));
+                    refreshing_account
+                }
+            }
+        }
+        Err(e) => {
+            modules::logger::log_warn(&format!(
+                "OAuth 登录后自动刷新配额失败: account_id={}, error={}",
+                account_id, e
+            ));
+            refreshing_account
+        }
+    }
+}
+
 #[tauri::command]
 pub async fn start_oauth_login(app_handle: AppHandle) -> Result<models::Account, String> {
     modules::logger::log_info("开始 OAuth 授权流程...");
@@ -59,6 +94,8 @@ pub async fn start_oauth_login(app_handle: AppHandle) -> Result<models::Account,
         modules::logger::log_error(&format!("保存账号失败: {}", e));
         e
     })?;
+
+    let account = refresh_account_quota_after_login(account).await;
 
     modules::logger::log_info(&format!("账号添加成功: {}", account.email));
 
@@ -125,6 +162,8 @@ pub async fn complete_oauth_login(app_handle: AppHandle) -> Result<models::Accou
         modules::logger::log_error(&format!("保存账号失败: {}", e));
         e
     })?;
+
+    let account = refresh_account_quota_after_login(account).await;
 
     modules::logger::log_info(&format!("账号添加成功: {}", account.email));
     modules::websocket::broadcast_data_changed("oauth_login");

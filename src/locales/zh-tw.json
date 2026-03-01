@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "本機匯入",
-        "oauth": "OAuth 登入",
+        "oauth": "OAuth 授權",
         "token": "JSON 匯入"
       },
       "overview": {
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "新增 Codex 帳號",
-      "oauth": "OAuth 登入",
+      "oauth": "OAuth 授權",
       "token": "JSON 匯入",
       "local": "本機匯入"
     },

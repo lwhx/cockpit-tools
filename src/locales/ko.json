@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "로컬 가져오기",
-        "oauth": "OAuth 로그인",
+        "oauth": "OAuth 인증",
         "token": "JSON 가져오기"
       },
       "overview": {
@@ -365,7 +365,7 @@
       "selectFingerprint": "지문 선택"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "OAuth 인증",
       "token": "리프레시 토큰",
       "import": "가져오기"
     },
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "Codex 계정 추가",
-      "oauth": "OAuth 로그인",
+      "oauth": "OAuth 인증",
       "token": "JSON 가져오기",
       "local": "로컬 가져오기"
     },

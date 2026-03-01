@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "استيراد محلي",
-        "oauth": "OAuth",
+        "oauth": "تفويض OAuth",
         "token": "الرمز المميز/JSON"
       },
       "overview": {
@@ -365,7 +365,7 @@
       "selectFingerprint": "اختيار البصمة"
     },
     "tabs": {
-      "oauth": "OAuth",
+      "oauth": "تفويض OAuth",
       "token": "رمز التحديث",
       "import": "استيراد"
     },
@@ -821,7 +821,7 @@
     },
     "addModal": {
       "title": "إضافة حساب Codex",
-      "oauth": "تسجيل OAuth",
+      "oauth": "تفويض OAuth",
       "token": "استيراد JSON",
       "local": "استيراد محلي"
     },

@@ -103,7 +103,7 @@
       },
       "addModal": {
         "import": "本地导入",
-        "oauth": "开放认证",
+        "oauth": "OAuth 授权",
         "token": "令牌/JSON"
       },
       "overview": {
@@ -741,7 +741,7 @@
     "addAccount": {
       "title": "添加账号",
       "desc": "通过 Google OAuth 授权添加您的 Antigravity 账号",
-      "loginBtn": "Google OAuth 登录",
+      "loginBtn": "Google OAuth 授权",
       "waiting": "等待授权..."
     },
     "import": {
@@ -1067,12 +1067,12 @@
     },
     "addModal": {
       "title": "添加 Codex 账号",
-      "oauth": "OAuth 登录",
+      "oauth": "OAuth 授权",
       "token": "JSON 导入",
       "local": "本地导入"
     },
     "oauth": {
-      "desc": "点击下方按钮，在浏览器中完成 OpenAI 账号授权",
+      "desc": "点击下方按钮，在浏览器中完成 OpenAI 账号 OAuth 授权。",
       "preparing": "正在准备授权链接...",
       "exchanging": "正在交换令牌...",
       "portInUse": "端口 {{port}} 已被占用，请关闭占用该端口的程序后重试。",
@@ -1157,7 +1157,7 @@
       "title": "添加 GitHub Copilot 账号"
     },
     "oauth": {
-      "desc": "点击下方按钮，在浏览器中完成 GitHub Copilot 授权登录。"
+      "desc": "点击下方按钮，在浏览器中完成 GitHub Copilot OAuth 授权。"
     },
     "token": {
       "desc": "粘贴您的 GitHub Copilot Access Token 或导出的 JSON 数据。"
@@ -1335,7 +1335,7 @@
       "password": "邮箱密码"
     },
     "oauth": {
-      "desc": "点击下方按钮，在浏览器中完成 Windsurf 授权登录。"
+      "desc": "点击下方按钮，在浏览器中完成 Windsurf OAuth 授权。"
     },
     "token": {
       "desc": "粘贴您的 Windsurf Access Token 或导出的 JSON 数据。"
@@ -1410,7 +1410,7 @@
     },
     "flowNotice": {
       "title": "Kiro 账号管理说明（点击展开/收起）",
-      "desc": "账号切换会在本机读写 Kiro 登录文件与实例配置；OAuth 登录与配额刷新会调用 Kiro 官方接口。",
+      "desc": "账号切换会在本机读写 Kiro 登录文件与实例配置；OAuth 授权与配额刷新会调用 Kiro 官方接口。",
       "reason": "处理路径包括 ~/.aws/sso/cache/kiro-auth-token.json、实例目录 profile.json，以及 state.vscdb 中 kiro.kiroAgent 条目。",
       "storage": "处理数据包括 Kiro 登录会话与配额信息；请求 Kiro 官方接口时会发送必要认证字段（如 code、refreshToken、accessToken、profileArn）。"
     },
@@ -1427,7 +1427,7 @@
       "title": "添加 Kiro 账号"
     },
     "oauth": {
-      "desc": "点击下方按钮，在浏览器中完成 Kiro 授权登录。"
+      "desc": "点击下方按钮，在浏览器中完成 Kiro OAuth 授权。"
     },
     "token": {
       "desc": "粘贴您的 Kiro Access Token 或导出的 JSON 数据。"
