@@ -7,6 +7,29 @@
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)。
 
 ---
+## [0.9.8] - 2026-03-01
+
+### 变更
+- **四平台账号页（Codex/GitHub Copilot/Windsurf/Kiro）重构为共享 Provider Hook**：引入 `useProviderAccountsPage` 与通用数据抽取工具，统一共享状态/动作并减少页面重复实现。
+- **账号导出交互统一**：新增 `ExportJsonModal` + `useExportJsonModal`，统一批量导出与单账号导出流程，并补充导出弹窗“打开下载目录”能力所需权限。
+- **OAuth 文案与标签在多语言下统一为“OAuth 授权”语义**：账号添加页的 OAuth 标签和说明文案统一收口。
+- **OAuth 登录后增加“尽力刷新”链路**：新增授权完成后的配额/令牌刷新流程（Antigravity 配额、GitHub Copilot/Windsurf/Kiro 令牌快照），降低授权后页面短时旧数据概率。
+- **路径缺失引导支持重试上下文**：`app-path-missing` 事件支持 `switchAccount` / `default` / `instance` 重试意图，保存路径后可继续原始动作。
+- **唤醒链路改为严格无回退模式**：执行唤醒必须提供 `project_id`；模型拉取失败/为空不再回退硬编码模型；调度不再在时间窗外使用 `fallback_times` 补跑。
+- **“打开实例窗口”语义收紧**：窗口聚焦失败时直接返回错误，不再自动拉起新进程。
+- **账号身份匹配进一步收紧**：Antigravity/Codex 账号匹配移除“仅 email 合并”回退；Codex -> OpenCode 写入不再从 token 临时推导 `account_id`。
+- **Windsurf/Kiro 的 token/刷新策略收紧**：Windsurf token 导入仅接受 API Key 或 Firebase JWT；Kiro 刷新失败或缺少 `refresh_token` 时直接报错，不再回退旧快照。
+- **命令追踪链路补齐并改为按需开启**：补充命令 EXEC/RESULT/SPAWN 跟踪点，默认关闭，仅在 `COCKPIT_COMMAND_TRACE=1` 时开启。
+- **Quick Settings 配额预警控件抽取复用**：将重复的配额预警开关/阈值 UI 收敛到共享渲染逻辑。
+
+### 修复
+- **启动路径校验前置到切换/启动执行前**：路径缺失或无效时先返回 `APP_PATH_NOT_FOUND:*`，避免先执行关闭/注入/重启再失败。
+- **Windows 聚焦流程修复 `$PID` 只读变量问题**：聚焦脚本改为独立 PID 变量并加入 `MainWindowHandle` 轮询等待，降低窗口句柄尚未就绪导致的失败。
+- **Windows 路径匹配稳定性增强**：补齐 `\\?\` / `\\?\UNC\` 扩展前缀归一、环境变量展开、命令行可执行路径提取兜底，以及 sysinfo 回退诊断日志。
+- **路径缺失引导弹窗样式与设置弹窗统一**：复用 quick settings/settings 共享样式，统一标题区、路径区、图标与字体布局表现。
+- **修复后端集成链路中的 Rust warnings**：清理 token model 与 wakeup gateway 预留代码路径中的告警点，保持该分支编译告警收敛。
+
+---
 ## [0.9.7] - 2026-02-28
 
 ### 修复

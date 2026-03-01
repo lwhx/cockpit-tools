@@ -7,6 +7,29 @@ All notable changes to Cockpit Tools will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
+## [0.9.8] - 2026-03-01
+
+### Changed
+- **Refactored AccountsPages across 4 platforms (Codex/GitHub Copilot/Windsurf/Kiro)**: Introduced `useProviderAccountsPage` plus shared data extraction utilities to consolidate shared state/actions and reduce duplicated page logic.
+- **Unified export UX across account pages**: Added `ExportJsonModal` + `useExportJsonModal`, aligned multi-account/single-account export flows, and added download-directory open capability permissions for the export modal flow.
+- **Standardized OAuth copy and tab naming across locales**: Updated add-account OAuth labels/description copy to consistently use “OAuth Authorization”.
+- **OAuth post-login now performs best-effort refresh**: Added post-login refresh passes for Antigravity quota and GitHub Copilot/Windsurf/Kiro token snapshots to reduce stale data right after authorization.
+- **Path-missing guidance now carries retry context**: App-path guidance payload now supports `switchAccount` / `default` / `instance` retry intents so path save can continue the original user action.
+- **Wakeup behavior switched to strict no-fallback mode**: Wakeup execution now requires explicit `project_id`; model fetch no longer falls back to hardcoded lists; scheduler no longer uses `fallback_times` outside the time window.
+- **Instance window operation semantics tightened**: “Open instance window” now reports focus failures directly instead of auto-starting new processes.
+- **Account identity matching is stricter**: Removed email-only merge fallback in Antigravity/Codex account matching paths; Codex-to-OpenCode auth payload now uses persisted `account_id` only.
+- **Token parsing/refresh rules tightened for Windsurf/Kiro**: Windsurf token import accepts only API key or Firebase JWT formats; Kiro refresh now fails explicitly when refresh cannot be performed (no snapshot fallback).
+- **Command trace pipeline added and made opt-in**: Added trace points for command EXEC/RESULT/SPAWN paths and kept it disabled by default unless `COCKPIT_COMMAND_TRACE=1`.
+- **Quick settings quota-alert controls were componentized**: Extracted duplicated quota-alert UI logic into a shared rendering path in quick settings.
+
+### Fixed
+- **Launch-path validation now runs before switch/start execution**: When path is missing/invalid, backend returns `APP_PATH_NOT_FOUND:*` before stop/inject/restart actions.
+- **Windows focus flow no longer hits `$PID` overwrite errors**: Focus scripts switched to a dedicated PID variable and retry loop for non-zero `MainWindowHandle` before calling focus APIs.
+- **Windows executable-path matching reliability improved**: Added normalization for extended path prefixes (`\\?\`, `\\?\UNC\`), environment expansion, command-line exe extraction fallback, and sysinfo fallback diagnostics for path probe misses.
+- **Path-missing guidance modal now matches settings visual style**: Reused quick-settings/settings shared styles for consistent title/path section/icon/typography/layout behavior.
+- **Fixed Rust warnings in backend integration paths**: Cleaned warning points in token model and wakeup gateway reserved code paths so refactor branch warnings stay controlled.
+
+---
 ## [0.9.7] - 2026-02-28
 
 ### Fixed
