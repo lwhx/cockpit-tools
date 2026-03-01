@@ -1,3 +1,7 @@
+// NOTE: 本模块中部分函数（trigger_wakeup_via_official_language_server 及其辅助函数/结构体）
+// 为预留功能代码，暂未在外部调用。待该功能启用后可移除此 allow。
+#![allow(dead_code)]
+
 use base64::{engine::general_purpose, Engine as _};
 use chrono::{DateTime, Utc};
 use rcgen::generate_simple_self_signed;

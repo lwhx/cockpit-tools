@@ -1,3 +1,16 @@
+import {
+  isRecord,
+  getPathValue,
+  toNumber,
+  toStringValue as _toStringValue,
+  firstNumber,
+  firstTimestamp,
+  normalizeTimestamp,
+  clampPercent,
+  safeLeft,
+  sumDefined,
+} from '../utils/dataExtract';
+
 /** Kiro 账号数据（后端原样返回 + 前端兼容字段） */
 export interface KiroAccount {
   id: string;
@@ -80,40 +93,9 @@ export type KiroCreditsSummary = {
   bonusExpireDays: number | null;
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value);
-}
-
-function getPathValue(root: unknown, path: string[]): unknown {
-  let current = root;
-  for (const key of path) {
-    if (Array.isArray(current)) {
-      const index = Number(key);
-      if (!Number.isInteger(index) || index < 0 || index >= current.length) return null;
-      current = current[index];
-      continue;
-    }
-    if (!isRecord(current)) return null;
-    current = current[key];
-  }
-  return current;
-}
-
-function toNumber(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string') {
-    const n = Number(value.trim());
-    return Number.isFinite(n) ? n : null;
-  }
-  return null;
-}
-
-function toStringValue(value: unknown): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  return isPlaceholderIdentity(trimmed) ? null : trimmed;
-}
+/* ------------------------------------------------------------------ */
+/*  Kiro 特有的工具函数                                                 */
+/* ------------------------------------------------------------------ */
 
 function isLikelyEmail(value: string | null | undefined): boolean {
   if (!value) return false;
@@ -136,67 +118,24 @@ function isPlaceholderIdentity(value: string | null | undefined): boolean {
   );
 }
 
-function firstNumber(root: unknown, paths: string[][]): number | null {
-  for (const path of paths) {
-    const value = toNumber(getPathValue(root, path));
-    if (value != null) return value;
-  }
-  return null;
+/**
+ * Kiro 版 toStringValue：在通用版基础上增加 placeholder 检查。
+ * 用于从 raw 数据中提取有效字符串时过滤占位符。
+ */
+function toStringValue(value: unknown): string | null {
+  const str = _toStringValue(value);
+  return str && !isPlaceholderIdentity(str) ? str : null;
 }
 
+/**
+ * Kiro 版 firstString：使用 Kiro 的 toStringValue（带 placeholder 过滤）。
+ */
 function firstString(root: unknown, paths: string[][]): string | null {
   for (const path of paths) {
     const value = toStringValue(getPathValue(root, path));
     if (value) return value;
   }
   return null;
-}
-
-function normalizeTimestamp(value: unknown): number | null {
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    if (!trimmed) return null;
-
-    const asNumber = Number(trimmed);
-    if (Number.isFinite(asNumber)) {
-      if (asNumber <= 0) return null;
-      if (asNumber > 1e12) return Math.floor(asNumber / 1000);
-      return Math.floor(asNumber);
-    }
-
-    const parsed = Date.parse(trimmed);
-    if (Number.isFinite(parsed) && parsed > 0) {
-      return Math.floor(parsed / 1000);
-    }
-    return null;
-  }
-
-  const n = toNumber(value);
-  if (n == null) return null;
-  if (n <= 0) return null;
-  if (n > 1e12) return Math.floor(n / 1000);
-  return Math.floor(n);
-}
-
-function firstTimestamp(root: unknown, paths: string[][]): number | null {
-  for (const path of paths) {
-    const ts = normalizeTimestamp(getPathValue(root, path));
-    if (ts != null) return ts;
-  }
-  return null;
-}
-
-function clampPercent(value: number | null): number | null {
-  if (value == null || !Number.isFinite(value)) return null;
-  if (value < 0) return 0;
-  if (value > 100) return 100;
-  return Math.round(value);
-}
-
-function safeLeft(total: number | null, used: number | null): number | null {
-  if (total == null) return null;
-  if (used == null) return total;
-  return Math.max(0, total - used);
 }
 
 function resolveRawEmail(account: KiroAccount): string | null {
@@ -378,11 +317,7 @@ function getBonusDaysRemaining(raw: unknown): number | null {
   return Math.ceil((expiryTs - now) / 86_400);
 }
 
-function sumDefined(values: Array<number | null | undefined>): number | null {
-  const nums = values.filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
-  if (!nums.length) return null;
-  return nums.reduce((acc, item) => acc + item, 0);
-}
+
 
 type ParsedBonusUsage = {
   total: number | null;

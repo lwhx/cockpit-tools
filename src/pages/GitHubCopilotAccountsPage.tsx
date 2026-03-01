@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback, Fragment } from 'react';
+import { useState, useMemo, useCallback, Fragment } from 'react';
 import {
   Plus,
   RefreshCw,
@@ -25,23 +25,16 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { useGitHubCopilotAccountStore } from '../stores/useGitHubCopilotAccountStore';
 import * as githubCopilotService from '../services/githubCopilotService';
 import { TagEditModal } from '../components/TagEditModal';
 import { buildGitHubCopilotAccountPresentation } from '../presentation/platformAccountPresentation';
 
-import { save } from '@tauri-apps/plugin-dialog';
-import { openUrl } from '@tauri-apps/plugin-opener';
-import { invoke } from '@tauri-apps/api/core';
 import { GitHubCopilotOverviewTabsHeader, GitHubCopilotTab } from '../components/GitHubCopilotOverviewTabsHeader';
 import { GitHubCopilotInstancesContent } from './GitHubCopilotInstancesPage';
 import { QuickSettingsPopover } from '../components/QuickSettingsPopover';
-import {
-  isPrivacyModeEnabledByDefault,
-  maskSensitiveValue,
-  persistPrivacyModeEnabled,
-} from '../utils/privacy';
+import { useProviderAccountsPage } from '../hooks/useProviderAccountsPage';
+import type { GitHubCopilotAccount } from '../types/githubCopilot';
 
 const GHCP_FLOW_NOTICE_COLLAPSED_KEY = 'agtools.github_copilot.flow_notice_collapsed';
 const GHCP_CURRENT_ACCOUNT_ID_KEY = 'agtools.github_copilot.current_account_id';
@@ -59,571 +52,71 @@ const GHCP_TOKEN_BATCH_EXAMPLE = `[
 ]`;
 
 export function GitHubCopilotAccountsPage() {
-  const { t, i18n } = useTranslation();
-  const locale = i18n.language || 'zh-CN';
-  const untaggedKey = '__untagged__';
   const [activeTab, setActiveTab] = useState<GitHubCopilotTab>('overview');
+  const untaggedKey = '__untagged__';
+
+  const store = useGitHubCopilotAccountStore();
+
+  const page = useProviderAccountsPage<GitHubCopilotAccount>({
+    platformKey: 'GitHubCopilot',
+    oauthLogPrefix: 'GitHubCopilotOAuth',
+    flowNoticeCollapsedKey: GHCP_FLOW_NOTICE_COLLAPSED_KEY,
+    currentAccountIdKey: GHCP_CURRENT_ACCOUNT_ID_KEY,
+    exportFilePrefix: 'github_copilot_accounts',
+    store: {
+      accounts: store.accounts,
+      loading: store.loading,
+      fetchAccounts: store.fetchAccounts,
+      deleteAccounts: store.deleteAccounts,
+      refreshToken: store.refreshToken,
+      refreshAllTokens: store.refreshAllTokens,
+      updateAccountTags: store.updateAccountTags,
+    },
+    oauthService: {
+      startLogin: githubCopilotService.startGitHubCopilotOAuthLogin,
+      completeLogin: githubCopilotService.completeGitHubCopilotOAuthLogin,
+      cancelLogin: githubCopilotService.cancelGitHubCopilotOAuthLogin,
+    },
+    dataService: {
+      importFromJson: githubCopilotService.importGitHubCopilotFromJson,
+      addWithToken: githubCopilotService.addGitHubCopilotAccountWithToken,
+      exportAccounts: githubCopilotService.exportGitHubCopilotAccounts,
+      injectToVSCode: githubCopilotService.injectGitHubCopilotToVSCode,
+    },
+    getDisplayEmail: (account) =>
+      account.email ?? account.github_email ?? account.github_login ?? account.id,
+  });
 
   const {
-    accounts,
-    loading,
-    fetchAccounts,
-    deleteAccounts,
-    refreshToken,
-    refreshAllTokens,
-    updateAccountTags,
-  } = useGitHubCopilotAccountStore();
+    t, privacyModeEnabled, togglePrivacyMode, maskAccountText,
+    viewMode, setViewMode, searchQuery, setSearchQuery, filterType, setFilterType,
+    sortBy, setSortBy, sortDirection, setSortDirection,
+    selected, toggleSelect, toggleSelectAll,
+    tagFilter, groupByTag, setGroupByTag, showTagFilter, setShowTagFilter,
+    showTagModal, setShowTagModal, tagFilterRef, availableTags,
+    toggleTagFilterValue, clearTagFilter, tagDeleteConfirm, setTagDeleteConfirm,
+    deletingTag, requestDeleteTag, confirmDeleteTag, openTagModal, handleSaveTags,
+    refreshing, refreshingAll, injecting,
+    handleRefresh, handleRefreshAll, handleDelete, handleBatchDelete,
+    deleteConfirm, setDeleteConfirm, deleting, confirmDelete,
+    message, setMessage,
+    exporting, handleExport,
+    showAddModal, addTab, addStatus, addMessage, tokenInput, setTokenInput,
+    importing, openAddModal, closeAddModal,
+    handleTokenImport, handleImportJsonFile, handlePickImportFile, importFileInputRef,
+    oauthUrl, oauthUrlCopied, oauthUserCode, oauthUserCodeCopied, oauthMeta,
+    oauthPrepareError, oauthCompleteError, oauthPolling, oauthTimedOut,
+    handleCopyOauthUrl, handleCopyOauthUserCode, handleRetryOauth, handleOpenOauthUrl,
+    handleInjectToVSCode,
+    isFlowNoticeCollapsed, setIsFlowNoticeCollapsed,
+    currentAccountId,
+    formatDate,
+  } = page;
 
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [addTab, setAddTab] = useState<'oauth' | 'token' | 'import'>('oauth');
-  const [refreshing, setRefreshing] = useState<string | null>(null);
-  const [refreshingAll, setRefreshingAll] = useState(false);
-  const [injecting, setInjecting] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [privacyModeEnabled, setPrivacyModeEnabled] = useState<boolean>(() =>
-    isPrivacyModeEnabledByDefault()
-  );
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'FREE' | 'PRO' | 'BUSINESS' | 'ENTERPRISE'>('all');
-  const [tagFilter, setTagFilter] = useState<string[]>([]);
-  const [groupByTag, setGroupByTag] = useState(false);
-  const [showTagFilter, setShowTagFilter] = useState(false);
-  const [showTagModal, setShowTagModal] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'weekly' | 'hourly' | 'premium' | 'created_at' | 'weekly_reset' | 'hourly_reset'>('created_at');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [exporting, setExporting] = useState(false);
-  const [addMessage, setAddMessage] = useState<string | null>(null);
-  const [addStatus, setAddStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [oauthUrl, setOauthUrl] = useState<string | null>(null);
-  const [oauthUrlCopied, setOauthUrlCopied] = useState(false);
-  const [oauthUserCode, setOauthUserCode] = useState<string | null>(null);
-  const [oauthUserCodeCopied, setOauthUserCodeCopied] = useState(false);
-  const [oauthMeta, setOauthMeta] = useState<{ expiresIn: number; intervalSeconds: number } | null>(null);
-  const [oauthPrepareError, setOauthPrepareError] = useState<string | null>(null);
-  const [oauthCompleteError, setOauthCompleteError] = useState<string | null>(null);
-  const [oauthPolling, setOauthPolling] = useState(false);
-  const [oauthTimedOut, setOauthTimedOut] = useState(false);
-  const [tokenInput, setTokenInput] = useState('');
-  const [importing, setImporting] = useState(false);
-  const [message, setMessage] = useState<{ text: string; tone?: 'error' } | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ ids: string[]; message: string } | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [tagDeleteConfirm, setTagDeleteConfirm] = useState<{ tag: string; count: number } | null>(null);
-  const [deletingTag, setDeletingTag] = useState(false);
-  const [isFlowNoticeCollapsed, setIsFlowNoticeCollapsed] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(GHCP_FLOW_NOTICE_COLLAPSED_KEY) === '1';
-    } catch {
-      return false;
-    }
-  });
-  const [currentAccountId, setCurrentAccountId] = useState<string | null>(() => {
-    try {
-      const value = localStorage.getItem(GHCP_CURRENT_ACCOUNT_ID_KEY);
-      return value && value.trim() ? value : null;
-    } catch {
-      return null;
-    }
-  });
+  const accounts = store.accounts;
+  const loading = store.loading;
 
-  const showAddModalRef = useRef(showAddModal);
-  const addTabRef = useRef(addTab);
-  const addStatusRef = useRef(addStatus);
-  const oauthActiveRef = useRef(false);
-  const oauthLoginIdRef = useRef<string | null>(null);
-  const oauthCompletingRef = useRef(false);
-  const tagFilterRef = useRef<HTMLDivElement | null>(null);
-  const importFileInputRef = useRef<HTMLInputElement | null>(null);
-  const oauthLog = useCallback((...args: unknown[]) => {
-    console.info('[GitHubCopilotOAuth]', ...args);
-  }, []);
-  const togglePrivacyMode = useCallback(() => {
-    setPrivacyModeEnabled((prev) => {
-      const next = !prev;
-      persistPrivacyModeEnabled(next);
-      return next;
-    });
-  }, []);
-  const maskAccountText = useCallback(
-    (value?: string | null) => maskSensitiveValue(value, privacyModeEnabled),
-    [privacyModeEnabled]
-  );
-
-  useEffect(() => {
-    showAddModalRef.current = showAddModal;
-    addTabRef.current = addTab;
-    addStatusRef.current = addStatus;
-  }, [showAddModal, addTab, addStatus]);
-
-  useEffect(() => {
-    if (!showTagFilter) return;
-    const handleClick = (event: MouseEvent) => {
-      if (!tagFilterRef.current) return;
-      if (!tagFilterRef.current.contains(event.target as Node)) {
-        setShowTagFilter(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [showTagFilter]);
-
-  useEffect(() => {
-    fetchAccounts();
-  }, [fetchAccounts]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(GHCP_FLOW_NOTICE_COLLAPSED_KEY, isFlowNoticeCollapsed ? '1' : '0');
-    } catch {
-      // ignore persistence failures
-    }
-  }, [isFlowNoticeCollapsed]);
-
-  useEffect(() => {
-    if (!currentAccountId) return;
-    const exists = accounts.some((account) => account.id === currentAccountId);
-    if (!exists) {
-      setCurrentAccountId(null);
-    }
-  }, [accounts, currentAccountId]);
-
-  useEffect(() => {
-    try {
-      if (currentAccountId) {
-        localStorage.setItem(GHCP_CURRENT_ACCOUNT_ID_KEY, currentAccountId);
-      } else {
-        localStorage.removeItem(GHCP_CURRENT_ACCOUNT_ID_KEY);
-      }
-    } catch {
-      // ignore persistence failures
-    }
-  }, [currentAccountId]);
-
-  const handleOauthPrepareError = useCallback((e: unknown) => {
-    const msg = String(e).replace(/^Error:\s*/, '');
-    console.error('[GitHubCopilotOAuth] 准备授权信息失败', { error: msg });
-    oauthActiveRef.current = false;
-    oauthCompletingRef.current = false;
-    setOauthPolling(false);
-    setOauthPrepareError(t('common.shared.oauth.failed', '授权失败') + ': ' + msg);
-  }, [t]);
-
-  const completeOauthSuccess = useCallback(async () => {
-    oauthLog('授权完成并保存成功', {
-      loginId: oauthLoginIdRef.current,
-    });
-    await fetchAccounts();
-    setAddStatus('success');
-    setAddMessage(t('common.shared.oauth.success', '授权成功'));
-    setTimeout(() => {
-      setShowAddModal(false);
-      resetAddModalState();
-    }, 1200);
-  }, [fetchAccounts, t, oauthLog]);
-
-  const handleOauthCompleteError = useCallback((e: unknown) => {
-    const msg = String(e).replace(/^Error:\s*/, '');
-    setOauthCompleteError(msg);
-    setOauthTimedOut(/超时|过期|expired|timeout/i.test(msg));
-    setOauthPolling(false);
-    oauthCompletingRef.current = false;
-    oauthActiveRef.current = false;
-    oauthLog('Device Flow 授权失败', { loginId: oauthLoginIdRef.current, error: msg });
-  }, [oauthLog]);
-
-  const prepareOauthUrl = useCallback(() => {
-    if (!showAddModalRef.current || addTabRef.current !== 'oauth') return;
-    if (oauthActiveRef.current) return;
-    if (oauthCompletingRef.current) return;
-    oauthActiveRef.current = true;
-    setOauthPrepareError(null);
-    setOauthCompleteError(null);
-    setOauthTimedOut(false);
-    setOauthPolling(false);
-    setOauthUrlCopied(false);
-    setOauthUserCodeCopied(false);
-    setOauthMeta(null);
-    setOauthUserCode(null);
-    oauthLog('开始准备 GitHub Device Flow 授权信息');
-
-    let started = false;
-
-    githubCopilotService
-      .startGitHubCopilotOAuthLogin()
-      .then((resp) => {
-        started = true;
-        oauthLoginIdRef.current = resp.loginId ?? null;
-
-        const url = resp.verificationUriComplete || resp.verificationUri;
-        setOauthUrl(url);
-        setOauthUserCode(resp.userCode);
-        setOauthMeta({ expiresIn: resp.expiresIn, intervalSeconds: resp.intervalSeconds });
-
-        oauthLog('授权信息已就绪并展示在弹框', {
-          loginId: resp.loginId,
-          url,
-          expiresIn: resp.expiresIn,
-          intervalSeconds: resp.intervalSeconds,
-        });
-
-        // 后台开始轮询 GitHub 授权结果
-        setOauthPolling(true);
-        oauthCompletingRef.current = true;
-        oauthActiveRef.current = false;
-        return githubCopilotService.completeGitHubCopilotOAuthLogin(resp.loginId);
-      })
-      .then(async () => {
-        setOauthPolling(false);
-        oauthCompletingRef.current = false;
-        await completeOauthSuccess();
-      })
-      .catch((e) => {
-        if (!started) {
-          handleOauthPrepareError(e);
-          return;
-        }
-        handleOauthCompleteError(e);
-      })
-      .finally(() => {
-        oauthActiveRef.current = false;
-      });
-  }, [completeOauthSuccess, handleOauthCompleteError, handleOauthPrepareError, oauthLog]);
-
-  useEffect(() => {
-    if (!showAddModal || addTab !== 'oauth' || oauthUrl) return;
-    prepareOauthUrl();
-  }, [showAddModal, addTab, oauthUrl, prepareOauthUrl]);
-
-  useEffect(() => {
-    if (showAddModal && addTab === 'oauth') return;
-    const loginId = oauthLoginIdRef.current ?? undefined;
-    if (!loginId) return;
-    oauthLog('弹框关闭或切换标签，准备取消授权流程', { loginId });
-    githubCopilotService.cancelGitHubCopilotOAuthLogin(loginId).catch(() => {});
-    oauthActiveRef.current = false;
-    oauthLoginIdRef.current = null;
-    oauthCompletingRef.current = false;
-    setOauthUrl(null);
-    setOauthUrlCopied(false);
-    setOauthUserCode(null);
-    setOauthUserCodeCopied(false);
-    setOauthMeta(null);
-    setOauthPrepareError(null);
-    setOauthCompleteError(null);
-    setOauthTimedOut(false);
-    setOauthPolling(false);
-  }, [showAddModal, addTab, oauthLog]);
-
-  const handleRefresh = async (accountId: string) => {
-    setRefreshing(accountId);
-    try {
-      await refreshToken(accountId);
-    } catch (e) {
-      console.error(e);
-    }
-    setRefreshing(null);
-  };
-
-  const handleRefreshAll = async () => {
-    setRefreshingAll(true);
-    try {
-      await refreshAllTokens();
-    } catch (e) {
-      console.error(e);
-    }
-    setRefreshingAll(false);
-  };
-
-  const handleDelete = (accountId: string) => {
-    setDeleteConfirm({
-      ids: [accountId],
-      message: t('messages.deleteConfirm', '确定要删除此账号吗？'),
-    });
-  };
-
-  const handleInjectToVSCode = async (accountId: string) => {
-    setMessage(null);
-    setInjecting(accountId);
-    const account = accounts.find((item) => item.id === accountId);
-    const displayEmail = account?.email ?? account?.github_email ?? account?.github_login ?? accountId;
-    try {
-      await githubCopilotService.injectGitHubCopilotToVSCode(accountId);
-      setCurrentAccountId(accountId);
-      setMessage({ text: t('messages.switched', { email: maskAccountText(displayEmail) }) });
-    } catch (e: any) {
-      setMessage({
-        text: t('messages.switchFailed', { error: e?.toString() || t('common.failed', 'Failed') }),
-        tone: 'error',
-      });
-    }
-    setInjecting(null);
-  };
-
-  const handleBatchDelete = () => {
-    if (selected.size === 0) return;
-    setDeleteConfirm({
-      ids: Array.from(selected),
-      message: t('messages.batchDeleteConfirm', { count: selected.size }),
-    });
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteConfirm || deleting) return;
-    setDeleting(true);
-    try {
-      await deleteAccounts(deleteConfirm.ids);
-      setSelected((prev) => {
-        const next = new Set(prev);
-        deleteConfirm.ids.forEach((id) => next.delete(id));
-        return next;
-      });
-      setDeleteConfirm(null);
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const resetAddModalState = () => {
-    setAddStatus('idle');
-    setAddMessage('');
-    setTokenInput('');
-    setOauthUrl(null);
-    setOauthUrlCopied(false);
-    setOauthUserCode(null);
-    setOauthUserCodeCopied(false);
-    setOauthMeta(null);
-    setOauthPrepareError(null);
-    setOauthCompleteError(null);
-    setOauthTimedOut(false);
-    setOauthPolling(false);
-    oauthActiveRef.current = false;
-  };
-
-  const openAddModal = (tab: 'oauth' | 'token' | 'import') => {
-    setAddTab(tab);
-    setShowAddModal(true);
-    resetAddModalState();
-  };
-
-  const closeAddModal = () => {
-    setShowAddModal(false);
-    resetAddModalState();
-  };
-
-  const handlePickImportFile = () => {
-    importFileInputRef.current?.click();
-  };
-
-  const handleImportJsonFile = async (file: File) => {
-    setImporting(true);
-    setAddStatus('loading');
-    setAddMessage(t('common.shared.import.importing', '正在导入...'));
-
-    try {
-      const content = await file.text();
-      const imported = await githubCopilotService.importGitHubCopilotFromJson(content);
-      await fetchAccounts();
-
-      setAddStatus('success');
-      setAddMessage(
-        t('common.shared.token.importSuccessMsg', {
-          count: imported.length,
-          defaultValue: '成功导入 {{count}} 个账号',
-        })
-      );
-      setTimeout(() => {
-        setShowAddModal(false);
-        resetAddModalState();
-      }, 1200);
-    } catch (e) {
-      setAddStatus('error');
-      const errorMsg = String(e).replace(/^Error:\s*/, '');
-      setAddMessage(
-        t('common.shared.import.failedMsg', {
-          error: errorMsg,
-          defaultValue: '导入失败: {{error}}',
-        })
-      );
-    }
-
-    setImporting(false);
-  };
-
-  const handleTokenImport = async () => {
-    const trimmed = tokenInput.trim();
-    if (!trimmed) {
-      setAddStatus('error');
-      setAddMessage(t('common.shared.token.empty', '请输入 Token 或 JSON'));
-      return;
-    }
-
-    setImporting(true);
-    setAddStatus('loading');
-    setAddMessage(t('common.shared.token.importing', '正在导入...'));
-
-    try {
-      let importedCount = 0;
-      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-        const accounts = await githubCopilotService.importGitHubCopilotFromJson(trimmed);
-        importedCount = accounts.length;
-      } else {
-        await githubCopilotService.addGitHubCopilotAccountWithToken(trimmed);
-        importedCount = 1;
-      }
-      await fetchAccounts();
-      setAddStatus('success');
-      setAddMessage(
-        t('common.shared.token.importSuccessMsg', {
-          count: importedCount,
-          defaultValue: '成功导入 {{count}} 个账号',
-        })
-      );
-      setTimeout(() => {
-        setShowAddModal(false);
-        resetAddModalState();
-      }, 1200);
-    } catch (e) {
-      setAddStatus('error');
-      const errorMsg = String(e).replace(/^Error:\s*/, '');
-      setAddMessage(
-        t('common.shared.token.importFailedMsg', {
-          error: errorMsg,
-          defaultValue: '导入失败: {{error}}',
-        })
-      );
-    }
-    setImporting(false);
-  };
-
-  const handleCopyOauthUrl = async () => {
-    if (!oauthUrl) return;
-    try {
-      await navigator.clipboard.writeText(oauthUrl);
-      oauthLog('已复制授权链接', {
-        loginId: oauthLoginIdRef.current,
-        authUrl: oauthUrl,
-      });
-      setOauthUrlCopied(true);
-      window.setTimeout(() => setOauthUrlCopied(false), 1200);
-    } catch (e) {
-      console.error('复制失败:', e);
-    }
-  };
-
-  const handleCopyOauthUserCode = async () => {
-    if (!oauthUserCode) return;
-    try {
-      await navigator.clipboard.writeText(oauthUserCode);
-      oauthLog('已复制 user_code', { loginId: oauthLoginIdRef.current });
-      setOauthUserCodeCopied(true);
-      window.setTimeout(() => setOauthUserCodeCopied(false), 1200);
-    } catch (e) {
-      console.error('复制失败:', e);
-    }
-  };
-
-  const handleRetryOauth = () => {
-    oauthLog('用户点击刷新授权信息', {
-      loginId: oauthLoginIdRef.current,
-      error: oauthCompleteError,
-      timedOut: oauthTimedOut,
-    });
-    oauthActiveRef.current = false;
-    oauthLoginIdRef.current = null;
-    oauthCompletingRef.current = false;
-    setOauthPrepareError(null);
-    setOauthCompleteError(null);
-    setOauthTimedOut(false);
-    setOauthPolling(false);
-    setOauthMeta(null);
-    setOauthUrl(null);
-    setOauthUrlCopied(false);
-    setOauthUserCode(null);
-    setOauthUserCodeCopied(false);
-    prepareOauthUrl();
-  };
-
-  const handleOpenOauthUrl = async () => {
-    if (!oauthUrl) return;
-    oauthLog('用户点击在浏览器打开授权链接', {
-      loginId: oauthLoginIdRef.current,
-      authUrl: oauthUrl,
-    });
-    try {
-      await openUrl(oauthUrl);
-    } catch (e) {
-      console.error('打开浏览器失败:', e);
-      await navigator.clipboard.writeText(oauthUrl).catch(() => {});
-      setOauthUrlCopied(true);
-      setTimeout(() => setOauthUrlCopied(false), 1200);
-    }
-  };
-
-  const resolveDefaultExportPath = async (fileName: string) => {
-    const userAgent = navigator.userAgent.toLowerCase();
-    if (!userAgent.includes('mac')) return fileName;
-    try {
-      const dir = await invoke<string>('get_downloads_dir');
-      if (!dir) return fileName;
-      const normalized = dir.endsWith('/') ? dir.slice(0, -1) : dir;
-      return `${normalized}/${fileName}`;
-    } catch (e) {
-      console.error('获取下载目录失败:', e);
-      return fileName;
-    }
-  };
-
-  const saveJsonFile = async (json: string, defaultFileName: string) => {
-    const defaultPath = await resolveDefaultExportPath(defaultFileName);
-    const filePath = await save({
-      defaultPath,
-      filters: [{ name: 'JSON', extensions: ['json'] }],
-    });
-    if (!filePath) return null;
-    await invoke('save_text_file', { path: filePath, content: json });
-    return filePath;
-  };
-
-  const handleExport = async () => {
-    setExporting(true);
-    try {
-      const ids = selected.size > 0 ? Array.from(selected) : accounts.map((a) => a.id);
-      const json = await githubCopilotService.exportGitHubCopilotAccounts(ids);
-      const defaultName = `github_copilot_accounts_${new Date().toISOString().slice(0, 10)}.json`;
-      const savedPath = await saveJsonFile(json, defaultName);
-      if (savedPath) {
-        setMessage({ text: `${t('common.success')}: ${savedPath}` });
-      }
-    } catch (e) {
-      setMessage({ text: t('messages.exportFailed', { error: String(e) }), tone: 'error' });
-    }
-    setExporting(false);
-  };
-
-  const formatDate = (timestamp: number) => {
-    const d = new Date(timestamp * 1000);
-    return (
-      d.toLocaleDateString(locale, { year: 'numeric', month: '2-digit', day: '2-digit' }) +
-      ' ' +
-      d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-    );
-  };
-
-  const toggleSelect = (id: string) => {
-    const next = new Set(selected);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setSelected(next);
-  };
-
-  const toggleSelectAll = () => {
-    const allIds = filteredAccounts.map((account) => account.id);
-    const allSelected = selected.size === allIds.length && allIds.length > 0;
-    setSelected(allSelected ? new Set() : new Set(allIds));
-  };
-
-  const normalizeTag = (tag: string) => tag.trim().toLowerCase();
+  // ─── Platform-specific: Presentation & filtering ────────────────────
 
   const accountPresentations = useMemo(() => {
     const map = new Map<string, ReturnType<typeof buildGitHubCopilotAccountPresentation>>();
@@ -634,19 +127,19 @@ export function GitHubCopilotAccountsPage() {
   }, [accounts, t]);
 
   const resolvePresentation = useCallback(
-    (account: (typeof accounts)[number]) =>
+    (account: GitHubCopilotAccount) =>
       accountPresentations.get(account.id) ??
       buildGitHubCopilotAccountPresentation(account, t),
     [accountPresentations, t],
   );
 
   const resolvePlanKey = useCallback(
-    (account: (typeof accounts)[number]) => resolvePresentation(account).planClass.toUpperCase(),
+    (account: GitHubCopilotAccount) => resolvePresentation(account).planClass.toUpperCase(),
     [resolvePresentation],
   );
 
   const resolveUsageMetric = useCallback(
-    (account: (typeof accounts)[number], metric: 'hourly' | 'weekly' | 'premium') => {
+    (account: GitHubCopilotAccount, metric: 'hourly' | 'weekly' | 'premium') => {
       const quotaItems = resolvePresentation(account).quotaItems;
       const targetKey = metric === 'hourly' ? 'inline' : metric === 'weekly' ? 'chat' : 'premium';
       return quotaItems.find((item) => item.key === targetKey) ?? null;
@@ -667,17 +160,6 @@ export function GitHubCopilotAccountsPage() {
     return null;
   }, []);
 
-  const availableTags = useMemo(() => {
-    const set = new Set<string>();
-    accounts.forEach((account) => {
-      (account.tags || []).forEach((tag) => {
-        const normalized = normalizeTag(tag);
-        if (normalized) set.add(normalized);
-      });
-    });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [accounts]);
-
   const tierCounts = useMemo(() => {
     const counts = {
       all: accounts.length,
@@ -694,6 +176,8 @@ export function GitHubCopilotAccountsPage() {
     });
     return counts;
   }, [accounts, resolvePlanKey]);
+
+  const normalizeTag = (tag: string) => tag.trim().toLowerCase();
 
   const filteredAccounts = useMemo(() => {
     let result = [...accounts];
@@ -784,64 +268,10 @@ export function GitHubCopilotAccountsPage() {
     });
   }, [filteredAccounts, groupByTag, tagFilter, untaggedKey]);
 
-  const toggleTagFilterValue = (tag: string) => {
-    setTagFilter((prev) => {
-      if (prev.includes(tag)) return prev.filter((item) => item !== tag);
-      return [...prev, tag];
-    });
-  };
-
-  const clearTagFilter = () => {
-    setTagFilter([]);
-  };
-
-  const requestDeleteTag = (tag: string) => {
-    const normalized = normalizeTag(tag);
-    if (!normalized) return;
-    const count = accounts.filter((account) =>
-      (account.tags || []).some((item) => normalizeTag(item) === normalized)
-    ).length;
-    setTagDeleteConfirm({ tag: normalized, count });
-  };
-
-  const confirmDeleteTag = async () => {
-    if (!tagDeleteConfirm || deletingTag) return;
-    setDeletingTag(true);
-    const target = tagDeleteConfirm.tag;
-    const affected = accounts.filter((account) =>
-      (account.tags || []).some((item) => normalizeTag(item) === target)
-    );
-
-    try {
-      await Promise.allSettled(
-        affected.map((account) => {
-          const nextTags = (account.tags || []).filter(
-            (item) => normalizeTag(item) !== target
-          );
-          return githubCopilotService.updateGitHubCopilotAccountTags(account.id, nextTags);
-        })
-      );
-      setTagFilter((prev) => prev.filter((item) => normalizeTag(item) !== target));
-      await fetchAccounts();
-    } finally {
-      setDeletingTag(false);
-      setTagDeleteConfirm(null);
-      setShowTagFilter(false);
-    }
-  };
-
-  const openTagModal = (accountId: string) => {
-    setShowTagModal(accountId);
-  };
-
-  const handleSaveTags = async (tags: string[]) => {
-    if (!showTagModal) return;
-    await updateAccountTags(showTagModal, tags);
-    setShowTagModal(null);
-  };
-
   const resolveGroupLabel = (groupKey: string) =>
     groupKey === untaggedKey ? t('accounts.defaultGroup', '默认分组') : groupKey;
+
+  // ─── Render helpers ──────────────────────────────────────────────────
 
   const renderGridCards = (items: typeof filteredAccounts, groupKey?: string) =>
     items.map((account) => {
@@ -960,7 +390,7 @@ export function GitHubCopilotAccountsPage() {
             <div className="card-actions">
               <button
                 className="card-action-btn success"
-                onClick={() => handleInjectToVSCode(account.id)}
+                onClick={() => handleInjectToVSCode?.(account.id)}
                 disabled={!!injecting}
                 title={t('githubCopilot.injectToVSCode', 'Switch to VS Code')}
               >
@@ -1097,7 +527,7 @@ export function GitHubCopilotAccountsPage() {
             <div className="action-buttons">
               <button
                 className="action-btn success"
-                onClick={() => handleInjectToVSCode(account.id)}
+                onClick={() => handleInjectToVSCode?.(account.id)}
                 disabled={!!injecting}
                 title={t('githubCopilot.injectToVSCode', 'Switch to VS Code')}
               >
@@ -1217,7 +647,7 @@ export function GitHubCopilotAccountsPage() {
           <div className="filter-select">
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as typeof filterType)}
+              onChange={(e) => setFilterType(e.target.value)}
               aria-label={t('common.shared.filterLabel', '筛选')}
             >
               <option value="all">{t('common.shared.filter.all', { count: tierCounts.all })}</option>
@@ -1293,7 +723,7 @@ export function GitHubCopilotAccountsPage() {
             <ArrowDownWideNarrow size={14} className="sort-icon" />
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              onChange={(e) => setSortBy(e.target.value)}
               aria-label={t('common.shared.sortLabel', '排序')}
             >
               <option value="created_at">{t('common.shared.sort.createdAt', '按创建时间')}</option>
@@ -1433,7 +863,7 @@ export function GitHubCopilotAccountsPage() {
                   <input
                     type="checkbox"
                     checked={selected.size === filteredAccounts.length && filteredAccounts.length > 0}
-                    onChange={toggleSelectAll}
+                    onChange={() => toggleSelectAll(filteredAccounts.map((a) => a.id))}
                   />
                 </th>
                 <th style={{ width: 260 }}>{t('common.shared.columns.email', '账号')}</th>
@@ -1470,7 +900,7 @@ export function GitHubCopilotAccountsPage() {
                   <input
                     type="checkbox"
                     checked={selected.size === filteredAccounts.length && filteredAccounts.length > 0}
-                    onChange={toggleSelectAll}
+                    onChange={() => toggleSelectAll(filteredAccounts.map((a) => a.id))}
                   />
                 </th>
                 <th style={{ width: 260 }}>{t('common.shared.columns.email', '账号')}</th>

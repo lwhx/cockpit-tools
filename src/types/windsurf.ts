@@ -1,3 +1,12 @@
+import {
+  getPathValue,
+  toNumber as getNumber,
+  firstNumber as getNumberFromPaths,
+  firstString as getStringFromPaths,
+  firstRecord,
+  normalizeTimestamp as parseTimestampSeconds,
+} from '../utils/dataExtract';
+
 /** Windsurf 账号数据（后端原样返回的结构） */
 export interface WindsurfAccount {
   id: string;
@@ -83,74 +92,8 @@ function mapPlanNameToBadge(planName?: string | null): WindsurfPlanBadge {
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value);
-}
-
-function getPathValue(root: unknown, path: string[]): unknown {
-  let current: unknown = root;
-  for (const key of path) {
-    if (!isRecord(current)) return null;
-    current = current[key];
-  }
-  return current;
-}
-
-function getString(value: unknown): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed ? trimmed : null;
-}
-
-function getStringFromPaths(root: unknown, paths: string[][]): string | null {
-  for (const path of paths) {
-    const value = getString(getPathValue(root, path));
-    if (value) return value;
-  }
-  return null;
-}
-
-function getNumberFromPaths(root: unknown, paths: string[][]): number | null {
-  for (const path of paths) {
-    const value = getNumber(getPathValue(root, path));
-    if (value != null) return value;
-  }
-  return null;
-}
-
 function getNormalizedNumberFromPaths(root: unknown, paths: string[][]): number | null {
   return normalizeProtoCreditsValue(getNumberFromPaths(root, paths));
-}
-
-function firstRecord(values: unknown[]): Record<string, unknown> | null {
-  for (const value of values) {
-    if (isRecord(value)) return value;
-  }
-  return null;
-}
-
-function parseTimestampSeconds(value: unknown): number | null {
-  if (value == null) return null;
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    const normalized = value > 1e12 ? Math.floor(value / 1000) : Math.floor(value);
-    return normalized > 0 ? normalized : null;
-  }
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    if (!trimmed) return null;
-    const numeric = Number(trimmed);
-    if (Number.isFinite(numeric)) return parseTimestampSeconds(numeric);
-    const parsed = Date.parse(trimmed);
-    if (Number.isFinite(parsed)) return Math.floor(parsed / 1000);
-    return null;
-  }
-  if (!isRecord(value)) return null;
-  const candidates = ['seconds', 'unixSeconds', 'unix', 'timestamp', 'value'];
-  for (const key of candidates) {
-    const parsed = parseTimestampSeconds(value[key]);
-    if (parsed != null) return parsed;
-  }
-  return null;
 }
 
 function resolveWindsurfPlanStatus(account: WindsurfAccount): Record<string, unknown> | null {
@@ -306,14 +249,7 @@ function getPremiumQuotaSnapshot(account: WindsurfAccount): Record<string, unkno
   return null;
 }
 
-function getNumber(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string') {
-    const n = Number(value);
-    return Number.isFinite(n) ? n : null;
-  }
-  return null;
-}
+// getNumber is now imported from dataExtract as toNumber
 
 type WindsurfProtoSummary = {
   name: string | null;
@@ -671,6 +607,7 @@ function pickAllowanceResetAt(account: WindsurfAccount): number | null {
 }
 
 function clampPercent(value: number): number {
+  // windsurf 版接收 non-null number，直接处理
   if (value < 0) return 0;
   if (value > 100) return 100;
   return Math.round(value);

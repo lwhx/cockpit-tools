@@ -422,6 +422,85 @@ export function QuickSettingsPopover({ type }: QuickSettingsPopoverProps) {
     setQuotaAlertThresholdEditing(false);
   };
 
+  /** 共用的配额预警 enable + threshold 控件 */
+  const renderQuotaAlertControls = () => (
+    <>
+      <div className="qs-row" style={{ marginTop: type === 'antigravity' ? 10 : 0 }}>
+        <div className="qs-row-label">
+          <span>{t('quickSettings.quotaAlert.enable', '超额预警')}</span>
+        </div>
+        <div className="qs-row-control">
+          <label className="qs-switch">
+            <input
+              type="checkbox"
+              checked={quotaAlertEnabledValue}
+              onChange={(e) =>
+                saveConfig({ [quotaAlertEnabledKey]: e.target.checked } as Partial<GeneralConfig>)
+              }
+            />
+            <span className="qs-switch-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      {quotaAlertEnabledValue && (
+        <div className="qs-field-group" style={{ animation: 'qsFadeUp 0.2s ease both' }}>
+          <div className="qs-row">
+            <div className="qs-row-label">
+              <span>{t('quickSettings.quotaAlert.threshold', '预警阈值')}</span>
+            </div>
+            <div className="qs-row-control">
+              {showQuotaAlertThresholdInput ? (
+                <div className="qs-inline-input">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    className="qs-select qs-select--input-mode qs-select--with-unit"
+                    value={quotaAlertCustomThreshold}
+                    placeholder={t('quickSettings.inputPercent', '输入百分比')}
+                    onChange={(e) => setQuotaAlertCustomThreshold(e.target.value.replace(/[^\d]/g, ''))}
+                    onBlur={handleQuotaAlertCustomThresholdApply}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleQuotaAlertCustomThresholdApply();
+                      }
+                    }}
+                  />
+                  <span className="qs-input-unit">%</span>
+                </div>
+              ) : (
+                <select
+                  className="qs-select"
+                  value={String(quotaAlertThresholdValue)}
+                  onChange={(e) => handleQuotaAlertThresholdSelectChange(e.target.value)}
+                >
+                  {!isQuotaAlertThresholdPreset && (
+                    <option value={String(quotaAlertThresholdValue)}>
+                      {quotaAlertThresholdValue}%
+                    </option>
+                  )}
+                  <option value="0">0%</option>
+                  <option value="20">20%</option>
+                  <option value="40">40%</option>
+                  <option value="60">60%</option>
+                  <option value="custom">{t('quickSettings.customInput', '自定义')}</option>
+                </select>
+              )}
+            </div>
+          </div>
+          <div className="qs-hint" style={{ marginTop: 6 }}>
+            {t(
+              'quickSettings.quotaAlert.hint',
+              '当当前账号任意模型配额低于阈值时，发送原生通知并在页面提示快捷切号。'
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+
   const overlayContent = isOpen ? (
     <div className="qs-overlay" onClick={(e) => { if (e.target === e.currentTarget) setIsOpen(false); }}>
       <div className="qs-modal" ref={modalRef}>
@@ -659,79 +738,7 @@ export function QuickSettingsPopover({ type }: QuickSettingsPopoverProps) {
                   )}
                 </div>
 
-                <div className="qs-row" style={{ marginTop: 10 }}>
-                  <div className="qs-row-label">
-                    <span>{t('quickSettings.quotaAlert.enable', '超额预警')}</span>
-                  </div>
-                  <div className="qs-row-control">
-                    <label className="qs-switch">
-                      <input
-                        type="checkbox"
-                        checked={quotaAlertEnabledValue}
-                        onChange={(e) =>
-                          saveConfig({ [quotaAlertEnabledKey]: e.target.checked } as Partial<GeneralConfig>)
-                        }
-                      />
-                      <span className="qs-switch-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                {quotaAlertEnabledValue && (
-                  <div className="qs-field-group" style={{ animation: 'qsFadeUp 0.2s ease both' }}>
-                    <div className="qs-row">
-                      <div className="qs-row-label">
-                        <span>{t('quickSettings.quotaAlert.threshold', '预警阈值')}</span>
-                      </div>
-                      <div className="qs-row-control">
-                        {showQuotaAlertThresholdInput ? (
-                          <div className="qs-inline-input">
-                            <input
-                              type="number"
-                              min={0}
-                              max={100}
-                              className="qs-select qs-select--input-mode qs-select--with-unit"
-                              value={quotaAlertCustomThreshold}
-                              placeholder={t('quickSettings.inputPercent', '输入百分比')}
-                              onChange={(e) => setQuotaAlertCustomThreshold(e.target.value.replace(/[^\d]/g, ''))}
-                              onBlur={handleQuotaAlertCustomThresholdApply}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  handleQuotaAlertCustomThresholdApply();
-                                }
-                              }}
-                            />
-                            <span className="qs-input-unit">%</span>
-                          </div>
-                        ) : (
-                          <select
-                            className="qs-select"
-                            value={String(quotaAlertThresholdValue)}
-                            onChange={(e) => handleQuotaAlertThresholdSelectChange(e.target.value)}
-                          >
-                            {!isQuotaAlertThresholdPreset && (
-                              <option value={String(quotaAlertThresholdValue)}>
-                                {quotaAlertThresholdValue}%
-                              </option>
-                            )}
-                            <option value="0">0%</option>
-                            <option value="20">20%</option>
-                            <option value="40">40%</option>
-                            <option value="60">60%</option>
-                            <option value="custom">{t('quickSettings.customInput', '自定义')}</option>
-                          </select>
-                        )}
-                      </div>
-                    </div>
-                    <div className="qs-hint" style={{ marginTop: 6 }}>
-                      {t(
-                        'quickSettings.quotaAlert.hint',
-                        '当当前账号任意模型配额低于阈值时，发送原生通知并在页面提示快捷切号。'
-                      )}
-                    </div>
-                  </div>
-                )}
+                {renderQuotaAlertControls()}
               </div>
             )}
 
@@ -741,79 +748,7 @@ export function QuickSettingsPopover({ type }: QuickSettingsPopoverProps) {
                   <Zap size={15} />
                   <span>{t('quickSettings.quotaAlert.enable', '超额预警')}</span>
                 </div>
-                <div className="qs-row">
-                  <div className="qs-row-label">
-                    <span>{t('quickSettings.quotaAlert.enable', '超额预警')}</span>
-                  </div>
-                  <div className="qs-row-control">
-                    <label className="qs-switch">
-                      <input
-                        type="checkbox"
-                        checked={quotaAlertEnabledValue}
-                        onChange={(e) =>
-                          saveConfig({ [quotaAlertEnabledKey]: e.target.checked } as Partial<GeneralConfig>)
-                        }
-                      />
-                      <span className="qs-switch-slider"></span>
-                    </label>
-                  </div>
-                </div>
-
-                {quotaAlertEnabledValue && (
-                  <div className="qs-field-group" style={{ animation: 'qsFadeUp 0.2s ease both' }}>
-                    <div className="qs-row">
-                      <div className="qs-row-label">
-                        <span>{t('quickSettings.quotaAlert.threshold', '预警阈值')}</span>
-                      </div>
-                      <div className="qs-row-control">
-                        {showQuotaAlertThresholdInput ? (
-                          <div className="qs-inline-input">
-                            <input
-                              type="number"
-                              min={0}
-                              max={100}
-                              className="qs-select qs-select--input-mode qs-select--with-unit"
-                              value={quotaAlertCustomThreshold}
-                              placeholder={t('quickSettings.inputPercent', '输入百分比')}
-                              onChange={(e) => setQuotaAlertCustomThreshold(e.target.value.replace(/[^\d]/g, ''))}
-                              onBlur={handleQuotaAlertCustomThresholdApply}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  handleQuotaAlertCustomThresholdApply();
-                                }
-                              }}
-                            />
-                            <span className="qs-input-unit">%</span>
-                          </div>
-                        ) : (
-                          <select
-                            className="qs-select"
-                            value={String(quotaAlertThresholdValue)}
-                            onChange={(e) => handleQuotaAlertThresholdSelectChange(e.target.value)}
-                          >
-                            {!isQuotaAlertThresholdPreset && (
-                              <option value={String(quotaAlertThresholdValue)}>
-                                {quotaAlertThresholdValue}%
-                              </option>
-                            )}
-                            <option value="0">0%</option>
-                            <option value="20">20%</option>
-                            <option value="40">40%</option>
-                            <option value="60">60%</option>
-                            <option value="custom">{t('quickSettings.customInput', '自定义')}</option>
-                          </select>
-                        )}
-                      </div>
-                    </div>
-                    <div className="qs-hint" style={{ marginTop: 6 }}>
-                      {t(
-                        'quickSettings.quotaAlert.hint',
-                        '当当前账号任意模型配额低于阈值时，发送原生通知并在页面提示快捷切号。'
-                      )}
-                    </div>
-                  </div>
-                )}
+                {renderQuotaAlertControls()}
               </div>
             )}
           </div>
