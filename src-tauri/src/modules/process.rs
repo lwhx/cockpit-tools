@@ -1,9 +1,7 @@
 use crate::modules::config;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
-#[cfg(any(target_os = "macos", target_os = "linux"))]
-use std::process::Child;
-use std::process::{Command, Stdio};
+use std::process::{Child, Command, Stdio};
 use std::thread;
 use std::time::{Duration, Instant};
 use sysinfo::{Pid, ProcessRefreshKind, System, UpdateKind};
@@ -35,6 +33,156 @@ fn strict_process_detect_enabled() -> bool {
             )
         })
         .unwrap_or(false)
+}
+
+fn parse_env_bool(value: &str) -> Option<bool> {
+    match value.trim().to_ascii_lowercase().as_str() {
+        "1" | "true" | "yes" | "on" => Some(true),
+        "0" | "false" | "no" | "off" => Some(false),
+        _ => None,
+    }
+}
+
+fn command_trace_enabled() -> bool {
+    if let Ok(value) = std::env::var("COCKPIT_COMMAND_TRACE") {
+        if let Some(enabled) = parse_env_bool(&value) {
+            return enabled;
+        }
+    }
+    cfg!(debug_assertions)
+}
+
+fn quote_command_part(part: &str) -> String {
+    if part.is_empty() {
+        return "\"\"".to_string();
+    }
+    let needs_quote = part.chars().any(|ch| {
+        ch.is_whitespace() || matches!(ch, '"' | '\'' | '$' | '`' | '|' | '&' | ';' | '(' | ')')
+    });
+    if !needs_quote {
+        return part.to_string();
+    }
+    format!("{:?}", part)
+}
+
+fn format_command_preview(command: &Command) -> String {
+    let program = quote_command_part(command.get_program().to_string_lossy().as_ref());
+    let args = command
+        .get_args()
+        .map(|arg| quote_command_part(arg.to_string_lossy().as_ref()))
+        .collect::<Vec<String>>();
+    if args.is_empty() {
+        program
+    } else {
+        format!("{} {}", program, args.join(" "))
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn truncate_for_trace(text: &str, max_chars: usize) -> String {
+    let mut iter = text.chars();
+    let mut current = String::new();
+    for _ in 0..max_chars {
+        let Some(ch) = iter.next() else {
+            return text.to_string();
+        };
+        current.push(ch);
+    }
+    if iter.next().is_none() {
+        text.to_string()
+    } else {
+        format!("{}...(truncated)", current)
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn output_bytes_for_trace(bytes: &[u8]) -> String {
+    let value = String::from_utf8_lossy(bytes);
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        "<empty>".to_string()
+    } else {
+        truncate_for_trace(trimmed, 4000)
+    }
+}
+
+fn log_command_trace_exec(command_preview: &str) {
+    if !command_trace_enabled() {
+        return;
+    }
+    crate::modules::logger::log_info(&format!("[CmdTrace] EXEC {}", command_preview));
+}
+
+#[cfg(target_os = "windows")]
+fn log_command_trace_result(
+    command_preview: &str,
+    result: &std::io::Result<std::process::Output>,
+    elapsed: Duration,
+) {
+    if !command_trace_enabled() {
+        return;
+    }
+    match result {
+        Ok(output) => {
+            crate::modules::logger::log_info(&format!(
+                "[CmdTrace] RESULT elapsed={}ms status={} cmd={}",
+                elapsed.as_millis(),
+                output.status,
+                command_preview
+            ));
+            crate::modules::logger::log_info(&format!(
+                "[CmdTrace] STDOUT cmd={} => {}",
+                command_preview,
+                output_bytes_for_trace(&output.stdout)
+            ));
+            crate::modules::logger::log_info(&format!(
+                "[CmdTrace] STDERR cmd={} => {}",
+                command_preview,
+                output_bytes_for_trace(&output.stderr)
+            ));
+        }
+        Err(err) => {
+            crate::modules::logger::log_warn(&format!(
+                "[CmdTrace] ERROR elapsed={}ms cmd={} err={}",
+                elapsed.as_millis(),
+                command_preview,
+                err
+            ));
+        }
+    }
+}
+
+fn log_command_trace_spawn_result(
+    command_preview: &str,
+    result: &std::io::Result<Child>,
+    elapsed: Duration,
+) {
+    if !command_trace_enabled() {
+        return;
+    }
+    match result {
+        Ok(child) => crate::modules::logger::log_info(&format!(
+            "[CmdTrace] SPAWN elapsed={}ms pid={} cmd={}",
+            elapsed.as_millis(),
+            child.id(),
+            command_preview
+        )),
+        Err(err) => crate::modules::logger::log_warn(&format!(
+            "[CmdTrace] SPAWN_ERROR elapsed={}ms cmd={} err={}",
+            elapsed.as_millis(),
+            command_preview,
+            err
+        )),
+    }
+}
+
+fn spawn_command_with_trace(cmd: &mut Command) -> std::io::Result<Child> {
+    let preview = format_command_preview(cmd);
+    log_command_trace_exec(&preview);
+    let start = Instant::now();
+    let result = cmd.spawn();
+    log_command_trace_spawn_result(&preview, &result, start.elapsed());
+    result
 }
 
 #[cfg(target_os = "windows")]
@@ -80,7 +228,13 @@ fn build_powershell_command(args: &[&str]) -> Command {
 
 #[cfg(target_os = "windows")]
 fn powershell_output(args: &[&str]) -> std::io::Result<std::process::Output> {
-    build_powershell_command(args).output()
+    let mut command = build_powershell_command(args);
+    let preview = format_command_preview(&command);
+    log_command_trace_exec(&preview);
+    let start = Instant::now();
+    let result = command.output();
+    log_command_trace_result(&preview, &result, start.elapsed());
+    result
 }
 
 #[cfg(target_os = "windows")]
@@ -90,11 +244,25 @@ fn powershell_output_with_timeout(
 ) -> std::io::Result<std::process::Output> {
     use std::io::{Error, ErrorKind, Read};
 
-    let mut child = build_powershell_command(args)
+    let mut command = build_powershell_command(args);
+    command
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()?;
+        .stderr(Stdio::piped());
+    let preview = format_command_preview(&command);
+    log_command_trace_exec(&preview);
+    let mut child = match command.spawn() {
+        Ok(child) => child,
+        Err(err) => {
+            if command_trace_enabled() {
+                crate::modules::logger::log_warn(&format!(
+                    "[CmdTrace] SPAWN_ERROR elapsed=0ms cmd={} err={}",
+                    preview, err
+                ));
+            }
+            return Err(err);
+        }
+    };
     let start = Instant::now();
 
     loop {
@@ -107,23 +275,27 @@ fn powershell_output_with_timeout(
             if let Some(mut err) = child.stderr.take() {
                 let _ = err.read_to_end(&mut stderr);
             }
-            return Ok(std::process::Output {
+            let result = Ok(std::process::Output {
                 status,
                 stdout,
                 stderr,
             });
+            log_command_trace_result(&preview, &result, start.elapsed());
+            return result;
         }
 
         if start.elapsed() >= timeout {
             let _ = child.kill();
             let _ = child.wait();
-            return Err(Error::new(
+            let result = Err(Error::new(
                 ErrorKind::TimedOut,
                 format!(
                     "PowerShell 进程探测超时（{}ms）",
                     timeout.as_millis()
                 ),
             ));
+            log_command_trace_result(&preview, &result, start.elapsed());
+            return result;
         }
 
         thread::sleep(Duration::from_millis(100));
@@ -134,10 +306,14 @@ fn powershell_output_with_timeout(
 fn cmd_output(args: &[&str]) -> std::io::Result<std::process::Output> {
     use std::os::windows::process::CommandExt;
 
-    Command::new("cmd")
-        .creation_flags(CREATE_NO_WINDOW)
-        .args(args)
-        .output()
+    let mut command = Command::new("cmd");
+    command.creation_flags(CREATE_NO_WINDOW).args(args);
+    let preview = format_command_preview(&command);
+    log_command_trace_exec(&preview);
+    let start = Instant::now();
+    let result = command.output();
+    log_command_trace_result(&preview, &result, start.elapsed());
+    result
 }
 
 #[cfg(target_os = "windows")]
@@ -158,19 +334,22 @@ fn powershell_output_file(script: &str) -> std::io::Result<std::process::Output>
     );
     std::fs::write(&path, file_script)?;
 
-    let output = Command::new("powershell")
-        .creation_flags(CREATE_NO_WINDOW)
-        .args([
-            "-WindowStyle",
-            "Hidden",
-            "-NonInteractive",
-            "-NoProfile",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-File",
-            &path.to_string_lossy(),
-        ])
-        .output();
+    let mut command = Command::new("powershell");
+    command.creation_flags(CREATE_NO_WINDOW).args([
+        "-WindowStyle",
+        "Hidden",
+        "-NonInteractive",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        &path.to_string_lossy(),
+    ]);
+    let preview = format_command_preview(&command);
+    log_command_trace_exec(&preview);
+    let start = Instant::now();
+    let output = command.output();
+    log_command_trace_result(&preview, &output, start.elapsed());
 
     let _ = std::fs::remove_file(&path);
     output
@@ -718,7 +897,7 @@ fn should_detach_child() -> bool {
 fn spawn_detached_unix(cmd: &mut Command) -> Result<Child, String> {
     use std::os::unix::process::CommandExt;
     if !should_detach_child() {
-        return cmd.spawn().map_err(|e| format!("启动失败: {}", e));
+        return spawn_command_with_trace(cmd).map_err(|e| format!("启动失败: {}", e));
     }
     cmd.stdin(Stdio::null())
         .stdout(Stdio::null())
@@ -731,7 +910,7 @@ fn spawn_detached_unix(cmd: &mut Command) -> Result<Child, String> {
             Ok(())
         });
     }
-    cmd.spawn().map_err(|e| format!("启动失败: {}", e))
+    spawn_command_with_trace(cmd).map_err(|e| format!("启动失败: {}", e))
 }
 
 fn normalize_custom_path(value: Option<&str>) -> Option<String> {
@@ -3851,8 +4030,7 @@ pub fn start_antigravity_with_args(
                 cmd.arg(arg);
             }
         }
-        let child = cmd
-            .spawn()
+        let child = spawn_command_with_trace(&mut cmd)
             .map_err(|e| format!("启动 Antigravity 失败: {}", e))?;
         crate::modules::logger::log_info(&format!(
             "Antigravity 已启动: {}",
@@ -4555,11 +4733,9 @@ pub fn start_opencode_with_path(custom_path: Option<&str>) -> Result<(), String>
                     continue;
                 }
             }
-            if Command::new(&candidate)
-                .creation_flags(0x08000000)
-                .spawn()
-                .is_ok()
-            {
+            let mut cmd = Command::new(&candidate);
+            cmd.creation_flags(0x08000000);
+            if spawn_command_with_trace(&mut cmd).is_ok() {
                 crate::modules::logger::log_info(&format!("OpenCode 已启动: {}", candidate));
                 return Ok(());
             }
@@ -4585,7 +4761,8 @@ pub fn start_opencode_with_path(custom_path: Option<&str>) -> Result<(), String>
                     continue;
                 }
             }
-            if Command::new(&candidate).spawn().is_ok() {
+            let mut cmd = Command::new(&candidate);
+            if spawn_command_with_trace(&mut cmd).is_ok() {
                 crate::modules::logger::log_info(&format!("OpenCode 已启动: {}", candidate));
                 return Ok(());
             }
@@ -4883,8 +5060,7 @@ pub fn start_vscode_with_args_with_new_window(
             }
         }
 
-        let child = cmd
-            .spawn()
+        let child = spawn_command_with_trace(&mut cmd)
             .map_err(|e| format!("启动 VS Code 失败: {}", e))?;
         crate::modules::logger::log_info("VS Code 启动命令已发送");
         return Ok(child.id());
@@ -4985,8 +5161,7 @@ pub fn start_vscode_default_with_args_with_new_window(
                 cmd.arg(trimmed);
             }
         }
-        let child = cmd
-            .spawn()
+        let child = spawn_command_with_trace(&mut cmd)
             .map_err(|e| format!("启动 VS Code 失败: {}", e))?;
         crate::modules::logger::log_info("VS Code 默认实例启动命令已发送");
         return Ok(child.id());

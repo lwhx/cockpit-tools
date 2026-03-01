@@ -1004,6 +1004,70 @@ fn is_helper_process(name: &str, args_line: &str) -> bool {
         || name.contains("sandbox")
 }
 
+fn command_trace_enabled() -> bool {
+    if let Ok(value) = std::env::var("COCKPIT_COMMAND_TRACE") {
+        match value.trim().to_ascii_lowercase().as_str() {
+            "1" | "true" | "yes" | "on" => return true,
+            "0" | "false" | "no" | "off" => return false,
+            _ => {}
+        }
+    }
+    cfg!(debug_assertions)
+}
+
+fn quote_command_part(part: &str) -> String {
+    if part.is_empty() {
+        return "\"\"".to_string();
+    }
+    let needs_quote = part
+        .chars()
+        .any(|ch| ch.is_whitespace() || matches!(ch, '"' | '\'' | '$' | '`' | '|' | '&' | ';'));
+    if needs_quote {
+        format!("{:?}", part)
+    } else {
+        part.to_string()
+    }
+}
+
+fn format_command_preview(command: &Command) -> String {
+    let program = quote_command_part(command.get_program().to_string_lossy().as_ref());
+    let args = command
+        .get_args()
+        .map(|arg| quote_command_part(arg.to_string_lossy().as_ref()))
+        .collect::<Vec<String>>();
+    if args.is_empty() {
+        program
+    } else {
+        format!("{} {}", program, args.join(" "))
+    }
+}
+
+fn spawn_command_with_trace(cmd: &mut Command) -> std::io::Result<std::process::Child> {
+    let preview = format_command_preview(cmd);
+    if command_trace_enabled() {
+        modules::logger::log_info(&format!("[CmdTrace][Windsurf] EXEC {}", preview));
+    }
+    let start = std::time::Instant::now();
+    let result = cmd.spawn();
+    if command_trace_enabled() {
+        match &result {
+            Ok(child) => modules::logger::log_info(&format!(
+                "[CmdTrace][Windsurf] SPAWN elapsed={}ms pid={} cmd={}",
+                start.elapsed().as_millis(),
+                child.id(),
+                preview
+            )),
+            Err(err) => modules::logger::log_warn(&format!(
+                "[CmdTrace][Windsurf] SPAWN_ERROR elapsed={}ms cmd={} err={}",
+                start.elapsed().as_millis(),
+                preview,
+                err
+            )),
+        }
+    }
+    result
+}
+
 fn collect_running_process_exe_by_pid() -> HashMap<u32, String> {
     let mut map = HashMap::new();
     let mut system = System::new();
@@ -1470,8 +1534,7 @@ fn spawn_windsurf_windows(
             cmd.arg(arg.trim());
         }
     }
-    let child = cmd
-        .spawn()
+    let child = spawn_command_with_trace(&mut cmd)
         .map_err(|e| format!("启动 Windsurf 失败: {}", e))?;
     Ok(child.id())
 }
@@ -1498,8 +1561,7 @@ fn spawn_windsurf_unix(
             cmd.arg(arg.trim());
         }
     }
-    let child = cmd
-        .spawn()
+    let child = spawn_command_with_trace(&mut cmd)
         .map_err(|e| format!("启动 Windsurf 失败: {}", e))?;
     Ok(child.id())
 }
