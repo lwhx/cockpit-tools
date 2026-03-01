@@ -96,9 +96,19 @@ $expectedRaw='{expected}';
 function Normalize-ExePath([string]$path) {{
   if ([string]::IsNullOrWhiteSpace($path)) {{ return $null }}
   $value = $path.Trim().Trim('"')
-  if ($value.StartsWith('\\?\')) {{ $value = $value.Substring(4) }}
+  $value = [Environment]::ExpandEnvironmentVariables($value)
+  if ($value.StartsWith('\\?\UNC\', [System.StringComparison]::OrdinalIgnoreCase)) {{
+    $value = '\\' + $value.Substring(8)
+  }} elseif ($value.StartsWith('\\?\', [System.StringComparison]::OrdinalIgnoreCase)) {{
+    $value = $value.Substring(4)
+  }}
   $value = $value -replace '/', '\'
   try {{ $value = [System.IO.Path]::GetFullPath($value) }} catch {{}}
+  if ($value.StartsWith('\\?\UNC\', [System.StringComparison]::OrdinalIgnoreCase)) {{
+    $value = '\\' + $value.Substring(8)
+  }} elseif ($value.StartsWith('\\?\', [System.StringComparison]::OrdinalIgnoreCase)) {{
+    $value = $value.Substring(4)
+  }}
   return $value.ToLowerInvariant()
 }}
 function Get-ExePathFromCmdLine([string]$cmdline) {{
@@ -108,6 +118,8 @@ function Get-ExePathFromCmdLine([string]$cmdline) {{
     $end = $value.IndexOf('"', 1)
     if ($end -gt 1) {{ return $value.Substring(1, $end - 1) }}
   }}
+  $exeMatch = [regex]::Match($value, '^[^""]+?\.exe', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+  if ($exeMatch.Success) {{ return $exeMatch.Value.Trim() }}
   $space = $value.IndexOf(' ')
   if ($space -gt 0) {{ return $value.Substring(0, $space) }}
   return $value
@@ -1886,9 +1898,29 @@ fn normalize_path_for_compare(raw: &str) -> String {
     if trimmed.is_empty() {
         return String::new();
     }
-    let resolved = std::fs::canonicalize(trimmed)
+
+    #[cfg(target_os = "windows")]
+    fn normalize_windows_extended_path(raw: &str) -> String {
+        let mut value = raw.trim().trim_matches('"').replace('/', "\\");
+        if value.len() >= 8 && value[..8].eq_ignore_ascii_case("\\\\?\\UNC\\") {
+            value = format!("\\\\{}", &value[8..]);
+        } else if value.len() >= 4 && value[..4].eq_ignore_ascii_case("\\\\?\\") {
+            value = value[4..].to_string();
+        }
+        value
+    }
+
+    #[cfg(target_os = "windows")]
+    let normalized_input = normalize_windows_extended_path(trimmed);
+    #[cfg(not(target_os = "windows"))]
+    let normalized_input = trimmed.to_string();
+
+    let resolved = std::fs::canonicalize(&normalized_input)
         .map(|p| p.to_string_lossy().to_string())
-        .unwrap_or_else(|_| trimmed.to_string());
+        .unwrap_or(normalized_input);
+
+    #[cfg(target_os = "windows")]
+    let resolved = normalize_windows_extended_path(&resolved);
 
     #[cfg(target_os = "windows")]
     {
@@ -2166,6 +2198,101 @@ fn collect_antigravity_process_entries_from_powershell(
     result
 }
 
+#[cfg(target_os = "windows")]
+fn resolve_windows_process_exe_for_match(process: &sysinfo::Process) -> (Option<String>, bool) {
+    if let Some(exe) = process.exe().and_then(|value| value.to_str()) {
+        let normalized = normalize_path_for_compare(exe);
+        if !normalized.is_empty() {
+            return (Some(normalized), false);
+        }
+    }
+    if let Some(first) = process.cmd().first() {
+        let normalized = normalize_path_for_compare(first.to_string_lossy().as_ref());
+        if !normalized.is_empty() {
+            return (Some(normalized), true);
+        }
+    }
+    (None, false)
+}
+
+#[cfg(target_os = "windows")]
+fn collect_antigravity_process_entries_from_sysinfo_fallback(
+    expected_exe_path: &str,
+) -> Vec<(u32, Option<String>)> {
+    let expected = normalize_path_for_compare(expected_exe_path);
+    if expected.is_empty() {
+        return Vec::new();
+    }
+
+    let mut result = Vec::new();
+    let mut candidates = 0usize;
+    let mut path_mismatch = 0usize;
+    let mut missing_exe = 0usize;
+    let mut cmdline_fallback_hit = 0usize;
+
+    let mut system = System::new();
+    system.refresh_processes_specifics(
+        sysinfo::ProcessesToUpdate::All,
+        true,
+        ProcessRefreshKind::nothing()
+            .with_exe(UpdateKind::OnlyIfNotSet)
+            .with_cmd(UpdateKind::OnlyIfNotSet),
+    );
+    let current_pid = std::process::id();
+
+    for (pid, process) in system.processes() {
+        let pid_u32 = pid.as_u32();
+        if pid_u32 == current_pid {
+            continue;
+        }
+
+        let name = process.name().to_string_lossy().to_lowercase();
+        let exe_path = process
+            .exe()
+            .and_then(|value| value.to_str())
+            .unwrap_or("")
+            .to_lowercase();
+        let args = process.cmd();
+        let args_lower = args
+            .iter()
+            .map(|arg| arg.to_string_lossy().to_lowercase())
+            .collect::<Vec<String>>()
+            .join(" ");
+
+        if !is_antigravity_main_process(&name, &exe_path, Some(&args_lower)) {
+            continue;
+        }
+        candidates += 1;
+
+        let (actual, used_cmdline_fallback) = resolve_windows_process_exe_for_match(process);
+        match actual {
+            Some(actual_path) if actual_path == expected => {
+                if used_cmdline_fallback {
+                    cmdline_fallback_hit += 1;
+                }
+                let dir = extract_user_data_dir(args);
+                result.push((pid_u32, dir));
+            }
+            Some(_) => path_mismatch += 1,
+            None => missing_exe += 1,
+        }
+    }
+
+    if result.is_empty() {
+        crate::modules::logger::log_warn(&format!(
+            "[AG Probe] sysinfo fallback no match: expected={}, candidates={}, path_mismatch={}, missing_exe={}, cmdline_fallback_hit={}",
+            expected, candidates, path_mismatch, missing_exe, cmdline_fallback_hit
+        ));
+    } else {
+        crate::modules::logger::log_info(&format!(
+            "[AG Probe] sysinfo fallback matched: expected={}, matched={}, candidates={}, path_mismatch={}, missing_exe={}, cmdline_fallback_hit={}",
+            expected, result.len(), candidates, path_mismatch, missing_exe, cmdline_fallback_hit
+        ));
+    }
+
+    result
+}
+
 #[cfg(target_os = "linux")]
 fn collect_antigravity_process_entries_from_proc() -> Vec<(u32, Option<String>)> {
     let mut result = Vec::new();
@@ -2243,7 +2370,20 @@ pub fn collect_antigravity_process_entries() -> Vec<(u32, Option<String>)> {
         let expected = expected_launch
             .as_deref()
             .expect("expected launch path must exist");
-        return collect_antigravity_process_entries_from_powershell(expected);
+        let entries = collect_antigravity_process_entries_from_powershell(expected);
+        if !entries.is_empty() {
+            return entries;
+        }
+        if strict_process_detect_enabled() {
+            crate::modules::logger::log_warn(
+                "[AG Probe] strict mode enabled and PowerShell returned empty; skip sysinfo fallback",
+            );
+            return Vec::new();
+        }
+        crate::modules::logger::log_warn(
+            "[AG Probe] PowerShell returned empty; fallback to sysinfo probe",
+        );
+        return collect_antigravity_process_entries_from_sysinfo_fallback(expected);
     }
 
     #[cfg(target_os = "linux")]
@@ -2688,6 +2828,95 @@ fn collect_vscode_process_entries_from_powershell(
     entries
 }
 
+#[cfg(target_os = "windows")]
+fn collect_vscode_process_entries_from_sysinfo_fallback(
+    expected_exe_path: &str,
+) -> Vec<(u32, Option<String>)> {
+    let expected = normalize_path_for_compare(expected_exe_path);
+    if expected.is_empty() {
+        return Vec::new();
+    }
+
+    let mut entries: Vec<(u32, Option<String>)> = Vec::new();
+    let mut candidates = 0usize;
+    let mut path_mismatch = 0usize;
+    let mut missing_exe = 0usize;
+    let mut cmdline_fallback_hit = 0usize;
+
+    let mut system = System::new();
+    system.refresh_processes_specifics(
+        sysinfo::ProcessesToUpdate::All,
+        true,
+        ProcessRefreshKind::nothing()
+            .with_exe(UpdateKind::OnlyIfNotSet)
+            .with_cmd(UpdateKind::OnlyIfNotSet),
+    );
+    let current_pid = std::process::id();
+
+    for (pid, process) in system.processes() {
+        let pid_u32 = pid.as_u32();
+        if pid_u32 == current_pid {
+            continue;
+        }
+
+        let name = process.name().to_string_lossy().to_lowercase();
+        let exe_path = process
+            .exe()
+            .and_then(|value| value.to_str())
+            .unwrap_or("")
+            .to_lowercase();
+        let args_line = process
+            .cmd()
+            .iter()
+            .map(|arg| arg.to_string_lossy().to_lowercase())
+            .collect::<Vec<String>>()
+            .join(" ");
+        let is_vscode = name == "code.exe" || exe_path.ends_with("\\code.exe");
+        if !is_vscode || is_helper_command_line(&args_line) || args_line.contains("crashpad_handler")
+        {
+            continue;
+        }
+        candidates += 1;
+
+        let (actual, used_cmdline_fallback) = resolve_windows_process_exe_for_match(process);
+        match actual {
+            Some(actual_path) if actual_path == expected => {
+                if used_cmdline_fallback {
+                    cmdline_fallback_hit += 1;
+                }
+                let dir = extract_user_data_dir(process.cmd()).and_then(|value| {
+                    let normalized = normalize_path_for_compare(&value);
+                    if normalized.is_empty() {
+                        None
+                    } else {
+                        Some(normalized)
+                    }
+                });
+                entries.push((pid_u32, dir));
+            }
+            Some(_) => path_mismatch += 1,
+            None => missing_exe += 1,
+        }
+    }
+
+    entries.sort_by_key(|(pid, _)| *pid);
+    entries.dedup_by(|a, b| a.0 == b.0);
+
+    if entries.is_empty() {
+        crate::modules::logger::log_warn(&format!(
+            "[VSCode Probe] sysinfo fallback no match: expected={}, candidates={}, path_mismatch={}, missing_exe={}, cmdline_fallback_hit={}",
+            expected, candidates, path_mismatch, missing_exe, cmdline_fallback_hit
+        ));
+    } else {
+        crate::modules::logger::log_info(&format!(
+            "[VSCode Probe] sysinfo fallback matched: expected={}, matched={}, candidates={}, path_mismatch={}, missing_exe={}, cmdline_fallback_hit={}",
+            expected, entries.len(), candidates, path_mismatch, missing_exe, cmdline_fallback_hit
+        ));
+    }
+
+    entries
+}
+
 pub fn collect_vscode_process_entries() -> Vec<(u32, Option<String>)> {
     let expected_launch = resolve_expected_vscode_launch_path_for_match();
     if expected_launch.is_none() {
@@ -2699,7 +2928,14 @@ pub fn collect_vscode_process_entries() -> Vec<(u32, Option<String>)> {
         let expected = expected_launch
             .as_deref()
             .expect("expected launch path must exist");
-        return collect_vscode_process_entries_from_powershell(expected);
+        let entries = collect_vscode_process_entries_from_powershell(expected);
+        if !entries.is_empty() {
+            return entries;
+        }
+        crate::modules::logger::log_warn(
+            "[VSCode Probe] PowerShell returned empty; fallback to sysinfo probe",
+        );
+        return collect_vscode_process_entries_from_sysinfo_fallback(expected);
     }
 
     let mut entries = Vec::new();
