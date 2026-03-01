@@ -88,6 +88,10 @@ interface GeneralConfig extends GeneralConfigTheme {
 
 type AppPathMissingDetail = {
   app: 'antigravity' | 'codex' | 'vscode' | 'windsurf' | 'kiro';
+  retry?:
+    | { kind: 'default' }
+    | { kind: 'instance'; instanceId?: string }
+    | { kind: 'switchAccount'; accountId?: string };
 };
 
 const WAKEUP_ENABLED_KEY = 'agtools.wakeup.enabled';
@@ -205,6 +209,7 @@ function App() {
   const [appPathSetting, setAppPathSetting] = useState(false);
   const [appPathDetecting, setAppPathDetecting] = useState(false);
   const [appPathDraft, setAppPathDraft] = useState('');
+  const [appPathActionError, setAppPathActionError] = useState('');
   const { showModal, closeModal } = useGlobalModal();
   const trayRefreshInFlightRef = useRef(false);
   const openBreakout = useCallback(() => setShowBreakout(true), []);
@@ -696,10 +701,12 @@ function App() {
     if (!appPathMissing) {
       setAppPathDraft('');
       setAppPathDetecting(false);
+      setAppPathActionError('');
       return () => {
         active = false;
       };
     }
+    setAppPathActionError('');
     (async () => {
       try {
         const config = await invoke<GeneralConfig>('get_general_config');
@@ -734,6 +741,7 @@ function App() {
       });
       const path = Array.isArray(selected) ? selected[0] : selected;
       if (path) {
+        setAppPathActionError('');
         setAppPathDraft(path);
       }
     } catch (error) {
@@ -746,13 +754,47 @@ function App() {
     const path = appPathDraft.trim();
     if (!path) return;
     setAppPathSetting(true);
+    setAppPathActionError('');
     try {
       const app = appPathMissing.app;
+      const retry = appPathMissing.retry;
       await invoke('set_app_path', { app, path });
+      if (retry?.kind === 'switchAccount' && retry.accountId) {
+        await invoke('switch_account', { accountId: retry.accountId });
+        await Promise.allSettled([
+          useAccountStore.getState().fetchAccounts(),
+          useAccountStore.getState().fetchCurrentAccount(),
+        ]);
+      } else if (retry?.kind === 'instance' && retry.instanceId) {
+        if (app === 'codex') {
+          await invoke('codex_start_instance', { instanceId: retry.instanceId });
+        } else if (app === 'vscode') {
+          await invoke('github_copilot_start_instance', { instanceId: retry.instanceId });
+        } else if (app === 'windsurf') {
+          await invoke('windsurf_start_instance', { instanceId: retry.instanceId });
+        } else if (app === 'kiro') {
+          await invoke('kiro_start_instance', { instanceId: retry.instanceId });
+        } else {
+          await invoke('start_instance', { instanceId: retry.instanceId });
+        }
+      } else {
+        if (app === 'codex') {
+          await invoke('codex_start_instance', { instanceId: '__default__' });
+        } else if (app === 'vscode') {
+          await invoke('github_copilot_start_instance', { instanceId: '__default__' });
+        } else if (app === 'windsurf') {
+          await invoke('windsurf_start_instance', { instanceId: '__default__' });
+        } else if (app === 'kiro') {
+          await invoke('kiro_start_instance', { instanceId: '__default__' });
+        } else {
+          await invoke('start_instance', { instanceId: '__default__' });
+        }
+      }
       setAppPathMissing(null);
       setAppPathSetting(false);
     } catch (error) {
       console.error('设置应用路径失败:', error);
+      setAppPathActionError(String(error));
       setAppPathSetting(false);
     }
   };
@@ -765,6 +807,7 @@ function App() {
         app: appPathMissing.app,
         force: true,
       });
+      setAppPathActionError('');
       setAppPathDraft((detected || '').trim());
     } catch (error) {
       console.error('自动探测应用路径失败:', error);
@@ -880,6 +923,11 @@ function App() {
                         : 'Antigravity',
                 })}
               </p>
+              {appPathActionError ? (
+                <p style={{ margin: '8px 0 0', color: 'var(--danger)' }}>
+                  {t('messages.switchFailed', { error: appPathActionError })}
+                </p>
+              ) : null}
               <div style={{ marginTop: 16 }}>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input

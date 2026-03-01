@@ -411,7 +411,7 @@ export function InstancesManager<TAccount extends AccountLike>({
     }
   };
 
-  const handleMissingPathError = (error: unknown, _instanceId?: string) => {
+  const handleMissingPathError = (error: unknown, instanceId?: string) => {
     const message = String(error ?? '');
     if (!message.startsWith('APP_PATH_NOT_FOUND:')) {
       return false;
@@ -425,7 +425,10 @@ export function InstancesManager<TAccount extends AccountLike>({
       rawApp === 'kiro'
         ? rawApp
         : appType;
-    window.dispatchEvent(new CustomEvent('app-path-missing', { detail: { app } }));
+    const retry = instanceId
+      ? { kind: 'instance' as const, instanceId }
+      : { kind: 'default' as const };
+    window.dispatchEvent(new CustomEvent('app-path-missing', { detail: { app, retry } }));
     return true;
   };
 

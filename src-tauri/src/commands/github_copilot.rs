@@ -196,7 +196,7 @@ pub async fn inject_github_copilot_to_vscode(
                     if e.starts_with("APP_PATH_NOT_FOUND:") || e.contains("APP_PATH_NOT_FOUND:") {
                         let _ = app.emit(
                             "app:path_missing",
-                            serde_json::json!({ "app": "vscode" }),
+                            serde_json::json!({ "app": "vscode", "retry": { "kind": "default" } }),
                         );
                     }
                     Some(e)

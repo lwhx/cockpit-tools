@@ -490,6 +490,75 @@ fn is_helper_process(name: &str, args_line: &str) -> bool {
         || name.contains("sandbox")
 }
 
+fn collect_running_process_exe_by_pid() -> HashMap<u32, String> {
+    let mut map = HashMap::new();
+    let mut system = System::new();
+    system.refresh_processes_specifics(
+        sysinfo::ProcessesToUpdate::All,
+        true,
+        ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet),
+    );
+    for (pid, process) in system.processes() {
+        let Some(exe) = process.exe().and_then(|value| value.to_str()) else {
+            continue;
+        };
+        let normalized = normalize_path_for_compare(exe);
+        if normalized.is_empty() {
+            continue;
+        }
+        map.insert(pid.as_u32(), normalized);
+    }
+    map
+}
+
+fn resolve_expected_kiro_launch_path_for_match() -> Option<String> {
+    let launch_path = match resolve_kiro_launch_path() {
+        Ok(path) => path,
+        Err(err) => {
+            modules::logger::log_warn(&format!(
+                "[Kiro Resolve] 启动路径未配置或无效，跳过 PID 匹配: {}",
+                err
+            ));
+            return None;
+        }
+    };
+    let normalized = normalize_path_for_compare(launch_path.to_string_lossy().as_ref());
+    if normalized.is_empty() {
+        modules::logger::log_warn("[Kiro Resolve] 启动路径为空，跳过 PID 匹配");
+        return None;
+    }
+    Some(normalized)
+}
+
+fn filter_kiro_entries_by_launch_path(
+    entries: Vec<(u32, Option<String>)>,
+) -> Vec<(u32, Option<String>)> {
+    if entries.is_empty() {
+        return entries;
+    }
+    let Some(expected) = resolve_expected_kiro_launch_path_for_match() else {
+        return Vec::new();
+    };
+    let exe_by_pid = collect_running_process_exe_by_pid();
+    let mut result = Vec::new();
+    let mut missing_exe = 0usize;
+    let mut path_mismatch = 0usize;
+    for (pid, dir) in entries {
+        match exe_by_pid.get(&pid) {
+            Some(actual) if actual == &expected => result.push((pid, dir)),
+            Some(_) => path_mismatch += 1,
+            None => missing_exe += 1,
+        }
+    }
+    if result.is_empty() {
+        modules::logger::log_warn(&format!(
+            "[Kiro Resolve] 启动路径硬匹配未命中：expected={}, path_mismatch={}, missing_exe={}",
+            expected, path_mismatch, missing_exe
+        ));
+    }
+    result
+}
+
 pub fn collect_kiro_process_entries() -> Vec<(u32, Option<String>)> {
     let mut entries: HashMap<u32, Option<String>> = HashMap::new();
     let mut system = System::new();
@@ -574,7 +643,7 @@ pub fn collect_kiro_process_entries() -> Vec<(u32, Option<String>)> {
 
     let mut result: Vec<(u32, Option<String>)> = entries.into_iter().collect();
     result.sort_by_key(|(pid, _)| *pid);
-    result
+    filter_kiro_entries_by_launch_path(result)
 }
 
 fn pick_preferred_pid(mut pids: Vec<u32>) -> Option<u32> {

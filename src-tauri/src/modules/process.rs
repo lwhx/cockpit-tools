@@ -1290,6 +1290,10 @@ fn resolve_antigravity_launch_path() -> Result<std::path::PathBuf, String> {
     Err(app_path_missing_error("antigravity"))
 }
 
+pub fn ensure_antigravity_launch_path_configured() -> Result<(), String> {
+    resolve_antigravity_launch_path().map(|_| ())
+}
+
 fn resolve_vscode_launch_path() -> Result<std::path::PathBuf, String> {
     if let Some(custom) = normalize_custom_path(Some(&config::get_user_config().vscode_app_path)) {
         #[cfg(target_os = "macos")]
@@ -1715,6 +1719,116 @@ fn is_antigravity_main_process(
     }
 }
 
+fn collect_running_process_exe_by_pid() -> HashMap<u32, String> {
+    let mut map = HashMap::new();
+    let mut system = System::new();
+    system.refresh_processes_specifics(
+        sysinfo::ProcessesToUpdate::All,
+        true,
+        ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet),
+    );
+    for (pid, process) in system.processes() {
+        let Some(exe) = process.exe().and_then(|value| value.to_str()) else {
+            continue;
+        };
+        let normalized = normalize_path_for_compare(exe);
+        if normalized.is_empty() {
+            continue;
+        }
+        map.insert(pid.as_u32(), normalized);
+    }
+    map
+}
+
+fn filter_entries_by_expected_launch_path(
+    app_label: &str,
+    entries: Vec<(u32, Option<String>)>,
+    expected: Option<String>,
+) -> Vec<(u32, Option<String>)> {
+    if entries.is_empty() {
+        return entries;
+    }
+    let Some(expected) = expected else {
+        return Vec::new();
+    };
+    let exe_by_pid = collect_running_process_exe_by_pid();
+    let mut result = Vec::new();
+    let mut missing_exe = 0usize;
+    let mut path_mismatch = 0usize;
+    for (pid, dir) in entries {
+        match exe_by_pid.get(&pid) {
+            Some(actual) if actual == &expected => result.push((pid, dir)),
+            Some(_) => path_mismatch += 1,
+            None => missing_exe += 1,
+        }
+    }
+    if result.is_empty() {
+        crate::modules::logger::log_warn(&format!(
+            "[{} Resolve] 启动路径硬匹配未命中：expected={}, path_mismatch={}, missing_exe={}",
+            app_label, expected, path_mismatch, missing_exe
+        ));
+    }
+    result
+}
+
+fn resolve_expected_antigravity_launch_path_for_match() -> Option<String> {
+    let launch_path = match resolve_antigravity_launch_path() {
+        Ok(path) => path,
+        Err(err) => {
+            crate::modules::logger::log_warn(&format!(
+                "[AG Resolve] 启动路径未配置或无效，跳过 PID 匹配: {}",
+                err
+            ));
+            return None;
+        }
+    };
+    let normalized = normalize_path_for_compare(launch_path.to_string_lossy().as_ref());
+    if normalized.is_empty() {
+        crate::modules::logger::log_warn("[AG Resolve] 启动路径为空，跳过 PID 匹配");
+        return None;
+    }
+    Some(normalized)
+}
+
+fn resolve_expected_vscode_launch_path_for_match() -> Option<String> {
+    let launch_path = match resolve_vscode_launch_path() {
+        Ok(path) => path,
+        Err(err) => {
+            crate::modules::logger::log_warn(&format!(
+                "[VSCode Resolve] 启动路径未配置或无效，跳过 PID 匹配: {}",
+                err
+            ));
+            return None;
+        }
+    };
+    let normalized = normalize_path_for_compare(launch_path.to_string_lossy().as_ref());
+    if normalized.is_empty() {
+        crate::modules::logger::log_warn("[VSCode Resolve] 启动路径为空，跳过 PID 匹配");
+        return None;
+    }
+    Some(normalized)
+}
+
+#[cfg(target_os = "macos")]
+fn resolve_expected_codex_launch_path_for_match() -> Option<String> {
+    let launch_path = match resolve_codex_launch_path() {
+        Ok(path) => path,
+        Err(err) => {
+            crate::modules::logger::log_warn(&format!(
+                "[Codex Resolve] 启动路径未配置或无效，跳过 PID 匹配: {}",
+                err
+            ));
+            return None;
+        }
+    };
+    let normalized = normalize_path_for_compare(launch_path.to_string_lossy().as_ref());
+    if normalized.is_empty() {
+        crate::modules::logger::log_warn("[Codex Resolve] 启动路径为空，跳过 PID 匹配");
+        return None;
+    }
+    Some(normalized)
+}
+
 #[cfg(target_os = "macos")]
 fn collect_antigravity_process_entries_from_ps() -> Vec<(u32, Option<String>)> {
     let mut result = Vec::new();
@@ -1862,11 +1976,19 @@ pub fn collect_antigravity_process_entries() -> Vec<(u32, Option<String>)> {
     {
         let entries = collect_antigravity_process_entries_macos();
         if !entries.is_empty() {
-            return entries;
+            return filter_entries_by_expected_launch_path(
+                "AG",
+                entries,
+                resolve_expected_antigravity_launch_path_for_match(),
+            );
         }
         let entries = collect_antigravity_process_entries_from_ps();
         if !entries.is_empty() {
-            return entries;
+            return filter_entries_by_expected_launch_path(
+                "AG",
+                entries,
+                resolve_expected_antigravity_launch_path_for_match(),
+            );
         }
     }
 
@@ -1874,7 +1996,11 @@ pub fn collect_antigravity_process_entries() -> Vec<(u32, Option<String>)> {
     {
         let entries = collect_antigravity_process_entries_from_powershell();
         if !entries.is_empty() || strict_process_detect_enabled() {
-            return entries;
+            return filter_entries_by_expected_launch_path(
+                "AG",
+                entries,
+                resolve_expected_antigravity_launch_path_for_match(),
+            );
         }
     }
 
@@ -1882,7 +2008,11 @@ pub fn collect_antigravity_process_entries() -> Vec<(u32, Option<String>)> {
     {
         let entries = collect_antigravity_process_entries_from_proc();
         if !entries.is_empty() {
-            return entries;
+            return filter_entries_by_expected_launch_path(
+                "AG",
+                entries,
+                resolve_expected_antigravity_launch_path_for_match(),
+            );
         }
     }
 
@@ -1919,7 +2049,11 @@ pub fn collect_antigravity_process_entries() -> Vec<(u32, Option<String>)> {
         result.push((pid_u32, dir));
     }
 
-    result
+    filter_entries_by_expected_launch_path(
+        "AG",
+        result,
+        resolve_expected_antigravity_launch_path_for_match(),
+    )
 }
 
 fn pick_preferred_pid(mut pids: Vec<u32>) -> Option<u32> {
@@ -2304,7 +2438,11 @@ pub fn collect_vscode_process_entries() -> Vec<(u32, Option<String>)> {
     {
         let entries = collect_vscode_process_entries_from_powershell();
         if !entries.is_empty() {
-            return entries;
+            return filter_entries_by_expected_launch_path(
+                "VSCode",
+                entries,
+                resolve_expected_vscode_launch_path_for_match(),
+            );
         }
     }
 
@@ -2448,7 +2586,11 @@ pub fn collect_vscode_process_entries() -> Vec<(u32, Option<String>)> {
 
     let mut result: Vec<(u32, Option<String>)> = map.into_iter().collect();
     result.sort_by_key(|(pid, _)| *pid);
-    result
+    filter_entries_by_expected_launch_path(
+        "VSCode",
+        result,
+        resolve_expected_vscode_launch_path_for_match(),
+    )
 }
 
 pub fn resolve_vscode_pid_from_entries(
@@ -3875,7 +4017,11 @@ pub fn collect_codex_process_entries() -> Vec<(u32, Option<String>)> {
         }
         result.push((pid, codex_home));
     }
-    result
+    filter_entries_by_expected_launch_path(
+        "Codex",
+        result,
+        resolve_expected_codex_launch_path_for_match(),
+    )
 }
 
 #[cfg(not(target_os = "macos"))]

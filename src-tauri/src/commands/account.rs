@@ -153,6 +153,20 @@ pub async fn switch_account(app: AppHandle, account_id: String) -> Result<models
         account.email, account.id
     ));
 
+    // 预检应用路径：路径缺失时只触发引导，不执行任何关闭/注入动作。
+    if let Err(e) = modules::process::ensure_antigravity_launch_path_configured() {
+        if e.starts_with("APP_PATH_NOT_FOUND:") {
+            let _ = app.emit(
+                "app:path_missing",
+                serde_json::json!({
+                    "app": "antigravity",
+                    "retry": { "kind": "switchAccount", "accountId": account_id }
+                }),
+            );
+        }
+        return Err(e);
+    }
+
     // 2. 确保 Token 有效（自动刷新过期的 Token）
     let fresh_token = modules::oauth::ensure_fresh_token(&account.token)
         .await
@@ -223,7 +237,7 @@ pub async fn switch_account(app: AppHandle, account_id: String) -> Result<models
             if e.starts_with("APP_PATH_NOT_FOUND:") {
                 let _ = app.emit(
                     "app:path_missing",
-                    serde_json::json!({ "app": "antigravity" }),
+                    serde_json::json!({ "app": "antigravity", "retry": { "kind": "default" } }),
                 );
             }
             Some(e)

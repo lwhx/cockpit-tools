@@ -739,7 +739,7 @@ export function WakeupTasksPage({ onNavigate }: WakeupPageProps) {
       if (isAntigravityPathMissingError(message)) {
         window.dispatchEvent(
           new CustomEvent('app-path-missing', {
-            detail: { app: 'antigravity' },
+            detail: { app: 'antigravity', retry: { kind: 'default' } },
           }),
         );
         setNotice({ text: t('appPath.modal.desc', { app: 'Antigravity' }), tone: 'warning' });

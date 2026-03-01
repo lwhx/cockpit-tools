@@ -892,10 +892,13 @@ export function AccountsPage({ onNavigate }: AccountsPageProps) {
       await fetchCurrentAccount()
       setMessage({ text: t('messages.switched', { email: maskAccountText(account.email) }) })
     } catch (e) {
-      setMessage({
-        text: t('messages.switchFailed', { error: String(e) }),
-        tone: 'error'
-      })
+      const raw = String(e)
+      if (!raw.startsWith('APP_PATH_NOT_FOUND:')) {
+        setMessage({
+          text: t('messages.switchFailed', { error: raw }),
+          tone: 'error'
+        })
+      }
     }
     setSwitching(null)
   }

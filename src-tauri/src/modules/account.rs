@@ -1281,6 +1281,9 @@ pub async fn fetch_quota_with_retry(
 pub async fn switch_account_internal(account_id: &str) -> Result<Account, String> {
     modules::logger::log_info("[Switch] 开始切换账号");
 
+    // 路径缺失时不执行关闭/注入，避免破坏当前运行态。
+    modules::process::ensure_antigravity_launch_path_configured()?;
+
     // 1. 加载并验证账号存在
     let mut account = prepare_account_for_injection(account_id).await?;
     modules::logger::log_info("[Switch] 正在切换到账号");
