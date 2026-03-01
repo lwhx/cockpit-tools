@@ -84,6 +84,47 @@ fn escape_powershell_single_quoted(value: &str) -> String {
 }
 
 #[cfg(target_os = "windows")]
+fn build_windows_path_filtered_process_probe_script(
+    process_name: &str,
+    expected_exe_path: &str,
+) -> String {
+    let process = escape_powershell_single_quoted(process_name);
+    let expected = escape_powershell_single_quoted(expected_exe_path);
+    format!(
+        r#"$processName='{process}';
+$expectedRaw='{expected}';
+function Normalize-ExePath([string]$path) {{
+  if ([string]::IsNullOrWhiteSpace($path)) {{ return $null }}
+  $value = $path.Trim().Trim('"')
+  if ($value.StartsWith('\\?\')) {{ $value = $value.Substring(4) }}
+  $value = $value -replace '/', '\'
+  try {{ $value = [System.IO.Path]::GetFullPath($value) }} catch {{}}
+  return $value.ToLowerInvariant()
+}}
+function Get-ExePathFromCmdLine([string]$cmdline) {{
+  if ([string]::IsNullOrWhiteSpace($cmdline)) {{ return $null }}
+  $value = $cmdline.Trim()
+  if ($value.StartsWith('"')) {{
+    $end = $value.IndexOf('"', 1)
+    if ($end -gt 1) {{ return $value.Substring(1, $end - 1) }}
+  }}
+  $space = $value.IndexOf(' ')
+  if ($space -gt 0) {{ return $value.Substring(0, $space) }}
+  return $value
+}}
+$expected = Normalize-ExePath $expectedRaw
+if ([string]::IsNullOrWhiteSpace($expected)) {{ exit 0 }}
+Get-CimInstance Win32_Process -Filter ("Name='" + $processName + "'") |
+  Where-Object {{
+    $exe = Normalize-ExePath $_.ExecutablePath
+    if (-not $exe) {{ $exe = Normalize-ExePath (Get-ExePathFromCmdLine $_.CommandLine) }}
+    $exe -eq $expected
+  }} |
+  ForEach-Object {{ "$($_.ProcessId)|$($_.CommandLine)" }}"#
+    )
+}
+
+#[cfg(target_os = "windows")]
 fn truncate_for_trace(text: &str, max_chars: usize) -> String {
     let mut iter = text.chars();
     let mut current = String::new();
@@ -2069,9 +2110,9 @@ fn collect_antigravity_process_entries_from_powershell(
     expected_exe_path: &str,
 ) -> Vec<(u32, Option<String>)> {
     let mut result = Vec::new();
-    let expected = escape_powershell_single_quoted(expected_exe_path);
-    let script = format!(
-        "$expected='{expected}'; Get-CimInstance Win32_Process -Filter \"Name='Antigravity.exe'\" | Where-Object {{ if (-not $_.ExecutablePath) {{ $false }} else {{ try {{ ([System.IO.Path]::GetFullPath($_.ExecutablePath).ToLower() -eq $expected) }} catch {{ $false }} }} }} | ForEach-Object {{ \"$($_.ProcessId)|$($_.CommandLine)\" }}",
+    let script = build_windows_path_filtered_process_probe_script(
+        "Antigravity.exe",
+        expected_exe_path,
     );
     let output = powershell_output_with_timeout(
         &["-NoProfile", "-Command", &script],
@@ -2609,10 +2650,7 @@ fn collect_vscode_process_entries_from_powershell(
     expected_exe_path: &str,
 ) -> Vec<(u32, Option<String>)> {
     let mut entries: Vec<(u32, Option<String>)> = Vec::new();
-    let expected = escape_powershell_single_quoted(expected_exe_path);
-    let script = format!(
-        "$expected='{expected}'; Get-CimInstance Win32_Process -Filter \"Name='Code.exe'\" | Where-Object {{ if (-not $_.ExecutablePath) {{ $false }} else {{ try {{ ([System.IO.Path]::GetFullPath($_.ExecutablePath).ToLower() -eq $expected) }} catch {{ $false }} }} }} | ForEach-Object {{ \"$($_.ProcessId)|$($_.CommandLine)\" }}",
-    );
+    let script = build_windows_path_filtered_process_probe_script("Code.exe", expected_exe_path);
     let output = powershell_output(&["-Command", &script]);
     let output = match output {
         Ok(value) => value,
